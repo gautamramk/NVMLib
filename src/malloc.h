@@ -18,13 +18,17 @@
 #include "globals.h"
 
 typedef struct nvmalloc_rt {
-
+    u_int16_t type_of_allcoation;
+    size_t size;
+    void *access;
 } nvmalloc;
 
 // The top level function for allocation of space in heap.
 nvmalloc nvmmalloc(size_t size);
 
-nvmalloc nvmmalloc(size_t size, void **data);
+nvmalloc nvmmalloc(size_t size, __auto_type data);
+
+
 
 
 #endif // !__NVM_MALLOC__
