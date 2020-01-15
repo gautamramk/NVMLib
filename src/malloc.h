@@ -17,18 +17,25 @@
 
 #include "globals.h"
 
+#define access(type_t, ptr) ({ \
+    (type_t *)access_var(ptr); \
+})
+
 typedef struct nvmalloc_rt {
-    u_int16_t type_of_allcoation;
+    u_int16_t type_of_allocation;
     size_t size;
-    void *access;
+    u_int64_t key;
 } nvmalloc;
 
 // The top level function for allocation of space in heap.
-nvmalloc nvmmalloc(size_t size);
+nvmalloc* nvmmalloc(size_t size);
 
-nvmalloc nvmmalloc(size_t size, __auto_type data);
+nvmalloc* nvmmalloc(size_t size, __auto_type data);
 
+// Top level function for accessing the data
+void *access_var(nvmalloc *ptr);
 
-
+// Top level function for writing into the variable
+void write_var(void *data, nvmalloc *ptr);
 
 #endif // !__NVM_MALLOC__
