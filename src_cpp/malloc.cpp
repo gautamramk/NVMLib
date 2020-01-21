@@ -28,7 +28,7 @@ __UINT64_TYPE__ nvmalloc<T>::get_key(){
 }
 
 template <typename T>
-void nvmalloc<T>::set_type_of_allcoation(__UINT16_TYPE__ type_of_allocation_){
+void nvmalloc<T>::set_type_of_allocation(__UINT16_TYPE__ type_of_allocation_){
     this->type_of_allocation = type_of_allocation_;
 }
 
