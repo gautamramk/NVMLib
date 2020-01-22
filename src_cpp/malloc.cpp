@@ -39,7 +39,7 @@ void nvmalloc<T>::set_key(__UINT64_TYPE__ key_){
 
 // Funtion to access the data
 template <typename T>
-T nvmalloc<T>::access(){
+nvmalloc<T> nvmalloc<T>::access(){
     __UINT16_TYPE__ type = type_of_allocation;
     return type - NVRAM_HEAP ? access_from_dram(key) : access_from_nvmram(key);
 }
@@ -106,11 +106,11 @@ nvmalloc<T> nvmalloc<T>::operator [] (int idx){
 
 
 template <typename T>
-static T access_from_dram(__UINT64_TYPE__ key) {
+static nvmalloc<T> access_from_dram(__UINT64_TYPE__ key) {
 
 }
 
 template <typename T>
-static T access_from_nvram(__UINT64_TYPE__ key){
+static nvmalloc<T> access_from_nvram(__UINT64_TYPE__ key){
 
 }

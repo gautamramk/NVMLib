@@ -24,6 +24,7 @@ class nvmalloc {
     __UINT16_TYPE__ type_of_allocation;
     __SIZE_TYPE__ size;
     __UINT64_TYPE__ key;
+    T* data;
 
     nvmalloc(__UINT16_TYPE__ _type_of_allocation, __SIZE_TYPE__ _size, __UINT64_TYPE__ _key);
 
