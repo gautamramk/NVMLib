@@ -1,9 +1,4 @@
-#ifndef __NVM_MALLOC__
-#define __NVM_MALLOC__
-
 #include "malloc.hpp"
-
-using namespace std;
 
 template <typename T>
 nvmalloc<T>::nvmalloc(__UINT16_TYPE__ _type_of_allocation, __SIZE_TYPE__ _size, __UINT64_TYPE__ _key){
@@ -24,7 +19,7 @@ __UINT64_TYPE__ nvmalloc<T>::get_size(){
 
 template <typename T>
 __UINT64_TYPE__ nvmalloc<T>::get_key(){
-    return this->key
+    return this->key;
 }
 
 template <typename T>
@@ -42,17 +37,80 @@ void nvmalloc<T>::set_key(__UINT64_TYPE__ key_){
     this->key = key_;
 }
 
+// Funtion to access the data
 template <typename T>
-nvmalloc nvmmalloc(__SIZE_TYPE__ _size){
-    
+T nvmalloc<T>::access(){
+    __UINT16_TYPE__ type = type_of_allocation;
+    return type - NVRAM_HEAP ? access_from_dram(key) : access_from_nvmram(key);
+}
+
+// The top level function for allocation of space in heap.
+nvmalloc<auto> nvmmalloc(__SIZE_TYPE__ _size){
+
 }
 
 template <typename T>
-nvmalloc nvmmalloc(__SIZE_TYPE__ _size, T data){
+nvmalloc<T> nvmmalloc(T data){
+    return nvmmalloc(sizeof(data), data);
+}
 
+
+template <typename T>
+nvmalloc<T> nvmmalloc(__SIZE_TYPE__ _size, T data){
+
+}
+
+// The object destroyer
+template <typename T>
+void destroy(nvmalloc<T>* obj);
+
+template <typename T>
+nvmalloc<T> nvmalloc<T>::operator + (const nvmalloc<T> &obj_1){
+    return nvmalloc(access() + obj_1.access());
+}
+
+
+template <typename T>
+nvmalloc<T> nvmalloc<T>::operator - (const nvmalloc<T> &obj_1){
+    return nvmalloc(access() - obj_1.access());
 }
 
 
 
+template <typename T>
+nvmalloc<T> nvmalloc<T>::operator * (const nvmalloc<T> &obj_1){
+    return nvmalloc(access() * obj_1.access());
+}
 
-#endif // !__NVM_MALLOC__
+
+
+template <typename T>
+nvmalloc<T> nvmalloc<T>::operator / (const nvmalloc<T> &obj_1){
+    return nvmalloc(access() / obj_1.access());
+}
+
+
+template <typename T>
+void nvmalloc<T>::operator = (const nvmalloc<T> &obj_1){
+    type_of_allocation = obj_1.type_of_allocation;
+    key = obj_1.key;
+    size = obj_1.size;
+}
+
+
+template <typename T>
+nvmalloc<T> nvmalloc<T>::operator [] (int idx){
+    return nvmalloc(access()[idx]);
+}
+
+
+
+template <typename T>
+static T access_from_dram(__UINT64_TYPE__ key) {
+
+}
+
+template <typename T>
+static T access_from_nvram(__UINT64_TYPE__ key){
+
+}
