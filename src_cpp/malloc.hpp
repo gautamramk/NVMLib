@@ -28,6 +28,8 @@ class nvmalloc {
 
     nvmalloc(__UINT16_TYPE__ _type_of_allocation, __SIZE_TYPE__ _size, __UINT64_TYPE__ _key);
 
+    nvmalloc();
+
     ~nvmalloc();
 
     public:
@@ -48,9 +50,9 @@ class nvmalloc {
     // The top level function for allocation of space in heap.
     friend nvmalloc nvmmalloc(__SIZE_TYPE__ _size);
 
-    friend nvmalloc nvmmalloc(T data);
+    friend nvmalloc nvmmalloc(const T &data);
 
-    friend nvmalloc nvmmalloc(__SIZE_TYPE__ _size, T data);
+    friend nvmalloc nvmmalloc(__SIZE_TYPE__ _size, const T &data);
 
     // The object destroyer
     friend void destroy(nvmalloc* obj);
@@ -75,13 +77,13 @@ class nvmalloc {
 
 
 // The top level function for allocation of space in heap.
-nvmalloc<auto> nvmmalloc(__SIZE_TYPE__ _size);
+nvmalloc<void> nvmmalloc(__SIZE_TYPE__ _size);
 
 template <typename T>
-nvmalloc<T> nvmmalloc(T data);
+nvmalloc<T> nvmmalloc(const T &data);
 
 template <typename T>
-nvmalloc<T> nvmmalloc(__SIZE_TYPE__ _size, T data);
+nvmalloc<T> nvmmalloc(__SIZE_TYPE__ _size, const T &data);
 
 // The object destroyer
 template <typename T>
