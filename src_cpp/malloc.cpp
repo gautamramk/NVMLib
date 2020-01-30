@@ -129,10 +129,10 @@ nvmalloc<T> nvmalloc<T>::operator [] (int idx){
 
 template <typename T>
 static T access_from_dram(__UINT64_TYPE__ key) {
-    return *(T*)dram_pointer_return(key);
+    return *((T*)dram_pointer_return(key)->data);
 }
 
 template <typename T>
 static T access_from_nvram(__UINT64_TYPE__ key){
-    return *pmemobj_direct(nvram_pointer_return(key));
+
 }

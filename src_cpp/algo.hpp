@@ -3,7 +3,6 @@
 
 #include "globals.hpp"
 #include "malloc.hpp"
-#include <unordered_map>
 
 int decide_allocation();
 
