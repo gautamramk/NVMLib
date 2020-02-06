@@ -74,8 +74,8 @@ nvmalloc<T> nvmmalloc(__SIZE_TYPE__ _size, const T &data){
 
     new_obj.set_type_of_allocation(decide_allocation());
 
-    add_new_obj(new_obj.get_key());
-    store_data(new_obj.get_key(), data);
+    add_new_obj(new_obj.get_key(), new_obj.get_type_of_allocation(), data);
+    // store_data(new_obj.get_key(), data);
 
     return new_obj;
 }
