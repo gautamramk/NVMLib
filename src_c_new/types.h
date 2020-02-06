@@ -33,9 +33,10 @@
 #define TOID(t)\
 union _toid_##t##_toid
 
-// declaration of type
+// Declaration of type
+// Note:- only one instance of __COUNTER__ exists in preporcess!!!!
 #define TOID_DECLARE(t)\
-typedef uint8_t _toid_##t##_toid_type_num[get_next_type_num() + 1];\
+typedef uint8_t _toid_##t##_toid_type_num[__COUNTER__ + 1];\
 TOID(t)\
 {\
 	MEMoid oid;\
@@ -69,10 +70,5 @@ TOID(t)\
 #define D_RO	DIRECT_RO
 
 // Fuctions
-
-uint64_t get_current_type_num();
-
-uint64_t get_next_type_num();
-
 
 #endif // ! __NVM_TYPES__
