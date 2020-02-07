@@ -11,7 +11,7 @@ struct pool_free_slot {
     uint64_t start_b;
     uint64_t end_b;
     struct pool_free_slot* prev;
-    struct pool_free_slot*
+    struct pool_free_slot* next;
 }
 
 uintptr_t get_pool_from_poolid(uint64_t pool_id);
@@ -20,7 +20,9 @@ int initialize_pool();
 
 uint64_t get_current_poolid();
 
-uint64_t get_current_free_offset(size_t size);
+void nvm_free();
+
+uint64_t allot_current_free_offset(size_t size);
 
 // Increment the free offset counter, so that we know where the free
 // space is.

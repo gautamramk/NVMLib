@@ -1,6 +1,7 @@
 #include "pool.h"
 
 struct pool_free_slot* pool_free_slot_head;
+struct pool_alloc* pool_alloc_head;
 
 int initialize_pool() {
     pool_free_slot_head = (struct pool_free_slot*)malloc(sizeof(struct pool_free_slot));
@@ -8,13 +9,18 @@ int initialize_pool() {
     pool_free_slot_head->end_b = POOL_SIZE - 1;
     pool_free_slot_head->next = NULL;
     pool_free_slot_head->prev = NULL;
+    pool_alloc_head = NULL;
 }
 
 inline uint64_t free_slot_size(struct pool_free_slot * slot) {
     return slot->end_b - slot->start_b + 1;
 }
 
-uint64_t get_current_free_offset(size_t size) {
+void nvm_free() {
+
+}
+
+uint64_t allot_first_free_offset(size_t size) {
     struct pool_free_slot it = pool_free_slot_head;
     uint64_t ret = -1;
     while (it) {
