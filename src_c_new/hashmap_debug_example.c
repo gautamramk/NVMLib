@@ -2,26 +2,32 @@
  * File contains a example test program for the generic Hash map implemented
  * 
  * The Output of the program looks like:
- * Inserting : ONE * 0 ---> size = 0 || 
+ * Inserting : ONE 
+ * 0 ---> size = 0 || 
  * 1 ---> size = 1 || ONE | 
  * 
- * Inserting : TWO * 0 ---> size = 0 || 
+ * Inserting : TWO 
+ * 0 ---> size = 0 || 
  * 1 ---> size = 2 || ONE | TWO | 
  * 
- * Inserting : THREE * 0 ---> size = 0 || 
+ * Inserting : THREE 
+ * 0 ---> size = 0 || 
  * 1 ---> size = 3 || ONE | TWO | THREE | 
  * 
- * Inserting : FOUR * 0 ---> size = 1 || FOUR | 
+ * Inserting : FOUR
+ * 0 ---> size = 1 || FOUR | 
  * 1 ---> size = 0 || 
  * 2 ---> size = 1 || ONE | 
  * 3 ---> size = 2 || TWO | THREE | 
  * 
- * Inserting : FIVE * 0 ---> size = 2 || FOUR | FIVE | 
+ * Inserting : FIVE 
+ * 0 ---> size = 2 || FOUR | FIVE | 
  * 1 ---> size = 0 || 
  * 2 ---> size = 1 || ONE | 
  * 3 ---> size = 2 || TWO | THREE | 
  * 
- * Inserting : SIX * 0 ---> size = 1 || FOUR | 
+ * Inserting : SIX 
+ * 0 ---> size = 1 || FOUR | 
  * 1 ---> size = 1 || FIVE | 
  * 2 ---> size = 1 || SIX | 
  * 3 ---> size = 0 || 
@@ -30,7 +36,8 @@
  * 6 ---> size = 1 || TWO | 
  * 7 ---> size = 1 || THREE | 
  * 
- * Inserting : SEVEN * 0 ---> size = 1 || FOUR | 
+ * Inserting : SEVEN 
+ * 0 ---> size = 1 || FOUR | 
  * 1 ---> size = 1 || FIVE | 
  * 2 ---> size = 1 || SIX | 
  * 3 ---> size = 0 || 
@@ -39,7 +46,8 @@
  * 6 ---> size = 1 || TWO | 
  * 7 ---> size = 1 || THREE | 
  * 
- * Inserting : EIGTH * 0 ---> size = 1 || FOUR | 
+ * Inserting : EIGTH 
+ * 0 ---> size = 1 || FOUR | 
  * 1 ---> size = 1 || FIVE | 
  * 2 ---> size = 1 || SIX | 
  * 3 ---> size = 0 || 
@@ -157,42 +165,51 @@ int main() {
  HASH_MAP_INSERT(att)(map, &x, HMDR_FIND);
  printf("Inserting : ");
  print_obj(x);
+ printf("\n");
  HASH_MAP_PRINT(att)(map);
  
  HASH_MAP_INSERT(att)(map, &y, HMDR_FIND);
  printf("Inserting : ");
  print_obj(y);
+ printf("\n");
  HASH_MAP_PRINT(att)(map);
  
  HASH_MAP_INSERT(att)(map, &z, HMDR_FIND);
-  printf("Inserting : ");
+ printf("Inserting : ");
  print_obj(z);
+ printf("\n");
  HASH_MAP_PRINT(att)(map);
  
  HASH_MAP_INSERT(att)(map, &a, HMDR_FIND);
  printf("Inserting : ");
  print_obj(a);
+ printf("\n");
  HASH_MAP_PRINT(att)(map);
  
  HASH_MAP_INSERT(att)(map, &b, HMDR_FIND);
  printf("Inserting : ");
  print_obj(b);
+ printf("\n");
  HASH_MAP_PRINT(att)(map);
  
  HASH_MAP_INSERT(att)(map, &c, HMDR_FIND);
-  printf("Inserting : ");
+ printf("Inserting : ");
  print_obj(c);
+ printf("\n");
  HASH_MAP_PRINT(att)(map);
  
  HASH_MAP_INSERT(att)(map, &d, HMDR_FIND);
-  printf("Inserting : ");
+ printf("Inserting : ");
  print_obj(d);
+ printf("\n");
  HASH_MAP_PRINT(att)(map);
  
  HASH_MAP_INSERT(att)(map, &e, HMDR_FIND);
-  printf("Inserting : ");
+ printf("Inserting : ");
  print_obj(e);
+ printf("\n");
  HASH_MAP_PRINT(att)(map);
+
  att *x1 = (att *)malloc(sizeof(att));
  x1->b = 3;
  strcpy(x1->a, "TWO");
