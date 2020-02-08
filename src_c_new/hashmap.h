@@ -32,8 +32,22 @@ typedef __uint8_t uint8_t;
 #define HASH_MAP_ERASE(VALUE_TYPE) erase_from_##VALUE_TYPE##_hash_map
 #define HASH_MAP_DESTROY(VALUE_TYPE) destroy_##VALUE_TYPE##_hash_map
 
+typedef enum {
+    HMDR_FAIL = 0,
+    HMDR_FIND,
+    HMDR_REPLACE,
+    HMDR_SWAP,
+} HashMapDuplicateResolution; /*HMDR*/
 
-inline size_t next_power_of_two(size_t i /*map->power_of_two + 1*/) {
+typedef enum {
+    HMR_FAILED = 0,
+    HMR_FOUND,
+    HMR_REPLACED,
+    HMR_SWAPPED,
+    HMR_INSERTED,
+} HashMapResult; /*HMR*/
+
+size_t next_power_of_two(size_t i /*map->power_of_two + 1*/) {
     --i;
     i |= i >> 1;
     i |= i >> 2;
@@ -47,7 +61,7 @@ inline size_t next_power_of_two(size_t i /*map->power_of_two + 1*/) {
 
 // Fibonacci hashing
 // 11400714819323198485ull = 2^64 / golden_ratio
-size_t index_for_hash(size_t hash, size_t shift /*64 - map->power_of_two*/) {
+size_t index_for_hash(size_t hash, size_t shift /*64 - __builtin_popcount(map->power_of_two)*/) {
     return (11400714819323198485ull * hash) >> shift;
 }
 
@@ -90,7 +104,7 @@ HASH_MAP(VALUE_TYPE)* create_new_##VALUE_TYPE##_hash_map();\
 * @param entry [In / Out] : The entry to be inserted. If duplicate,\
                             return pointer in here.\
 */\
-void insert_into_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE **entry);\
+HashMapResult insert_into_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE **entry, HashMapDuplicateResolution dr);\
 \
 /*\
 * Looks up an entry in the map\
@@ -144,7 +158,7 @@ void destroy_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map) {\
     FREE(map->entries);\
     map->size = 0;\
     map->power_of_two = 0;\
-    map->entries = NULL\
+    map->entries = NULL;\
 }\
 \
 \
@@ -159,11 +173,11 @@ HASH_MAP(VALUE_TYPE)*  create_new_##VALUE_TYPE##_hash_map() {\
 \
 bool find_in_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE **result_of_search){\
     if(!map->entries) {\
-        return false\
+        return false;\
     }\
     HASH_MAP_BUCKET(VALUE_TYPE) *bucket = &map->entries[index_for_hash(\
                                         GET_HASH(*result_of_search), \
-                                        64 - map->power_of_two)];\
+                                        64 - __builtin_popcount(map->power_of_two-1))];\
     for (size_t i = 0; i < bucket->size; i++) {\
         if (!(CMP((&bucket->entries[i]), (*result_of_search)))) {\
             *result_of_search = &bucket->entries[i];\
@@ -177,14 +191,17 @@ bool find_in_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE **res
 bool erase_from_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE *deleted_entry){\
     HASH_MAP_BUCKET(VALUE_TYPE) *bucket = &map->entries[index_for_hash(\
                                         GET_HASH(deleted_entry),\
-                                        64 - map->power_of_two)];\
+                                        64 - __builtin_popcount(map->power_of_two-1))];\
     for (size_t i; i < bucket->size; i++) {\
-        if (!(CMP(deleted_entry, &bucket->entry[i]))) {\
-            *deletd_entry = bucket->entry[i];\
-            memmove(&bucket->entry[i], &bucket->entry[i+1],\
+        if (!(CMP(deleted_entry, &bucket->entries[i]))) {\
+            *deleted_entry = bucket->entries[i];\
+            memmove(&bucket->entries[i], &bucket->entries[i+1],\
                 (bucket->size - i - 1) * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
             --bucket->size;\
-            --map->size;\
+            if (!bucket->size){\
+                /* A bucket is now free */\
+                --map->size;\
+            }\
             return true;\
         }\
     }\
@@ -192,6 +209,99 @@ bool erase_from_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE *d
 }\
 \
 \
+VALUE_TYPE* actual_insert_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE *entry){\
+    HASH_MAP_BUCKET(VALUE_TYPE) *bucket = &map->entries[index_for_hash(\
+                                        GET_HASH(entry), \
+                                        64 - __builtin_popcount(map->power_of_two-1))];\
+    /* check if available to add */\
+    size_t old_size = bucket->size;\
+    if (bucket->power_of_two < old_size + 1) {\
+        size_t new_capacity = next_power_of_two(bucket->power_of_two + 1);\
+        bucket->entries = REALLOC(bucket->entries,\
+                    new_capacity * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
+        bucket->power_of_two = new_capacity;\
+    }\
+    VALUE_TYPE *result = &bucket->entries[old_size + 1];\
+    *result = *entry;\
+    if (!old_size) {\
+        map->size++;\
+    }\
+    bucket->size++;\
+    return result;\
+}\
+\
+\
+void hash_map_##VALUE_TYPE##_ensure_size(HASH_MAP(VALUE_TYPE) *map, size_t capacity_required) {\
+    size_t capacity = (size_t)((double)map->power_of_two * LOAD_FACTOR);\
+    if (capacity_required <= capacity) {\
+        return;\
+    }\
+    size_t old_size = map->size;\
+    HASH_MAP_BUCKET(VALUE_TYPE) *old_entries = map->entries;\
+    size_t new_size =  next_power_of_two(map->power_of_two+1);\
+    HASH_MAP_BUCKET(VALUE_TYPE) *new_entries = (HASH_MAP_BUCKET(VALUE_TYPE) *)REALLOC(NULL, \
+                                    new_size * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
+    if(!new_entries) {\
+        return;\
+    }\
+    memset(&new_entries[0], 0, new_size * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
+    map->entries = new_entries;\
+    map->power_of_two = new_size;\
+    map->size = 0; /* needs to be reevaluated */\
+    \
+    if(old_size) {\
+        for (size_t i = 0; i < old_size; i++) {\
+            HASH_MAP_BUCKET(VALUE_TYPE) *bucket = &old_entries[i];\
+            for (size_t j = 0; j < bucket->size; j++) {\
+                actual_insert_##VALUE_TYPE##_hash_map(map, &bucket->entries[i]);\
+            }\
+            FREE(bucket);\
+        }\
+    }\
+    FREE(old_entries);\
+}\
+\
+\
+HashMapResult insert_into_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE **entry,HashMapDuplicateResolution dr){\
+    HashMapResult result = HMR_FAILED;\
+    VALUE_TYPE *current = *entry, tmp;\
+    if (!HASH_MAP_FIND(VALUE_TYPE)(map, &current)) {\
+        current = *entry;\
+        result = HMR_INSERTED;\
+    } else {\
+        switch(dr) {\
+            case HMDR_FAIL:\
+                *entry = current;\
+                return HMR_FAILED;\
+            case HMDR_FIND:\
+                *entry = current;\
+                return HMR_FOUND;\
+            case HMDR_REPLACE:\
+                *current = **entry;\
+                *entry = current;\
+                return HMR_REPLACED;\
+            case HMDR_SWAP:\
+                tmp = *current;\
+                *current = **entry;\
+                **entry = tmp;\
+                *entry = current;\
+                return HMR_SWAPPED;\
+            default:\
+                return HMR_FAILED;\
+        }\
+    }\
+    if (!map->entries[index_for_hash(\
+                GET_HASH(current), \
+                64 - __builtin_popcount(map->power_of_two-1))].size) {\
+        /* New bucket is going to be filled */\
+        hash_map_##VALUE_TYPE##_ensure_size(map, map->size + 1);\
+    }\
+    VALUE_TYPE *inserted_entry = actual_insert_##VALUE_TYPE##_hash_map(map, current);\
+    if (result == HMR_INSERTED) {\
+        *entry = inserted_entry;\
+    }\
+    return result;\
+}
 
 
 

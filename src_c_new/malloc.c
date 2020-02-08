@@ -26,21 +26,21 @@ inline void* get_memobj_direct(MEMoid oid) {
 
     switch(oid.pool_id){
         case POOL_ID_MALLOC_OBJ:
-        // It is a malloc object
-        return (void *)((uintptr_t)oid.offset);
+            // It is a malloc object
+            return (void *)((uintptr_t)oid.offset);
 
         default:
-        // It is a nvm object
-        return (void *)((uintptr_t)get_pool_from_poolid(oid.pool_id) + oid.offset);
+            // It is a nvm object
+            return (void *)((uintptr_t)get_pool_from_poolid(oid.pool_id) + oid.offset);
     }
 }
 
 static inline void _memfree(MEMoid oid, size_t size) {
     switch(oid.pool_id) {
         case POOL_ID_MALLOC_OBJ:
-        free(oid.offset);
+            free(oid.offset);
 
         default:
-        nvm_free(oid.pool_id, oid.offset, size);
+            nvm_free(oid.pool_id, oid.offset, size);
     }
 }
