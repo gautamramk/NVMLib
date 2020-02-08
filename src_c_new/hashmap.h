@@ -62,7 +62,7 @@ size_t next_power_of_two(size_t i /*map->power_of_two + 1*/) {
 // Fibonacci hashing
 // 11400714819323198485ull = 2^64 / golden_ratio
 size_t index_for_hash(size_t hash, size_t shift /*64 - __builtin_popcount(map->power_of_two)*/) {
-    return (11400714819323198485ul * hash) >> shift;
+    return (11400714819323198485ull * hash) >> shift;
 }
 
 
@@ -156,17 +156,17 @@ void destroy_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map) {\
         }\
     }\
     FREE(map->entries);\
-	FREE(map);\
+    map->size = 0;\
+    map->power_of_two = 0;\
+    map->entries = NULL;\
 }\
 \
 \
 HASH_MAP(VALUE_TYPE)*  create_new_##VALUE_TYPE##_hash_map() {\
     HASH_MAP(VALUE_TYPE) *new_map = (HASH_MAP(VALUE_TYPE) *)malloc(sizeof(HASH_MAP(VALUE_TYPE)));\
     new_map->size = 0;\
-    new_map->power_of_two = 2;\
-	HASH_MAP_BUCKET(VALUE_TYPE) *new_entries = REALLOC(NULL, 2 * sizeof(HASH_MAP(VALUE_TYPE)));\
-	memset(new_entries, 0, 2 * sizeof(HASH_MAP(VALUE_TYPE)));\
-    new_map->entries = new_entries;\
+    new_map->power_of_two = 0;\
+    new_map->entries = NULL;\
     return new_map;\
 }\
 \
@@ -192,8 +192,8 @@ bool erase_from_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE *d
     HASH_MAP_BUCKET(VALUE_TYPE) *bucket = &map->entries[index_for_hash(\
                                         GET_HASH(deleted_entry),\
                                         64 - __builtin_popcount(map->power_of_two-1))];\
-    for (size_t i = 0; i < bucket->size; i++) {\
-        if (CMP(deleted_entry, &bucket->entries[i]) == 0) {\
+    for (size_t i; i < bucket->size; i++) {\
+        if (!(CMP(deleted_entry, &bucket->entries[i]))) {\
             *deleted_entry = bucket->entries[i];\
             memmove(&bucket->entries[i], &bucket->entries[i+1],\
                 (bucket->size - i - 1) * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
@@ -221,7 +221,7 @@ VALUE_TYPE* actual_insert_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VAL
                     new_capacity * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
         bucket->power_of_two = new_capacity;\
     }\
-    VALUE_TYPE *result = &bucket->entries[old_size];\
+    VALUE_TYPE *result = &bucket->entries[old_size + 1];\
     *result = *entry;\
     if (!old_size) {\
         map->size++;\
@@ -237,29 +237,28 @@ void hash_map_##VALUE_TYPE##_ensure_size(HASH_MAP(VALUE_TYPE) *map, size_t capac
         return;\
     }\
     size_t old_size = map->size;\
-	size_t old_power_of_two = map->power_of_two;\
     HASH_MAP_BUCKET(VALUE_TYPE) *old_entries = map->entries;\
     size_t new_size =  next_power_of_two(map->power_of_two+1);\
-    HASH_MAP_BUCKET(VALUE_TYPE) *new_entries = REALLOC(NULL, \
+    HASH_MAP_BUCKET(VALUE_TYPE) *new_entries = (HASH_MAP_BUCKET(VALUE_TYPE) *)REALLOC(NULL, \
                                     new_size * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
     if(!new_entries) {\
         return;\
     }\
-    memset(new_entries, 0, new_size * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
+    memset(&new_entries[0], 0, new_size * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
     map->entries = new_entries;\
     map->power_of_two = new_size;\
     map->size = 0; /* needs to be reevaluated */\
     \
     if(old_size) {\
-        for (size_t i = 0; i < old_power_of_two; i++) {\
+        for (size_t i = 0; i < old_size; i++) {\
             HASH_MAP_BUCKET(VALUE_TYPE) *bucket = &old_entries[i];\
             for (size_t j = 0; j < bucket->size; j++) {\
-                actual_insert_##VALUE_TYPE##_hash_map(map, &bucket->entries[j]);\
+                actual_insert_##VALUE_TYPE##_hash_map(map, &bucket->entries[i]);\
             }\
-            FREE(bucket->entries);\
+            FREE(bucket);\
         }\
     }\
-	FREE(old_entries);\
+    FREE(old_entries);\
 }\
 \
 \
@@ -291,7 +290,7 @@ HashMapResult insert_into_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VAL
                 return HMR_FAILED;\
         }\
     }\
-	if (!map->entries[index_for_hash(\
+    if (!map->entries[index_for_hash(\
                 GET_HASH(current), \
                 64 - __builtin_popcount(map->power_of_two-1))].size) {\
         /* New bucket is going to be filled */\
@@ -304,31 +303,6 @@ HashMapResult insert_into_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VAL
     return result;\
 }
 
-/**
-* For Debug purposes
-* @param VALUE_TYPE : Type of stored entries. It has to be Typedef'd name.
-* @param PRINT_OBJ_FUNC : void (*print_obj)(VALUE_TYPE entry).
-*            A function to print the contents of the stored object. 
-*            Could be a marco too.
-*/
-#define HASH_MAP_PRINT(VALUE_TYPE) print_##VALUE_TYPE##_hash_map
 
-#define HASH_MAP_PRINT_FUNC(VALUE_TYPE, PRINT_OBJ_FUNC) \
-void print_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map) {\
-	if(!map->entries){\
-		return;\
-	}\
-	for(size_t i = 0; i < map->power_of_two ; i++) {\
-		printf("%ld ---> ", i);\
-		HASH_MAP_BUCKET(VALUE_TYPE) *bucket = &map->entries[i];\
-		printf("size = %ld || ", bucket->size);\
-		for(int j = 0; j < bucket->size; j++) {\
-			PRINT_OBJ_FUNC(&bucket->entries[j]);\
-			printf(" | ");\
-		}\
-		printf("\n");\
-	}\
-	printf("\n");\
-}
 
 #endif // !__NVM_HASHMAP__
