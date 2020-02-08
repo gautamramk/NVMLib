@@ -31,4 +31,6 @@ MEMoid memalloc(size_t size);
 // Returns the direct pointer to the mem-object
 inline void* get_memobj_direct(MEMoid obj);
 
+#define memfree(x) _memfree((x).oid, sizeof(__typeof__(*(o)._type)))
+
 #endif // !__NVM_MALLOC__
