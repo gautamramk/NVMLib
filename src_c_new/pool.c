@@ -47,5 +47,24 @@ uint64_t allot_first_free_offset(size_t size) {
 
 
 void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {
+    struct pool_free_slot* it = pool_free_slot_head;
+    while (it) {
+        if (offset == it->end_b + 1) {
+            it->end_b += size - 1;
+        } else if (offset > it->end_b + 1) {
+            struct pool_free_slot* new_slot = (struct pool_free_slot*)malloc(sizeof(struct pool_free_slot));
+            new_slot->prev = it;
+            new_slot->next = it->next;
+            it->next = new_slot;
+            new_slot->start_b = offset;
+            new_slot->end_b = offset + size - 1;
 
+            if (new_slot->next && new_slot->end_b == new_slot->next->start_b - 1) {
+                new_slot->end_b = new_slot->next->end_b;
+                struct pool_free_slot* temp = new_slot->next;
+                new_slot->next = new_slot->next->next;
+                free(temp);
+            }
+        }
+    }
 }
