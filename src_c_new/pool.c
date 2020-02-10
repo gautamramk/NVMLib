@@ -65,6 +65,7 @@ void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {
                 new_slot->next = new_slot->next->next;
                 free(temp);
             }
+            it = it->next;
         }
     }
 }
