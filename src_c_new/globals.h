@@ -23,4 +23,12 @@ typedef __uint8_t uint8_t;
 typedef unsigned long int uintptr_t;
 typedef long int intptr_t;
 
+// The predefined pools
+#define TYPES_TABLE_POOL strcat(__FILE__, "types_table")
+#define ALLOC_LIST_POOL strcat(__FILE__, "alloc_list")
+
+// The predefined layouts
+#define TYPES_TABLE_LAYOUT "types_table"
+#define  ALLOC_LIST_LAYOUT "alloc_list" 
+
 #endif // !__NVM_GLOBALS__

@@ -13,14 +13,14 @@
 
 #define TOID_ASSIGN(o, value)(\
 {\
-	(o).oid = value;\
+	(o).oidkey = value;\
 	(o); /* to avoid "error: statement with no effect" */\
 })
 
 
 #define TOID_EQUALS(lhs, rhs)\
-((lhs).oid.off == (rhs).oid.off &&\
-	(lhs).oid.pool_uuid_lo == (rhs).oid.pool_uuid_lo)
+(get_MEMoid((lhs).oid).off == get_MEMoid((rhs).oid).off &&\
+	get_MEMoid((lhs).oid).pool_uuid_lo == get_MEMoid((rhs).oid).pool_uuid_lo)
 
 
 // dummys to make sure the <space> (ex: struct blah) has no effect
@@ -39,7 +39,7 @@ union _toid_##t##_toid
 typedef uint8_t _toid_##t##_toid_type_num[__COUNTER__ + 1];\
 TOID(t)\
 {\
-	MEMoid oid;\
+	MEMoidKey oidkey;\
 	t *_type;\
 	_toid_##t##_toid_type_num *_type_num;\
 }
@@ -53,7 +53,7 @@ TOID(t)\
 
 
 // NULL check
-#define TOID_IS_NULL(o)	((o).oid.off == 0)
+#define TOID_IS_NULL(o)	(get_MEMoid((o).oidkey).off == 0)
 
 // Actual type of stored object
 #define TOID_TYPEOF(o) __typeof__(*(o)._type)
@@ -61,14 +61,21 @@ TOID(t)\
 // Direct Write
 #define DIRECT_RW(o) (\
 {__typeof__(o) _o; _o._type = NULL; (void)_o;\
-(__typeof__(*(o)._type) *)get_memobj_direct((o).oid); })
+(__typeof__(*(o)._type) *)get_memobj_direct(get_MEMoid((o).oidkey)); })
 
 // Direct Read
-#define DIRECT_RO(o) ((const __typeof__(*(o)._type) *)get_memobj_direct((o).oid))
+#define DIRECT_RO(o) ((const __typeof__(*(o)._type) *)get_memobj_direct(get_MEMoid((o).oidkey)))
 
 #define D_RW	DIRECT_RW
 #define D_RO	DIRECT_RO
 
 // Fuctions
+
+// It returns the MEMoid struct after querrying the HashTable.
+MEMoid get_MEMoid(MEMoidKey key);
+
+void insert_object_to_hashmap(MEMoidKey key, MEMoid oid);
+
+void remove_object_from_hashmap(MEMoidKey key);
 
 #endif // ! __NVM_TYPES__
