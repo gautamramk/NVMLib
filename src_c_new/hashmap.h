@@ -5,7 +5,7 @@
 * This file provides a generic hashmap stored in DRAM.
 *
 * This hashmap will be a chaining hashmap, with
-* load factor = 0.5
+* load factor = 0.8
 * no. of buckets = power of 2
 * hash function for distribution = fibonacci hashing
 * hash function for hashing the object = User provided
@@ -21,7 +21,7 @@ typedef __uint32_t uint32_t;
 typedef __uint16_t uint16_t;
 typedef __uint8_t uint8_t;
 
-#define LOAD_FACTOR 0.5
+#define LOAD_FACTOR 0.8
 
 #define HASH_MAP(VALUE_TYPE) VALUE_TYPE##_hash_map
 #define HASH_MAP_BUCKET(VALUE_TYPE) VALUE_TYPE##_hash_map_bucket
