@@ -1,7 +1,8 @@
 #include "malloc.h"
 #include "pool.h"
+#include "types.h"
 
-MEMoid memalloc(size_t size) {
+MEMoid _memalloc(size_t size) {
     MEMoid new_obj;
 
     if (decide_allocation(size) - NVRAM_HEAP == 0) {
@@ -18,6 +19,12 @@ MEMoid memalloc(size_t size) {
     return new_obj;
 }
 
+MEMoidKey memalloc(size_t size) {
+    // get the key
+    MEMoidKey key;
+    insert_object_to_hashmap(key, _memalloc(size));
+    return key;
+}
 
 inline void* get_memobj_direct(MEMoid oid) {
     if (oid.offset == NULL || oid.pool_id == 0){
@@ -35,12 +42,17 @@ inline void* get_memobj_direct(MEMoid oid) {
     }
 }
 
-static inline void _memfree(MEMoid oid, size_t size) {
+static inline void _memfree(MEMoidKey oidkey, size_t size) {
+    MEMoid oid = get_MEMoid(oidkey);
     switch(oid.pool_id) {
         case POOL_ID_MALLOC_OBJ:
             free(oid.offset);
+            break;
 
         default:
             nvm_free(oid.pool_id, oid.offset, size);
     }
+
+    // remove the entry from the HashTable
+    remove_object_from_hashmap(oidkey);
 }

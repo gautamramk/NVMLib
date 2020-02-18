@@ -17,20 +17,24 @@
 
 #include "globals.h"
 
+// The struct that stores the memptr for the object.
 typedef struct MEMoid_st {
     uint64_t pool_id;
     uint64_t offset;
 } MEMoid;
 
+// The key of the HashTable that contains <MEMoidKey, MEMoid>.
+typedef uint64_t MEMoidKey;
+
 // Just a dummy obj.
 static const MEMoid OID_NULL = { 0, 0 };
 
 // The user facing fnction to allocate memory.
-MEMoid memalloc(size_t size);
+MEMoidKey memalloc(size_t size);
 
 // Returns the direct pointer to the mem-object
 inline void* get_memobj_direct(MEMoid obj);
 
-#define memfree(x) _memfree((x).oid, sizeof(__typeof__(*(o)._type)))
+#define memfree(o) _memfree((o).oidkey, sizeof(__typeof__(*(o)._type)))
 
 #endif // !__NVM_MALLOC__
