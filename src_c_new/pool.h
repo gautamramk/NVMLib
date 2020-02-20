@@ -2,16 +2,27 @@
 #define __NVM__POOL__
 
 #include "globals.h"
+#include "free_slot_list.h"
 
 #define POOL_ID_MALLOC_OBJ -1
 
 #define POOL_SIZE (2 << 12) // Pool size is 4kB
 
-struct pool_free_slot {
+typedef struct pool_free_slot {
     uint64_t start_b;
     uint64_t end_b;
-    struct pool_free_slot* prev;
-    struct pool_free_slot* next;
+    POBJ_TAILQ_ENTRY(struct pool_free_slot) fnd;
+} pool_free_slot;
+
+POBJ_LAYOUT_BEGIN(list);
+POBJ_LAYOUT_ROOT(list, struct pool_free_slot_root);
+POBJ_LAYOUT_TOID(list, struct pool_free_slot);
+POBJ_LAYOUT_END(list);
+
+POBJ_TAILQ_HEAD(pool_free_slot_head, struct pool_free_slot)
+
+struct pool_free_slots_root {
+    struct pool_free_slot_head head;
 };
 
 // Initialise the metadata datastructures
