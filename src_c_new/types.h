@@ -8,66 +8,66 @@
 #include "malloc.h"
 
 
-#define TOID_NULL(t)	((TOID(t))OID_NULL)
+#define LIB_TOID_NULL(t)	((LIB_TOID(t))OID_NULL)
 
 
-#define TOID_ASSIGN(o, value)(\
+#define LIB_TOID_ASSIGN(o, value)(\
 {\
 	(o).oidkey = value;\
 	(o); /* to avoid "error: statement with no effect" */\
 })
 
 
-#define TOID_EQUALS(lhs, rhs)\
+#define LIB_TOID_EQUALS(lhs, rhs)\
 (get_MEMoid((lhs).oid).off == get_MEMoid((rhs).oid).off &&\
 	get_MEMoid((lhs).oid).pool_uuid_lo == get_MEMoid((rhs).oid).pool_uuid_lo)
 
 
 // dummys to make sure the <space> (ex: struct blah) has no effect
-#define _toid_struct
-#define _toid_union
-#define _toid_enum
+#define _lib_toid_struct
+#define _lib_toid_union
+#define _lib_toid_enum
 
 
 // Typed Object 
-#define TOID(t)\
-union _toid_##t##_toid
+#define LIB_TOID(t)\
+union _lib_toid_##t##_toid
 
 // Declaration of type
 // Note:- only one instance of __COUNTER__ exists in preporcess!!!!
-#define TOID_DECLARE(t)\
-typedef uint8_t _toid_##t##_toid_type_num[__COUNTER__ + 1];\
-TOID(t)\
+#define LIB_TOID_DECLARE(t)\
+typedef uint8_t _lib_toid_##t##_toid_type_num[__COUNTER__ + 1];\
+LIB_TOID(t)\
 {\
 	MEMoidKey oidkey;\
 	t *_type;\
-	_toid_##t##_toid_type_num *_type_num;\
+	_lib_toid_##t##_toid_type_num *_type_num;\
 }
 
 // Type number
-#define TOID_TYPE_NUM(t) (sizeof(_toid_##t##_toid_type_num) - 1)
+#define LIB_TOID_TYPE_NUM(t) (sizeof(_lib_toid_##t##_toid_type_num) - 1)
 
 
 //Type number of object read from typed OID
-#define TOID_TYPE_NUM_OF(o) (sizeof(*(o)._type_num) - 1)
+#define LIB_TOID_TYPE_NUM_OF(o) (sizeof(*(o)._type_num) - 1)
 
 
 // NULL check
-#define TOID_IS_NULL(o)	(get_MEMoid((o).oidkey).off == 0)
+#define LIB_TOID_IS_NULL(o)	(get_MEMoid((o).oidkey).off == 0)
 
 // Actual type of stored object
-#define TOID_TYPEOF(o) __typeof__(*(o)._type)
+#define LIB_TOID_TYPEOF(o) __typeof__(*(o)._type)
 
 // Direct Write
-#define DIRECT_RW(o) (\
+#define LIB_DIRECT_RW(o) (\
 {__typeof__(o) _o; _o._type = NULL; (void)_o;\
 (__typeof__(*(o)._type) *)get_memobj_direct(get_MEMoid((o).oidkey)); })
 
 // Direct Read
-#define DIRECT_RO(o) ((const __typeof__(*(o)._type) *)get_memobj_direct(get_MEMoid((o).oidkey)))
+#define LIB_DIRECT_RO(o) ((const __typeof__(*(o)._type) *)get_memobj_direct(get_MEMoid((o).oidkey)))
 
-#define D_RW	DIRECT_RW
-#define D_RO	DIRECT_RO
+#define LIB_D_RW	LIB_DIRECT_RW
+#define LIB_D_RO	LIB_DIRECT_RO
 
 // Fuctions
 
@@ -77,5 +77,8 @@ MEMoid get_MEMoid(MEMoidKey key);
 void insert_object_to_hashmap(MEMoidKey key, MEMoid oid);
 
 void remove_object_from_hashmap(MEMoidKey key);
+
+// Will be used by the logistics thread
+TOID(struct hashmap_tx) *get_types_map();
 
 #endif // ! __NVM_TYPES__

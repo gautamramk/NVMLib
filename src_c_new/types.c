@@ -17,7 +17,7 @@ void init_types_table() {
         pop = pmemobj_create(TYPES_TABLE_POOL, TYPES_TABLE_LAYOUT, 4096, 0666);
 
         struct hashmap_args *args = (struct hashmap_args *) malloc(sizeof(struct hashmap_args));
-        args->seed = 8274;
+        args->seed = 8274;  // Just a random number
         hm_tx_create(pop, &hashmap, (void *)args);
     } else {
         hm_tx_init(pop, hashmap);
@@ -35,4 +35,8 @@ void insert_object_to_hashmap(MEMoidKey key, MEMoid oid) {
 
 void remove_object_from_hashmap(MEMoidKey key) {
     hm_tx_remove(pop, hashmap, (uint64_t)key);
+}
+
+TOID(struct hashmap_tx)* get_types_map(){
+    return &hashmap;
 }
