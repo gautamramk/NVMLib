@@ -54,16 +54,15 @@ inline void* get_memobj_direct(MEMoid oid) {
 
 static inline void _memfree(MEMoidKey oidkey, size_t size) {
     MEMoid oid = get_MEMoid(oidkey);
-    if(oid == OID_NULL) {
-        return;
-    }
-    switch(oid.pool_id) {
-        case POOL_ID_MALLOC_OBJ:
-            free(oid.offset);
-            break;
+    if(oid != OID_NULL) {
+        switch(oid.pool_id) {
+            case POOL_ID_MALLOC_OBJ:
+                free(oid.offset);
+                break;
 
-        default:
-            nvm_free(oid.pool_id, oid.offset, size);
+            default:
+                nvm_free(oid.pool_id, oid.offset, size);
+        }
     }
 
     // remove the entry from the HashTable

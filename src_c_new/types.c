@@ -2,7 +2,6 @@
 #include "hashmap_tx.h"
 #include <libpmemobj.h>
 
-
 // The pool that would contain this HashTable
 PMEMobjpool *pop;
 
