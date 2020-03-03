@@ -4,6 +4,8 @@
 //struct pool_free_slot* pool_free_slot_head;
 PMEMobjpool *pop;
 struct pool_free_slot_head *f_head;
+
+
 int initialize_pool() {
     pop = pmemobj_open("free_slots", POBJ_LAYOUT_NAME(list));
     if (pop == NULL) {

@@ -2,7 +2,7 @@
 #include "pool.h"
 #include "types.h"
 
-MEMoid _memalloc(size_t size) {
+MEMoid __memalloc(size_t size) {
     MEMoid new_obj;
 
     if (decide_allocation(size) - NVRAM_HEAP == 0) {
@@ -19,10 +19,20 @@ MEMoid _memalloc(size_t size) {
     return new_obj;
 }
 
-MEMoidKey memalloc(size_t size) {
-    // get the key
-    MEMoidKey key;
-    insert_object_to_hashmap(key, _memalloc(size));
+uint64_t string_hash(const char *str) {
+    uint64_t hash = 5381;
+    int c;
+    while (c = *str++)
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash;
+}
+
+MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int line) {
+    // Can be made faster ... but thats an after thought as of now xD
+    MEMoidKey key = (((string_hash(file) + string_hash(func)) % __UINT64_MAX__)
+                    + string_hash(line)) % __UINT64_MAX__;
+    insert_object_to_hashmap(key, __memalloc(size));
     return key;
 }
 
@@ -44,13 +54,15 @@ inline void* get_memobj_direct(MEMoid oid) {
 
 static inline void _memfree(MEMoidKey oidkey, size_t size) {
     MEMoid oid = get_MEMoid(oidkey);
-    switch(oid.pool_id) {
-        case POOL_ID_MALLOC_OBJ:
-            free(oid.offset);
-            break;
+    if(oid != OID_NULL) {
+        switch(oid.pool_id) {
+            case POOL_ID_MALLOC_OBJ:
+                free(oid.offset);
+                break;
 
-        default:
-            nvm_free(oid.pool_id, oid.offset, size);
+            default:
+                nvm_free(oid.pool_id, oid.offset, size);
+        }
     }
 
     // remove the entry from the HashTable
