@@ -1,6 +1,7 @@
 #include "malloc.h"
 #include "pool.h"
 #include "types.h"
+#include "algo.h"
 
 MEMoid __memalloc(size_t size) {
     MEMoid new_obj;
@@ -8,9 +9,9 @@ MEMoid __memalloc(size_t size) {
     if (decide_allocation(size) - NVRAM_HEAP == 0) {
         // allocate in NVRAM
         new_obj.pool_id = get_current_poolid();
-        new_obj.offset = get_current_free_offset(size);
+        new_obj.offset = get_first_free_offset(size);
 
-    } else if (decide_allocation() - DRAM_HEAP == 0) {
+    } else if (decide_allocation(size) - DRAM_HEAP == 0) {
         // allocate in DRAM
         new_obj.offset = (uint64_t)(malloc(size));
         new_obj.pool_id = POOL_ID_MALLOC_OBJ;
