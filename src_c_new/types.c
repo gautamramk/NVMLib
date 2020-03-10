@@ -14,7 +14,8 @@ void init_types_table() {
 
     if(pop == NULL) {
         pop = pmemobj_create(TYPES_TABLE_POOL, TYPES_TABLE_LAYOUT, 4096, 0666);
-
+        hashmap = POBJ_ROOT(pop, struct hashmap_tx);
+        
         struct hashmap_args *args = (struct hashmap_args *) malloc(sizeof(struct hashmap_args));
         args->seed = 8274;  // Just a random number
         hm_tx_create(pop, &hashmap, (void *)args);
