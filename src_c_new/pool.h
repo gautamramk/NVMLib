@@ -34,9 +34,6 @@ uintptr_t get_pool_from_poolid(uint64_t pool_id);
 // Returns the current number of the pool
 uint64_t get_current_poolid();
 
-// Returns the offset of the pointer to the allocated space in NVRAM
-uint64_t get_current_free_offset(size);
-
 // Allocates the requested space in NVRAM and returns the offset of 
 // the pointer to the allocated space.
 // This is called internally by `get_current_free_offset()`
