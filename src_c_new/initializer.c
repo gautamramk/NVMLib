@@ -29,4 +29,13 @@ void initialize() {
     if (!opened) {
         D_RW(root)->num_pools = 0;
     }
+
+
+    // Opening the logging files
+    open_logging_files();
+}
+
+// Open the logging files
+void open_logging_files() {
+    main_log_file_fd = fopen(MAIN_LOG_FILE_NAME, "w");
 }

@@ -31,4 +31,10 @@ typedef long int intptr_t;
 #define TYPES_TABLE_LAYOUT "types_table"
 #define  ALLOC_LIST_LAYOUT "alloc_list" 
 
+// The logging files
+#define MAIN_LOG_FILE_NAME "./nvm_main_log.log"
+extern FILE *main_log_file_fd;
+#define MAIN_LOG_FILE main_log_file_fd
+
+
 #endif // !__NVM_GLOBALS__

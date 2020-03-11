@@ -2,6 +2,7 @@
 #include "pool.h"
 #include <libpmemobj.h>
 #include <libpmem.h>
+#include "hashmap.h"
 
 PMEMobjpool *free_slot_pop;
 struct pool_free_slot_head *f_head;
