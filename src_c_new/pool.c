@@ -2,6 +2,7 @@
 #include "pool.h"
 #include <libpmemobj.h>
 #include <libpmem.h>
+#include "hashmap.h"
 
 PMEMobjpool *free_slot_pop;
 struct pool_free_slot_head *f_head;
@@ -12,9 +13,6 @@ typedef struct pool_kv_st {
     uintptr_t pool_ptr;
 } pool_kv;
 
-DECLARE_HASHMAP(pool_kv)
-DEFINE_HASHMAP(pool_kv, compare, get_hash, free, realloc)
-
 static inline compare(pool_kv* left, pool_kv* right) {
     if (left->pool_ptr == right->pool_ptr) return 0;
     return 1;
@@ -23,6 +21,9 @@ static inline compare(pool_kv* left, pool_kv* right) {
 int get_hash(pool_kv *val){
     return val->key;
 }
+
+DECLARE_HASHMAP(pool_kv)
+DEFINE_HASHMAP(pool_kv, compare, get_hash, free, realloc)
 
 HASH_MAP(pool_kv) *pool_map;
 
@@ -61,8 +62,11 @@ void create_new_pool() {
     num_pools++;
     pool_kv* new_entry = (pool_kv*)malloc(sizeof(pool_kv));
     new_entry->key = num_pools;
+    
+    // Need to corrected with proper pathss
     uintptr_t pmemaddr = (uintptr_t)pmem_map_file(PATH, PMEM_LEN, PMEM_FILE_CREATE,
 			                                      0666, &mapped_len, &is_pmem);
+
     new_entry->pool_ptr = pmemaddr;
     
 }
