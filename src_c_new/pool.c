@@ -16,6 +16,12 @@ typedef struct pool_kv_st {
     uintptr_t pool_ptr;
 } pool_kv;
 
+typedef struct pool_free_slot_val_st {
+    uint16_t key;
+    PMEMobjpool* pool;
+    struct free_slots_root root;
+} pool_free_slot_val;
+
 static inline compare(pool_kv* left, pool_kv* right) {
     if (left->pool_ptr == right->pool_ptr) return 0;
     return 1;
@@ -30,18 +36,35 @@ DEFINE_HASHMAP(pool_kv, compare, get_hash, free, realloc)
 
 HASH_MAP(pool_kv) *pool_map;
 
+DECLARE_HASHMAP(pool_free_slot_val)
+DEFINE_HASHMAP(pool_free_slot_val, compare, get_hash, free, realloc)
+
+HASH_MAP(pool_free_slot_val) *pool_free_slot_map;
+
 int initialize_pool() {
     pool_map = HASH_MAP_CREATE(pool_kv)();
     num_pools = retrieve_num_pools();
     for (int idx = 1; idx <= num_pools; idx++) {
         char[50] pool_file_name;
+        char[50] pool_free_slot_file_name;
         char[3] pool_number_str;
         strcpy(pool_file_name, __progname);
+        strcpy(pool_free_slot_file_name, __progname);
         strcat(pool_file_name, "_poolfile_");
+        strcat(pool_free_slot_file_name, "_free_slot_");
         sprintf(pool_number_str, "%3d", idx);
         strcat(pool_file_name, pool_number_str);
+        strcat(pool_free_slot_file_name, pool_number_str);
         int fd = open(pool_file_name, O_RDWR, 0666);
         pool_kv* init_pool_kv = malloc(sizeof(pool_kv));
+        pool_free_slot_val* free_slots = malloc(sizeof(pool_free_slot_val));
+
+        PMEMobjpool* free_slot_pool = pmemobj_open(pool_free_slot_file_name, POBJ_LAYOUT_NAME(struct pool_free_slots_root));
+
+        free_slots->key = idx;
+        free_slots->pool = free_slot_pool;
+        free_slots->head = D_RO(POBJ_ROOT(free_slot_pool, struct pool_free_slots_root))->head;
+
         init_pool_kv->key = idx;
         init_pool_kv->pool_ptr = pmem_map(fd);
         HASH_MAP_INSERT(pool_kv)(pool_map, init_pool_kv, HMDR_FIND);
