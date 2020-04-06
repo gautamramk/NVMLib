@@ -7,8 +7,6 @@
 #include <libc-internal.h>
 
 extern const char *__progname;
-PMEMobjpool *free_slot_pop;
-struct pool_free_slot_head *f_head;
 uint32_t num_pools;
 
 typedef struct pool_kv_st {
@@ -19,7 +17,7 @@ typedef struct pool_kv_st {
 typedef struct pool_free_slot_val_st {
     uint16_t key;
     PMEMobjpool* pool;
-    struct free_slots_root root;
+    struct free_slot_head head;
 } pool_free_slot_val;
 
 static inline compare(pool_kv* left, pool_kv* right) {
@@ -65,19 +63,12 @@ int initialize_pool() {
         free_slots->pool = free_slot_pool;
         free_slots->head = D_RO(POBJ_ROOT(free_slot_pool, struct pool_free_slots_root))->head;
 
+        HASH_MAP_INSERT(pool_free_slot_val)(pool_free_slot_map, free_slots, HDMR_FIND);
+
         init_pool_kv->key = idx;
         init_pool_kv->pool_ptr = pmem_map(fd);
         HASH_MAP_INSERT(pool_kv)(pool_map, init_pool_kv, HMDR_FIND);
     }
-    /*
-    free_slot_pop = pmemobj_open("free_slots", POBJ_LAYOUT_NAME(list));
-    if (free_slot_pop == NULL) {
-		perror("pmemobj_create");
-		return 1;
-	}
-    TOID(struct pool_free_slots_root) root = POBJ_ROOT(free_slot_pop, struct pool_free_slots_root);
-    f_head = &D_RW(root)->head;
-    */
 }
 
 static inline uint64_t free_slot_size(TOID(struct pool_free_slot) slot) {
@@ -110,8 +101,12 @@ void create_new_pool() {
     HASH_MAP_INSERT(pool_kv)(pool_map, new_entry, HMDR_FIND);
 }
 
-uint64_t allot_first_free_offset(size_t size) {
+uint64_t allot_first_free_offset(uint64_t pool_id, size_t size) {
     // LOG shit
+    pool_free_slot_val *temp = (pool_free_slot_val*)malloc(sizeof(pool_free_slot_val));
+    temp->key = pool_id;
+    HASH_MAP_FIND(pool_free_slot_map, temp);
+    pool_free_slot_head *f_head = temp->head;
     uint64_t ret = -1;
     TOID(struct pool_free_slot) node;
     POBJ_TAILQ_FOREACH (node, f_head, fnd) {
@@ -132,6 +127,10 @@ uint64_t allot_first_free_offset(size_t size) {
 }
 
 void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {
+    pool_free_slot_val *temp = (pool_free_slot_val*)malloc(sizeof(pool_free_slot_val));
+    temp->key = pool_id;
+    HASH_MAP_FIND(pool_free_slot_map, temp);
+    pool_free_slot_head *f_head = temp->head;
     TOID(struct pool_free_slot) node;
     POBJ_TAILQ_FOREACH (node, f_head, fnd) {
         if (offset == D_RO(node)->end_b + 1) {
