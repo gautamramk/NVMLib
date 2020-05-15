@@ -21,6 +21,7 @@
 typedef struct MEMoid_st {
     uint64_t pool_id;
     uint64_t offset;
+    uint64_t *access_bitmap;
 } MEMoid;
 
 // The key of the HashTable that contains <MEMoidKey, MEMoid>.

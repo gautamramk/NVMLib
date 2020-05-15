@@ -16,7 +16,7 @@ MEMoid __memalloc(size_t size) {
         new_obj.offset = (uint64_t)(malloc(size));
         new_obj.pool_id = POOL_ID_MALLOC_OBJ;
     }
-    
+    new_obj.access_bitmap = (uint64_t*)malloc((size%64)?size/64+1:size/64);
     return new_obj;
 }
 
