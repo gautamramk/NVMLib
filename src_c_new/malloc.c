@@ -2,6 +2,8 @@
 #include "pool.h"
 #include "types.h"
 #include "algo.h"
+#include <stdint.h>
+#include <libiberty/splay-tree.h>
 
 MEMoid __memalloc(size_t size) {
     MEMoid new_obj;
@@ -68,4 +70,39 @@ static inline void _memfree(MEMoidKey oidkey, size_t size) {
 
     // remove the entry from the HashTable
     remove_object_from_hashmap(oidkey);
+}
+
+enum splay_comp {
+    cmp_node,
+    cmp_addr
+}
+union addr2memoid_key {
+    enum splay_comp,
+    void* addr,
+    MemOid* memoid
+}
+int addr2memoid_cmp(splay_tree_key key1, splay_tree_key key2) {
+    if (((addr2memoid_key*)key2)->splay_comp == cmp_node) {
+        if (((addr2memoid_key*)key1)->memoid == ((addr2memoid_key*))key2->memoid)
+            return 0;
+        else
+            return ((addr2memoid_key*)key1)->addr > ((addr2memoid_key*)key2)->addr?1:-1
+
+    }else if ((addr2memoid_key*)key2->splay_comp == cmp_node) {
+        if (((addr2memoid_key*))key2->addr >  &&
+            ((addr2memoid_key*))key2->addr < )
+            return 0;
+        else
+            return ((addr2memoid_key*)key1)->addr > ((addr2memoid_key*)key2)->addr?1:-1
+    }
+}
+
+void addr2memoid_del(splay_tree_key key) {
+    free(key);
+}
+
+// The splay tree is used for reverse mapping
+// from address to MemOiD
+static void init_splay() {
+    addr2MemOID = splay_tree_new(*addr2memoid_cmp, NULL, NULL);
 }
