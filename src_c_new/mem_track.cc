@@ -81,7 +81,7 @@ namespace
                         tree ltyty = TREE_TYPE(lty);
                         tree ltsiz = TYPE_SIZE(ltyty);
                         tree fntype = build_function_type_list(void_type_node, ptr_type_node, integer_type_node, NULL_TREE);
-                        wfndecl = build_fn_decl ("print_array_wri", fntype);
+                        wfndecl = build_fn_decl ("log_write", fntype);
                         gimple *call = gimple_build_call (wfndecl, 2, lt, ltsiz);
  
                         //dump_function_header(stderr, rfndecl,0);
@@ -96,7 +96,7 @@ namespace
                         tree ltsiz = TYPE_SIZE(ltyty);
 
                         tree fntype = build_function_type_list(void_type_node, ptr_type_node, integer_type_node, NULL_TREE);
-                        rfndecl = build_fn_decl ("print_array_acc", fntype);
+                        rfndecl = build_fn_decl ("log_read", fntype);
                         gimple *call = gimple_build_call (rfndecl, 2, lt, ltsiz);
  
                         //dump_function_header(stderr, rfndecl,0);
