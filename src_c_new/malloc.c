@@ -32,7 +32,7 @@ uint64_t string_hash(const char *str) {
 MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int line) {
     // Can be made faster ... but thats an after thought as of now xD
     MEMoidKey key = (((string_hash(file) + string_hash(func)) % __UINT64_MAX__)
-                    + string_hash(line)) % __UINT64_MAX__;
+                    + line) % __UINT64_MAX__;
     insert_object_to_hashmap(key, __memalloc(size));
     return key;
 }
