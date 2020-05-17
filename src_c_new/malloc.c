@@ -2,6 +2,7 @@
 #include "pool.h"
 #include "types.h"
 #include "algo.h"
+#include "math.h"
 #include <stdint.h>
 #include <libiberty/splay-tree.h>
 
@@ -18,7 +19,11 @@ MEMoid __memalloc(size_t size) {
         new_obj.offset = (uint64_t)(malloc(size));
         new_obj.pool_id = POOL_ID_MALLOC_OBJ;
     }
-    new_obj.access_bitmap = (uint64_t*)malloc((size%64)?size/64+1:size/64);
+    new_obj.access_bitmap = (uint64_t*)malloc((ceil((double)size/64));
+    struct addr2memoid_key* new_key = (struct addr2memoid_key*)malloc(sizeof(addr2memoid_key));
+    new_key->splay_comp = cmp_node;
+    new_key->addr = &new_obj;
+    splay_tree_insert(addr2MemOID, new_key, NULL);
     return new_obj;
 }
 
@@ -72,15 +77,7 @@ static inline void _memfree(MEMoidKey oidkey, size_t size) {
     remove_object_from_hashmap(oidkey);
 }
 
-enum splay_comp {
-    cmp_node,
-    cmp_addr
-}
-union addr2memoid_key {
-    enum splay_comp,
-    void* addr,
-    MemOid* memoid
-}
+
 int addr2memoid_cmp(splay_tree_key key1, splay_tree_key key2) {
     if (((addr2memoid_key*)key2)->splay_comp == cmp_node) {
         if (((addr2memoid_key*)key1)->memoid == ((addr2memoid_key*))key2->memoid)

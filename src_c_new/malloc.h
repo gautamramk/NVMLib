@@ -16,6 +16,11 @@
 */
 
 #include "globals.h"
+#include <stdint.h>
+#include <libiberty/splay-tree.h>
+
+
+splay_tree addr2MemOID;
 
 // The struct that stores the memptr for the object.
 typedef struct MEMoid_st {
@@ -38,5 +43,18 @@ static const MEMoid OID_NULL = { 0, 0 };
 inline void* get_memobj_direct(MEMoid obj);
 
 #define memfree(o) _memfree((o).oidkey, sizeof(__typeof__(*(o)._type)))
+
+enum splay_comp {
+    cmp_node,
+    cmp_addr
+}
+struct addr2memoid_key {
+    enum splay_comp,
+    union {
+        void* addr,
+        MemOid* memoid
+    }
+
+}
 
 #endif // !__NVM_MALLOC__
