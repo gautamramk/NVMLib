@@ -4,11 +4,17 @@
 #include <libpmemobj.h>
 #include "globals.h"
 #include "pool.h"
+#include "hashmap.h"
 
 uv_loop_t *deletion_loop;
 uv_loop_t *moving_loop;
 
+
 void initialise_logistics() {
+
+    // initialising hashmap
+    create_hashmap();
+
     // Loop for deletion
     deletion_loop = uv_loop_new();
     uv_work_t *work_del = (uv_work_t *)malloc(size(uv_work_t));
@@ -150,3 +156,68 @@ void move_to_nvram(MEMoidKey key, MEMoid oid, size_t size) {
 
     // need to update the levels list
 }
+
+
+/**
+ * Hashmap for object maintaince
+ * 
+ * will be used by `check_if_required_to_move`
+ * 
+**/
+
+int compare(object_maintainance *a, object_maintainance *b) {
+    if(a->key == a->key) {
+        return 0;
+    }
+    return 1;
+}
+
+uint64_t get_hash(object_maintainance *entry) {
+	return entry->oid.pool_id + entry->oid.offset;
+}
+
+
+DECLARE_HASHMAP(object_maintainance)
+DEFINE_HASHMAP(object_maintainance, compare, get_hash, free, realloc)
+
+HASH_MAP(object_maintainance) *object_maintainance_map;
+
+void create_hashmap() {
+    object_maintainance_map = HASH_MAP_CREATE(object_maintainance)();
+}
+
+object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid, where_t which_ram) {
+    object_maintainance* obj = (object_maintainance *)malloc(sizeof(object_maintainance) * 1);
+    obj->key = key;
+    obj->oid = oid;
+    obj->num_reads = 0;
+    obj->num_writes = 0;
+    obj->last_accessed_at = time(NULL);
+    obj->time_since_previous_access = 0;
+    obj->previous_access_type = UNKNOWN;
+    obj->access_bitmap = (uint64_t*)malloc((ceil((double)oid.size/64)));
+    obj->which_ram = which_ram;
+    obj->shift_level = JUST_ENTERED;
+
+    return obj;
+}
+
+void insert_into_maintainance_map(object_maintainance *obj) {
+    HASH_MAP_INSERT(object_maintainance)(object_maintainance_map, &obj, HMDR_REPLACE); 
+}
+
+void delete_from_maintainance_map(object_maintainance *obj) {
+    HASH_MAP_ERASE(object_maintainance)(object_maintainance_map, obj);
+}
+
+object_maintainance* find_in_maintainance_map(MEMoidKey key, MEMoid oid) {
+    // A placeholder for the actual object in the map
+    object_maintainance *found_obj = create_new_maintainance_map_entry(key, oid, UNKNOWN);
+
+    bool is_found = HASH_MAP_FIND(object_maintainance)(object_maintainance_map, &found_obj);
+
+    if(is_found) {
+        return found_obj;
+    }
+    return NULL;
+}   

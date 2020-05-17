@@ -28,9 +28,11 @@ typedef struct MEMoid_st {
     uint64_t pool_id;
     uint64_t offset;
     size_t size;
-    uint32_t num_reads;
-    uint32_t num_writes;
-    uint64_t *access_bitmap;
+    
+    // All of these are in object_maintainance.h
+    // uint32_t num_reads;
+    // uint32_t num_writes;
+    // uint64_t *access_bitmap;
 } MEMoid;
 
 #define MEMOID_FIRST(m) (get_pool_from_poolid(m.pool_id) + m.offset)
@@ -58,8 +60,8 @@ typedef struct addr2memoid_key {
     enum splay_comp comp;
     union {
         void* addr;
-        MEMOid memoid;
-    }
+        MEMoid memoid;
+    } 
 
 } addr2memoid_key;
 
