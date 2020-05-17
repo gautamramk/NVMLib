@@ -5,6 +5,7 @@
 #include "math.h"
 #include <stdint.h>
 #include <libiberty/splay-tree.h>
+#include "object_maintainance.h"
 
 MEMoid __memalloc(size_t size) {
     MEMoid new_obj;
@@ -20,9 +21,10 @@ MEMoid __memalloc(size_t size) {
         new_obj.pool_id = POOL_ID_MALLOC_OBJ;
     }
     new_obj.size = size;
-    new_obj.access_bitmap = (uint64_t*)malloc((ceil((double)size/64));
+
+    // new_obj.access_bitmap = (uint64_t*)malloc((ceil((double)size/64));
     struct addr2memoid_key* new_key = (struct addr2memoid_key*)malloc(sizeof(addr2memoid_key));
-    new_key->splay_comp = cmp_node;
+    new_key->comp = cmp_node;
     new_key->memoid = new_obj;
     splay_tree_insert(addr2MemOID, new_key, NULL);
     return new_obj;
@@ -40,8 +42,12 @@ uint64_t string_hash(const char *str) {
 MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int line) {
     // Can be made faster ... but thats an after thought as of now xD
     MEMoidKey key = (((string_hash(file) + string_hash(func)) % __UINT64_MAX__)
-                    + string_hash(line)) % __UINT64_MAX__;
-    insert_object_to_hashmap(key, __memalloc(size));
+                    + line) % __UINT64_MAX__;
+    MEMoid oid =  __memalloc(size);
+    // Insert in the main types table
+    insert_object_to_hashmap(key, oid);
+    // Insert into the object maintainance table for logistics
+    insert_into_maintainance_map(create_new_maintainance_map_entry(key, oid, oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM));
     return key;
 }
 
@@ -81,7 +87,7 @@ static inline void _memfree(MEMoidKey oidkey, size_t size) {
 
 int addr2memoid_cmp(splay_tree_key key1, splay_tree_key key2) {
     if (((addr2memoid_key*)key2)->comp == cmp_node) {
-        if (((addr2memoid_key*)key1)->memoid.addr == ((addr2memoid_key*))key2->memoid.addr)
+        if (((addr2memoid_key*)key1)->memoid.addr == ((addr2memoid_key*)key2)->memoid.addr)
             return 0;
         else
             return ((addr2memoid_key*)key1)->addr > ((addr2memoid_key*)key2)->addr?1:-1
