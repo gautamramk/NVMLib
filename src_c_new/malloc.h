@@ -47,14 +47,14 @@ inline void* get_memobj_direct(MEMoid obj);
 enum splay_comp {
     cmp_node,
     cmp_addr
-}
-struct addr2memoid_key {
-    enum splay_comp,
+};
+typedef struct addr2memoid_key {
+    enum splay_comp comp;
     union {
-        void* addr,
-        MemOid* memoid
+        void* addr;
+        MEMOid memoid;
     }
 
-}
+} addr2memoid_key;
 
 #endif // !__NVM_MALLOC__
