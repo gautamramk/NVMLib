@@ -16,13 +16,25 @@
 */
 
 #include "globals.h"
+#include "pool.h"
+#include <stdint.h>
+#include <libiberty/splay-tree.h>
+
+
+splay_tree addr2MemOID;
 
 // The struct that stores the memptr for the object.
 typedef struct MEMoid_st {
     uint64_t pool_id;
     uint64_t offset;
+    size_t size;
+    uint32_t num_reads;
+    uint32_t num_writes;
+    uint64_t *access_bitmap;
 } MEMoid;
 
+#define MEMOID_FIRST(m) (get_pool_from_poolid(m.pool_id) + m.offset)
+#define MEMOID_LAST(m) (get_pool_from_poolid(m.pool_id) + m.offset + m.size)
 // The key of the HashTable that contains <MEMoidKey, MEMoid>.
 typedef uint64_t MEMoidKey;
 
@@ -37,5 +49,18 @@ static const MEMoid OID_NULL = { 0, 0 };
 inline void* get_memobj_direct(MEMoid obj);
 
 #define memfree(o) _memfree((o).oidkey, sizeof(__typeof__(*(o)._type)))
+
+enum splay_comp {
+    cmp_node,
+    cmp_addr
+};
+typedef struct addr2memoid_key {
+    enum splay_comp comp;
+    union {
+        void* addr;
+        MEMOid memoid;
+    }
+
+} addr2memoid_key;
 
 #endif // !__NVM_MALLOC__
