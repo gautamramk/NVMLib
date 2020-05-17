@@ -19,6 +19,7 @@ MEMoid __memalloc(size_t size) {
         new_obj.offset = (uint64_t)(malloc(size));
         new_obj.pool_id = POOL_ID_MALLOC_OBJ;
     }
+    new_obj.size = size;
     new_obj.access_bitmap = (uint64_t*)malloc((ceil((double)size/64));
     struct addr2memoid_key* new_key = (struct addr2memoid_key*)malloc(sizeof(addr2memoid_key));
     new_key->splay_comp = cmp_node;

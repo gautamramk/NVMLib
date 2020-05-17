@@ -16,6 +16,7 @@
 */
 
 #include "globals.h"
+#include "pool.h"
 #include <stdint.h>
 #include <libiberty/splay-tree.h>
 
@@ -26,9 +27,14 @@ splay_tree addr2MemOID;
 typedef struct MEMoid_st {
     uint64_t pool_id;
     uint64_t offset;
+    size_t size;
+    uint32_t num_reads;
+    uint32_t num_writes;
     uint64_t *access_bitmap;
 } MEMoid;
 
+#define MEMOID_FIRST(m) (get_pool_from_poolid(m.pool_id) + m.offset)
+#define MEMOID_LAST(m) (get_pool_from_poolid(m.pool_id) + m.offset + m.size)
 // The key of the HashTable that contains <MEMoidKey, MEMoid>.
 typedef uint64_t MEMoidKey;
 
