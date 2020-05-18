@@ -35,13 +35,14 @@ typedef struct MEMoid_st {
     // uint64_t *access_bitmap;
 } MEMoid;
 
-#define MEMOID_FIRST(m) (get_pool_from_poolid(m.pool_id) + m.offset)
-#define MEMOID_LAST(m) (get_pool_from_poolid(m.pool_id) + m.offset + m.size)
+#define KEY_FIRST(key) (_key_get_first(key))
+#define KEY_LAST(key) (_key_get_last(key))
+
 // The key of the HashTable that contains <MEMoidKey, MEMoid>.
 typedef uint64_t MEMoidKey;
 
 // Just a dummy obj.
-static const MEMoid OID_NULL = { 0, 0 };
+static const MEMoid MEMOID_NULL = { 0, 0 };
 
 // The user facing fnction to allocate memory.
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
@@ -61,7 +62,7 @@ typedef struct addr2memoid_key {
     union {
         void* addr;
         MEMoidKey key;
-    } 
+    }; 
 
 } addr2memoid_key;
 
