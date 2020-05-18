@@ -60,7 +60,7 @@ typedef struct addr2memoid_key {
     enum splay_comp comp;
     union {
         void* addr;
-        MEMoid memoid;
+        MEMoidKey key;
     } 
 
 } addr2memoid_key;

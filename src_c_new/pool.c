@@ -4,6 +4,7 @@
 #include <libpmemobj.h>
 #include <libpmem.h>
 #include "hashmap.h"
+#include "types.h"
 #include <libc-internal.h>
 
 extern const char *__progname;

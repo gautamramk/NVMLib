@@ -24,6 +24,21 @@ void init_types_table() {
     }
 }
 
+void* _key_get_first(MEMoidKey key) {
+    MEMoid m = get_MEMoid(key);
+    if (m != OID_NULL) {
+        return MEMOID_FIRST(m);
+    }
+    return NULL;
+}
+
+void* _key_get_last(MEMoidKey key) {
+    MEMoid m = get_MEMoid(key);
+    if (m != OID_NULL) {
+        return MEMOID_FIRST(m) + m.size;
+    }
+    return NULL;
+}
 
 MEMoid get_MEMoid(MEMoidKey key) {
     return hm_tx_get(pop, hashmap, (uint64_t) key);
