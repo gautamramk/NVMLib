@@ -1,7 +1,7 @@
 #ifndef __NVM_ALGO__
 #define __NVM_ALGO__
 
-#include "global.h"
+#include "globals.h"
 #include "malloc.h"
 
 void update_read_access(MEMoidKey key);

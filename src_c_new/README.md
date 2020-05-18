@@ -19,3 +19,5 @@
 
 * malloc.c and malloc.h (maybe everywhere)
     - Correct the usage of `MEMoid`. Make sure they use `size` in `oid`.
+
+* Make sure the MEMoid compares are correct (structs can't be compared directly in C)

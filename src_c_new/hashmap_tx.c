@@ -209,7 +209,7 @@ hm_tx_insert(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap,
  * hm_tx_remove -- removes specified value from the hashmap,
  * returns:
  * - key's value if successful,
- * - OID_NULL if value didn't exist or if something bad happened
+ * - MEMOID_NULL if value didn't exist or if something bad happened
  */
 MEMoid
 hm_tx_remove(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint64_t key)
@@ -226,7 +226,7 @@ hm_tx_remove(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint64_t key)
 	}
 
 	if (TOID_IS_NULL(var))
-		return OID_NULL;
+		return MEMOID_NULL;
 	int ret = 0;
 
 	MEMoid retoid = D_RO(var)->value;
@@ -250,7 +250,7 @@ hm_tx_remove(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint64_t key)
 	} TX_END
 
 	if (ret)
-		return OID_NULL;
+		return MEMOID_NULL;
 
 	if (D_RO(hashmap)->count < D_RO(buckets)->nbuckets)
 		hm_tx_rebuild(pop, hashmap, D_RO(buckets)->nbuckets / 2);
@@ -330,7 +330,7 @@ hm_tx_get(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint64_t key)
 		if (D_RO(var)->key == key)
 			return D_RO(var)->value;
 
-	return OID_NULL;
+	return MEMOID_NULL;
 }
 
 /*

@@ -71,7 +71,7 @@ struct {\
  */
 #define POBJ_SLIST_INIT(head) do {\
 	TX_ADD_DIRECT(&(head)->pe_first);\
-	TOID_ASSIGN((head)->pe_first, OID_NULL);\
+	TOID_ASSIGN((head)->pe_first, MEMOID_NULL);\
 } while (0)
 
 #define POBJ_SLIST_INSERT_HEAD(head, elm, field) do {\
@@ -175,9 +175,9 @@ struct name {\
 
 #define POBJ_TAILQ_INIT(head) do {\
 	TX_ADD_FIELD_DIRECT(head, pe_first);\
-	TOID_ASSIGN((head)->pe_first, OID_NULL);\
+	TOID_ASSIGN((head)->pe_first, MEMOID_NULL);\
 	TX_ADD_FIELD_DIRECT(head, pe_last);\
-	TOID_ASSIGN((head)->pe_last, OID_NULL);\
+	TOID_ASSIGN((head)->pe_last, MEMOID_NULL);\
 } while (0)
 
 #define POBJ_TAILQ_INSERT_HEAD(head, elm, field) do {\

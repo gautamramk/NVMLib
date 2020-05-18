@@ -69,7 +69,7 @@ inline void* get_memobj_direct(MEMoid oid) {
 
 static inline void _memfree(MEMoidKey oidkey, size_t size) {
     MEMoid oid = get_MEMoid(oidkey);
-    if(oid != OID_NULL) {
+    if(oid.offset == MEMOID_NULL.offset && oid.pool_id == MEMOID_NULL.pool_id) {
         switch(oid.pool_id) {
             case POOL_ID_MALLOC_OBJ:
                 free(oid.offset);
@@ -84,6 +84,25 @@ static inline void _memfree(MEMoidKey oidkey, size_t size) {
     remove_object_from_hashmap(oidkey);
 }
 
+
+#define MEMOID_FIRST(m) (get_pool_from_poolid(m.pool_id) + m.offset)
+#define MEMOID_LAST(m) (get_pool_from_poolid(m.pool_id) + m.offset + m.size)
+
+void* _key_get_first(MEMoidKey key) {
+    MEMoid m = get_MEMoid(key);
+    if (m.offset == MEMOID_NULL.offset && m.pool_id == MEMOID_NULL.pool_id) {
+        return MEMOID_FIRST(m);
+    }
+    return NULL;
+}
+
+void* _key_get_last(MEMoidKey key) {
+    MEMoid m = get_MEMoid(key);
+    if (m.offset == MEMOID_NULL.offset && m.pool_id == MEMOID_NULL.pool_id) {
+        return MEMOID_FIRST(m) + m.size;
+    }
+    return NULL;
+}
 
 int addr2memoid_cmp(splay_tree_key key1, splay_tree_key key2) {
     if (((addr2memoid_key*)key2)->comp == cmp_node) {
