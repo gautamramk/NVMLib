@@ -6,6 +6,9 @@
 #include "malloc.h"
 #include <time.h>
 
+#define DELETE_LOOP_SLEEP_TIME 5    // 5 secs
+#define MOVE_LOOP_SLEEP_TIME 5    // 5 secs
+
 typedef enum access_type_en {
     UNKNOWN,
     READ,

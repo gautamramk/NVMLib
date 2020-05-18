@@ -67,7 +67,7 @@ void delete_objects() {
         }
 
         // resume operation every 5 min
-        sleep(5);
+        sleep(DELETE_LOOP_SLEEP_TIME);
     }
 }
 
@@ -100,7 +100,7 @@ void move_objects() {
         }
         
         // resume operation every 5 min
-        sleep(5);
+        sleep(MOVE_LOOP_SLEEP_TIME);
     }
 }
 
