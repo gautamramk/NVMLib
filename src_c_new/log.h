@@ -1,7 +1,7 @@
 /**
  * This contains the logging macros
  * 
- * Each of the macros behave like `prinft()`
+ * Each of the macros behave like `printf()`
  * Sample usage:
  * 
  * LOG_DEBUG("Maybe i can touch this button...");
@@ -17,7 +17,7 @@
 
 #include <time.h>
 #include <string.h>
-#include "global.h"
+#include "globals.h"
 
 // === auxiliar functions
 static inline char *timenow();

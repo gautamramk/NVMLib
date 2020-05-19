@@ -109,14 +109,14 @@ int addr2memoid_cmp(splay_tree_key key1, splay_tree_key key2) {
         if (KEY_FIRST(((addr2memoid_key*)key1)->key) == KEY_FIRST(((addr2memoid_key*)key2)->key))
             return 0;
         else
-            return KEY_FIRST(((addr2memoid_key*)key1)->key) > KEY_FIRST(((addr2memoid_key*)key1)->key)?1:-1
+            return KEY_FIRST(((addr2memoid_key*)key1)->key) > KEY_FIRST(((addr2memoid_key*)key1)->key)?1:-1;
 
     }else if (((addr2memoid_key*)key2)->comp == cmp_addr) {
         if (((addr2memoid_key*)key2)->addr >= KEY_FIRST(((addr2memoid_key*)key1)->key) &&
             ((addr2memoid_key*)key2)->addr < KEY_LAST(((addr2memoid_key*)key1)->key))
             return 0;
         else
-            return KEY_FIRST(((addr2memoid_key*)key1)->key) > ((addr2memoid_key*)key1)->addr?1:-1
+            return KEY_FIRST(((addr2memoid_key*)key1)->key) > ((addr2memoid_key*)key1)->addr?1:-1;
     }
 }
 
