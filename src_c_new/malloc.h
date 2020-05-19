@@ -17,6 +17,7 @@
 
 #include "globals.h"
 #include "pool.h"
+#include "types.h"
 #include <stdint.h>
 #include <libiberty/splay-tree.h>
 
@@ -42,7 +43,7 @@ typedef struct MEMoid_st {
 typedef uint64_t MEMoidKey;
 
 // Just a dummy obj.
-static const MEMoid MEMOID_NULL = { 0, 0 };
+static const MEMoid MEMOID_NULL = { 0, 0, 0 };
 
 // The user facing fnction to allocate memory.
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
@@ -51,7 +52,8 @@ static const MEMoid MEMOID_NULL = { 0, 0 };
 // Returns the direct pointer to the mem-object
 inline void* get_memobj_direct(MEMoid obj);
 
-#define memfree(o) _memfree((o).oidkey, sizeof(__typeof__(*(o)._type)))
+// #define memfree(o) _memfree((o).oidkey, sizeof(__typeof__(*(o)._type)))
+#define memfree(o) _memfree((o).oidkey, get_MEMoid(o).size)
 
 enum splay_comp {
     cmp_node,

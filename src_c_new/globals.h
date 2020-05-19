@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include <uv.h>
 
 
 // Types of allocation
@@ -12,7 +13,6 @@
 #define NVRAM_STACK 1
 #define DRAM_HEAP 2
 #define NVRAM_HEAP 3
-
 
 typedef __uint128_t uint128_t;
 typedef __uint64_t uint64_t;
@@ -36,5 +36,8 @@ typedef long int intptr_t;
 extern FILE *main_log_file_fd;
 #define MAIN_LOG_FILE main_log_file_fd
 
+// The mutex required when accessing the Types map
+extern uv_mutex_t object_maintainence_hashmap_mutex;   // used during manupulation of `types map`
+extern uv_mutex_t object_maintainence_memory_mutex;    // used during `nvm_free` / access too
 
 #endif // !__NVM_GLOBALS__

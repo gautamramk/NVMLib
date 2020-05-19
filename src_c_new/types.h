@@ -6,6 +6,7 @@
 
 #include "globals.h"
 #include "malloc.h"
+#include "hashmap_tx.h"
 
 
 #define LIB_TOID_NULL(t)	((LIB_TOID(t))MEMOID_NULL)
