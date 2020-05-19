@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #define LAYOUT_NAME "intro_1"
 #define MAX_BUF_LEN 10
 

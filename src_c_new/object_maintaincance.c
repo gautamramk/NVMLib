@@ -17,7 +17,7 @@ void initialise_logistics() {
 
     // Loop for deletion
     deletion_loop = uv_loop_new();
-    uv_work_t *work_del = (uv_work_t *)malloc(size(uv_work_t));
+    uv_work_t *work_del = (uv_work_t *)malloc(sizeof(uv_work_t));
     work_del->loop = deletion_loop;
 
     // add other shit... decide as you go
@@ -29,7 +29,7 @@ void initialise_logistics() {
 
     // Loop for moving objects
     moving_loop = uv_loop_new();
-    uv_work_t *work_move = (uv_work_t *)malloc(size(uv_work_t));
+    uv_work_t *work_move = (uv_work_t *)malloc(sizeof(uv_work_t));
     work_move->loop = moving_loop;
 
     // add other shit... decide as you go
