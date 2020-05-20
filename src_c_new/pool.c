@@ -5,6 +5,7 @@
 #include <libpmem.h>
 #include "hashmap.h"
 #include "types.h"
+#include "free_slot_list.h"
 
 extern const char *__progname;
 uint32_t num_pools;
