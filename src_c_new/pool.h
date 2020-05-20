@@ -20,6 +20,7 @@ POBJ_LAYOUT_TOID(list, struct pool_free_slot);
 POBJ_LAYOUT_END(list);
 
 POBJ_TAILQ_HEAD(pool_free_slot_head, struct pool_free_slot)
+typedef struct pool_free_slot_head pool_free_slot_head;
 
 struct pool_free_slots_root {
     struct pool_free_slot_head head;

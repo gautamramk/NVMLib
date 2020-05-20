@@ -5,7 +5,6 @@
 #include <libpmem.h>
 #include "hashmap.h"
 #include "types.h"
-#include <libc-internal.h>
 
 extern const char *__progname;
 uint32_t num_pools;
@@ -18,7 +17,7 @@ typedef struct pool_kv_st {
 typedef struct pool_free_slot_val_st {
     uint16_t key;
     PMEMobjpool* pool;
-    struct free_slot_head head;
+    pool_free_slot_head head;
 } pool_free_slot_val;
 
 static inline compare(pool_kv* left, pool_kv* right) {
@@ -44,9 +43,9 @@ int initialize_pool() {
     pool_map = HASH_MAP_CREATE(pool_kv)();
     num_pools = retrieve_num_pools();
     for (int idx = 1; idx <= num_pools; idx++) {
-        char[50] pool_file_name;
-        char[50] pool_free_slot_file_name;
-        char[3] pool_number_str;
+        char pool_file_name[50];
+        char pool_free_slot_file_name[50];
+        char pool_number_str[3];
         strcpy(pool_file_name, __progname);
         strcpy(pool_free_slot_file_name, __progname);
         strcat(pool_file_name, "_poolfile_");
