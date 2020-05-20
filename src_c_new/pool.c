@@ -64,11 +64,11 @@ int initialize_pool() {
         free_slots->pool = free_slot_pool;
         free_slots->head = D_RO(POBJ_ROOT(free_slot_pool, struct pool_free_slots_root))->head;
 
-        HASH_MAP_INSERT(pool_free_slot_val)(pool_free_slot_map, free_slots, HDMR_FIND);
+        HASH_MAP_INSERT(pool_free_slot_val)(pool_free_slot_map, &free_slots, HMDR_FIND);
 
         init_pool_kv->key = idx;
         init_pool_kv->pool_ptr = pmem_map(fd);
-        HASH_MAP_INSERT(pool_kv)(pool_map, init_pool_kv, HMDR_FIND);
+        HASH_MAP_INSERT(pool_kv)(pool_map, &init_pool_kv, HMDR_FIND);
     }
 }
 
@@ -78,7 +78,7 @@ static inline uint64_t free_slot_size(TOID(struct pool_free_slot) slot) {
 
 uintptr_t get_pool_from_poolid(uint64_t pool_id) {
     uintptr_t temp;
-    if (HASH_MAP_FIND(uintptr_t)(pool_map, &temp)) {
+    if (HASH_MAP_FIND(pool_kv)(pool_map, &temp)) {
         return temp;
     }
     return NULL;
@@ -99,14 +99,14 @@ void create_new_pool() {
 
     new_entry->pool_ptr = pmemaddr;
     update_num_pools(num_pools);
-    HASH_MAP_INSERT(pool_kv)(pool_map, new_entry, HMDR_FIND);
+    HASH_MAP_INSERT(pool_kv)(pool_map, &new_entry, HMDR_FIND);
 }
 
 uint64_t allot_first_free_offset(uint64_t pool_id, size_t size) {
     // LOG shit
     pool_free_slot_val *temp = (pool_free_slot_val*)malloc(sizeof(pool_free_slot_val));
     temp->key = pool_id;
-    HASH_MAP_FIND(pool_free_slot_map, temp);
+    HASH_MAP_FIND(pool_free_slot_val)(pool_free_slot_map, &temp);
     pool_free_slot_head *f_head = temp->head;
     uint64_t ret = -1;
     TOID(struct pool_free_slot) node;
@@ -130,7 +130,7 @@ uint64_t allot_first_free_offset(uint64_t pool_id, size_t size) {
 void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {
     pool_free_slot_val *temp = (pool_free_slot_val*)malloc(sizeof(pool_free_slot_val));
     temp->key = pool_id;
-    HASH_MAP_FIND(pool_free_slot_map, temp);
+    HASH_MAP_FIND(pool_free_slot_val)(pool_free_slot_map, temp);
     pool_free_slot_head *f_head = temp->head;
     TOID(struct pool_free_slot) node;
     POBJ_TAILQ_FOREACH (node, f_head, fnd) {
