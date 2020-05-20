@@ -118,7 +118,7 @@ uint64_t allot_first_free_offset(uint64_t pool_id, size_t size) {
             } TX_END
             break;
         } else if (free_slot_size(node) > size) {
-            ret = D_RO(node)->start_b
+            ret = D_RO(node)->start_b;
             uint64_t new_start = D_RO(node)->start_b + size;
             D_RW(node)->start_b = new_start;
             break;
