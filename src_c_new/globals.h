@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <uv.h>
+#include <errno.h>
 
 
 // Types of allocation
@@ -25,8 +26,9 @@ typedef unsigned long int uintptr_t;
 typedef long int intptr_t;
 
 // The predefined pools
-#define TYPES_TABLE_POOL strcat(__FILE__, "types_table")
-#define ALLOC_LIST_POOL strcat(__FILE__, "alloc_list")
+extern char* program_invocation_short_name;
+#define TYPES_TABLE_POOL strcat(program_invocation_short_name, "types_table")
+#define ALLOC_LIST_POOL strcat(program_invocation_short_name, "alloc_list")
 
 // The predefined layouts
 #define TYPES_TABLE_LAYOUT "types_table"

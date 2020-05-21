@@ -7,7 +7,7 @@
 #include "types.h"
 #include "free_slot_list.h"
 
-extern const char *__progname;
+extern const char *program_invocation_short_name;
 uint32_t num_pools;
 
 typedef struct pool_kv_st {
@@ -47,8 +47,8 @@ int initialize_pool() {
         char pool_file_name[50];
         char pool_free_slot_file_name[50];
         char pool_number_str[3];
-        strcpy(pool_file_name, __progname);
-        strcpy(pool_free_slot_file_name, __progname);
+        strcpy(pool_file_name, program_invocation_short_name);
+        strcpy(pool_free_slot_file_name, program_invocation_short_name);
         strcat(pool_file_name, "_poolfile_");
         strcat(pool_free_slot_file_name, "_free_slot_");
         sprintf(pool_number_str, "%3d", idx);
@@ -107,7 +107,7 @@ uint64_t allot_first_free_offset(uint64_t pool_id, size_t size) {
     pool_free_slot_val *temp = (pool_free_slot_val*)malloc(sizeof(pool_free_slot_val));
     temp->key = pool_id;
     HASH_MAP_FIND(pool_free_slot_val)(pool_free_slot_map, &temp);
-    pool_free_slot_head *f_head = temp->head;
+    pool_free_slot_head *f_head = &(temp->head);
     uint64_t ret = -1;
     TOID(struct pool_free_slot) node;
     POBJ_TAILQ_FOREACH (node, f_head, fnd) {
@@ -131,7 +131,7 @@ void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {
     pool_free_slot_val *temp = (pool_free_slot_val*)malloc(sizeof(pool_free_slot_val));
     temp->key = pool_id;
     HASH_MAP_FIND(pool_free_slot_val)(pool_free_slot_map, temp);
-    pool_free_slot_head *f_head = temp->head;
+    pool_free_slot_head *f_head = &(temp->head);
     TOID(struct pool_free_slot) node;
     POBJ_TAILQ_FOREACH (node, f_head, fnd) {
         if (offset == D_RO(node)->end_b + 1) {

@@ -13,18 +13,17 @@ typedef struct pool_free_slot {
     uint64_t end_b;
     POBJ_TAILQ_ENTRY(struct pool_free_slot) fnd;
 } pool_free_slot;
-
-POBJ_LAYOUT_BEGIN(list);
-POBJ_LAYOUT_ROOT(list, struct pool_free_slot_root);
-POBJ_LAYOUT_TOID(list, struct pool_free_slot);
-POBJ_LAYOUT_END(list);
-
 POBJ_TAILQ_HEAD(pool_free_slot_head, struct pool_free_slot);
 typedef struct pool_free_slot_head pool_free_slot_head;
 
 struct pool_free_slots_root {
     struct pool_free_slot_head head;
 };
+
+POBJ_LAYOUT_BEGIN(list);
+POBJ_LAYOUT_ROOT(list, struct pool_free_slot_root);
+POBJ_LAYOUT_TOID(list, struct pool_free_slot);
+POBJ_LAYOUT_END(list);
 
 // Initialise the metadata datastructures
 int initialize_pool();

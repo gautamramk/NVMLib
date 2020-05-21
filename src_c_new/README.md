@@ -9,7 +9,8 @@
 
 * object_maintainanc.c
     - Implement the `uv_loops` properly with mutexes        --- DONE
-    - Complete `check_if_required_to_move` and `check_if_required_to_delete`
+    - Complete `check_if_required_to_move`
+    - Complete `check_if_required_to_delete`    --- DONE
     - Correct other functions to use `MEMoid size` properly. Note `TOID_SIZEOF` is not what we need.    --- DONE
     - Use logging when you move stuff.      --- DONE
 
@@ -30,4 +31,4 @@
 
 * See if `pmem_persist` needs to be called. 
 
-* Make the `initializer.c` to function.
+* Make the `initializer.c` to function.     --- SEEMS DONE
