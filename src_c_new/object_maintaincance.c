@@ -5,6 +5,7 @@
 #include "globals.h"
 #include "pool.h"
 #include "hashmap.h"
+#include "mem_log.h"
 #include <uv.h>
 #include <pthread.h>
 
@@ -66,7 +67,28 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         // nothing yet in the logistics map
         return;
     }
-    
+    while(!TAILQ_EMPTY(write_queue_head)) {
+        address_log* w_add = TAILQ_FIRST(&write_queue_head);
+        addr2memoid_key skey;
+        skey.comp = cmp_addr;
+        skey.addr = w_add->addr;
+        splay_tree_node ret_node = splay_tree_lookup(addr2MemOID_write, (splay_tree_key)&skey);
+        MEMoidKey mkey = ((addr2memoid_key*)ret_node->key)->key;
+        object_maintainance* om = find_in_maintainance_map(mkey, get_MEMoid(mkey));
+        om->num_writes++;
+        om->last_accessed_at = w_add->access_time;
+    }
+    while(!TAILQ_EMPTY(read_queue_head)) {
+        address_log* r_add = TAILQ_FIRST(&read_queue_head);
+        addr2memoid_key skey;
+        skey.comp = cmp_addr;
+        skey.addr = r_add->addr;
+        splay_tree_node ret_node = splay_tree_lookup(addr2MemOID_read, (splay_tree_key)&skey);
+        MEMoidKey mkey = ((addr2memoid_key*)ret_node->key)->key;
+        object_maintainance* om = find_in_maintainance_map(mkey, get_MEMoid(mkey));
+        om->num_reads++;
+        om->last_accessed_at = r_add->access_time;
+    }
     for(size_t i=0; i<object_maintainance_map->power_of_two; i++) {
         HASH_MAP_BUCKET(object_maintainance) *bucket = &object_maintainance_map->entries[i];
         for(int j = 0; j < bucket->size; j++) {

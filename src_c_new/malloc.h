@@ -22,7 +22,8 @@
 #include <libiberty/splay-tree.h>
 
 
-splay_tree addr2MemOID;
+splay_tree addr2MemOID_read;
+splay_tree addr2MemOID_write;
 
 // The struct that stores the memptr for the object.
 typedef struct MEMoid_st {
