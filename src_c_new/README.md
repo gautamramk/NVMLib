@@ -32,3 +32,5 @@
 * See if `pmem_persist` needs to be called. 
 
 * Make the `initializer.c` to function.     --- SEEMS DONE
+
+* Write the CMake files.    --- DONE
