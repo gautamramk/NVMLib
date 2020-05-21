@@ -102,22 +102,33 @@ inline void* get_memobj_direct(MEMoid oid) {
     }
 }
 
-static inline void _memfree(MEMoidKey oidkey, size_t size) {
-    MEMoid oid = get_MEMoid(oidkey);
-    if(oid.offset == MEMOID_NULL.offset && oid.pool_id == MEMOID_NULL.pool_id) {
-        switch(oid.pool_id) {
-            case POOL_ID_MALLOC_OBJ:
-                free(oid.offset);
-                break;
+// static inline void _memfree(MEMoidKey oidkey, size_t size) {
+//     MEMoid oid = get_MEMoid(oidkey);
+//     if(oid.offset == MEMOID_NULL.offset && oid.pool_id == MEMOID_NULL.pool_id) {
+//         switch(oid.pool_id) {
+//             case POOL_ID_MALLOC_OBJ:
+//                 free(oid.offset);
+//                 break;
 
-            default:
-                nvm_free(oid.pool_id, oid.offset, size);
-        }
-    }
+//             default:
+//                 nvm_free(oid.pool_id, oid.offset, size);
+//         }
+//     }
 
-    // remove the entry from the HashTable
-    remove_object_from_hashmap(oidkey);
+//     // remove the entry from the HashTable
+//     remove_object_from_hashmap(oidkey);
+// }
+
+static inline void _memfree(MEMoidKey oidkey) {
+    // Just hand over the task to `Deletion thread`
+
+    object_maintainance *found_obj = find_in_maintainance_map(oidkey);
+    if (!found_obj)
+        return;
+
+    found_obj->which_ram = NO_RAM; // Delete the object
 }
+
 
 
 #define MEMOID_FIRST(m) (get_pool_from_poolid(m.pool_id) + m.offset)

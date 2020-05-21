@@ -56,7 +56,8 @@ static const MEMoid MEMOID_NULL = { 0, 0, 0 };
 inline void* get_memobj_direct(MEMoid obj);
 
 // #define memfree(o) _memfree((o).oidkey, sizeof(__typeof__(*(o)._type)))
-#define memfree(o) _memfree((o).oidkey, get_MEMoid(o).size)
+// #define memfree(o) _memfree((o).oidkey, get_MEMoid(o).size)
+#define memfree(o) _memfree((o).oidkey)
 
 enum splay_comp {
     cmp_node,
