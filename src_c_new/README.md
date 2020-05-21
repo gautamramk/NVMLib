@@ -29,3 +29,5 @@
     - There seem to be a lot of compiler errors. Correct it.
 
 * See if `pmem_persist` needs to be called. 
+
+* Make the `initializer.c` to function.

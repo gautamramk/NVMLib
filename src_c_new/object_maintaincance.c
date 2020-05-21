@@ -322,7 +322,7 @@ void create_maintainance_map() {
     object_maintainance_map = HASH_MAP_CREATE(object_maintainance)();
 }
 
-object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid, where_t which_ram) {
+object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid, where_t which_ram, bool can_be_moved) {
     object_maintainance* obj = (object_maintainance *)malloc(sizeof(object_maintainance) * 1);
     obj->key = key;
     obj->oid = oid;
@@ -334,6 +334,7 @@ object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid
     obj->access_bitmap = (uint64_t*)malloc((ceil((double)oid.size/64)));
     obj->which_ram = which_ram;
     obj->shift_level = JUST_ENTERED;
+    obj->can_be_moved = can_be_moved;
 
     return obj;
 }
@@ -348,7 +349,7 @@ void delete_from_maintainance_map(object_maintainance *obj) {
 
 object_maintainance* find_in_maintainance_map(MEMoidKey key, MEMoid oid) {
     // A placeholder for the actual object in the map
-    object_maintainance *found_obj = create_new_maintainance_map_entry(key, oid, UNKNOWN);
+    object_maintainance *found_obj = create_new_maintainance_map_entry(key, oid, UNKNOWN, false);
 
     bool is_found = HASH_MAP_FIND(object_maintainance)(object_maintainance_map, &found_obj);
 

@@ -1,6 +1,5 @@
 #include "metadata.h"
 #include <libpmemobj.h>
-#include <libc-internal.h>
 #include <string.h>
 
 void initialize_metadata() {

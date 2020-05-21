@@ -46,6 +46,8 @@ typedef struct object_maintainance_st {
     where_t which_ram;
 
     shift_levels_t shift_level;
+
+    bool can_be_moved;
 } object_maintainance;
 
 void initialise_logistics();
@@ -59,7 +61,7 @@ void insert_into_maintainance_map(object_maintainance *obj);
 
 void delete_from_maintainance_map(object_maintainance *obj);
 
-object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid, where_t which_ram);
+object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid, where_t which_ram, bool can_be_moved);
 
 
 #endif // !__NVM_OBJ_MAINTAIN__

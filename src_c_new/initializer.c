@@ -1,7 +1,6 @@
 #include "globals.h"
 #include <libpmemobj.h>
 #include <string.h>
-#include <libc-internal.h>
 #include "metadata.h"
 #include "pool.h"
 

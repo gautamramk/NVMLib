@@ -47,7 +47,10 @@ static const MEMoid MEMOID_NULL = { 0, 0, 0 };
 
 // The user facing fnction to allocate memory.
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+// User doesn't worry about where the object is placed
 #define memalloc(size) _memalloc(size, __FILENAME__, __func__, __LINE__)
+// User specifies where to put the object
+#define memmalloc(size, which_ram) _memalloc(size, which_ram, __FILENAME__, __func__, __LINE__)
 
 // Returns the direct pointer to the mem-object
 inline void* get_memobj_direct(MEMoid obj);
