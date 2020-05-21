@@ -1,11 +1,10 @@
 #include "globals.h"
 #include <libpmemobj.h>
 #include <string.h>
-#include <libc-internal.h>
 #include "metadata.h"
 #include "pool.h"
 
-extern const char *__progname;
+extern const char *program_invocation_short_name;
 
 // Initializes all the metadata and data pools and loads corresponding
 // information into hashmaps.

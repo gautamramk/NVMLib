@@ -16,18 +16,19 @@ typedef enum access_type_en {
 } access_types_t;
 
 typedef enum shitf_levels_en {
-    JUST_ENTERED,
+    JUST_ENTERED,   // After it has entered a RAM
     ONE,
     TWO,
     THREE,
     FOUR,
-    MOVE_NOW
+    MOVE_NOW    // Move in the next cycle
 } shift_levels_t;
 
 typedef enum where_en {
-    UNKNOWN,
+    UNKNOWN,    // A default
     DRAM,
-    NVRAM
+    NVRAM,
+    NO_RAM    // to be deleted
 } where_t;
 
 // The structure used by the logistics threads
@@ -46,6 +47,8 @@ typedef struct object_maintainance_st {
     where_t which_ram;
 
     shift_levels_t shift_level;
+
+    bool can_be_moved;
 } object_maintainance;
 
 void initialise_logistics();
@@ -53,13 +56,13 @@ void initialise_logistics();
 // uv_loop_t* get_logistics_loop();
 
 // Returns the actaul object in the map as a pointer.
-object_maintainance* find_in_maintainance_map(MEMoidKey key, MEMoid oid);
+object_maintainance* find_in_maintainance_map(MEMoidKey key);
 
 void insert_into_maintainance_map(object_maintainance *obj);
 
 void delete_from_maintainance_map(object_maintainance *obj);
 
-object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid, where_t which_ram);
+object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid, where_t which_ram, bool can_be_moved);
 
 
 #endif // !__NVM_OBJ_MAINTAIN__

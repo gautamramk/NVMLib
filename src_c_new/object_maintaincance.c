@@ -113,7 +113,7 @@ void on_deletion_timer(uv_timer_t *timer, int status) {
             // by value !!!
             var = bucket->entries[j];
 
-            int ret = check_if_required_to_move(var.key, var.oid);
+            int ret = check_if_required_to_delete(var);
             if(ret) {
                 // Needs to be deleted
                 work_req = (uv_work_t*)malloc(sizeof(*work_req));
@@ -279,9 +279,9 @@ void on_after_work(uv_work_t* req, int status) {
 // Checks if an object can be deleted or not
 // @return : 1 - If can be deleted
 //           0 - otherwise
-int check_if_required_to_delete(MEMoidKey key, MEMoid oid) {
-    // To be completed
-    return 0;
+int check_if_required_to_delete(object_maintainance entry) {
+    
+    return entry.which_ram == NO_RAM ? 1 : 0;
 }
 
 // Checks if an object can be moved or not
@@ -322,7 +322,7 @@ void create_maintainance_map() {
     object_maintainance_map = HASH_MAP_CREATE(object_maintainance)();
 }
 
-object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid, where_t which_ram) {
+object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid, where_t which_ram, bool can_be_moved) {
     object_maintainance* obj = (object_maintainance *)malloc(sizeof(object_maintainance) * 1);
     obj->key = key;
     obj->oid = oid;
@@ -334,6 +334,7 @@ object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid
     obj->access_bitmap = (uint64_t*)malloc((ceil((double)oid.size/64)));
     obj->which_ram = which_ram;
     obj->shift_level = JUST_ENTERED;
+    obj->can_be_moved = can_be_moved;
 
     return obj;
 }
@@ -346,9 +347,9 @@ void delete_from_maintainance_map(object_maintainance *obj) {
     HASH_MAP_ERASE(object_maintainance)(object_maintainance_map, obj);
 }
 
-object_maintainance* find_in_maintainance_map(MEMoidKey key, MEMoid oid) {
+object_maintainance* find_in_maintainance_map(MEMoidKey key) {
     // A placeholder for the actual object in the map
-    object_maintainance *found_obj = create_new_maintainance_map_entry(key, oid, UNKNOWN);
+    object_maintainance *found_obj = create_new_maintainance_map_entry(key, get_MEMoid(key), UNKNOWN, false);
 
     bool is_found = HASH_MAP_FIND(object_maintainance)(object_maintainance_map, &found_obj);
 

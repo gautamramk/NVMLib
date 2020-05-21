@@ -18,41 +18,6 @@
 /* number of values in a bucket which force hashtable rebuild */
 #define MAX_HASHSET_THRESHOLD 10
 
-/* layout definition */
-TOID_DECLARE(struct buckets, HASHMAP_TX_TYPE_OFFSET + 1);
-TOID_DECLARE(struct entry, HASHMAP_TX_TYPE_OFFSET + 2);
-
-struct entry {
-	uint64_t key;
-	MEMoid value;
-
-	/* next entry list pointer */
-	TOID(struct entry) next;
-};
-
-struct buckets {
-	/* number of buckets */
-	size_t nbuckets;
-	/* array of lists */
-	TOID(struct entry) bucket[];
-};
-
-struct hashmap_tx {
-	/* random number generator seed */
-	uint32_t seed;
-
-	/* hash function coefficients */
-	uint32_t hash_fun_a;
-	uint32_t hash_fun_b;
-	uint64_t hash_fun_p;
-
-	/* number of values inserted */
-	uint64_t count;
-
-	/* buckets */
-	TOID(struct buckets) buckets;
-};
-
 /*
  * create_hashmap -- hashmap initializer
  */
