@@ -37,3 +37,7 @@
 * Make the `initializer.c` to function.     --- SEEMS DONE
 
 * Write the CMake files.    --- DONE
+
+* Make sure where ever there is `pointer` or `struct` as return type or argument type, they are passed correctly, i.e check `by-value` and `by-memory`. 
+
+* Make sure to move all the `storage variables` into `.c` files or atleast make sure there are no collisions, i.e same global variable should not be initialised at two `.c` files.
