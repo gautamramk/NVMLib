@@ -8,6 +8,13 @@
 
 #define POOL_SIZE (2 << 12) // Pool size is 4kB
 
+
+POBJ_LAYOUT_BEGIN(list);
+POBJ_LAYOUT_ROOT(list, struct pool_free_slot_root);
+POBJ_LAYOUT_TOID(list, struct pool_free_slot);
+POBJ_LAYOUT_END(list);
+
+
 typedef struct pool_free_slot {
     uint64_t start_b;
     uint64_t end_b;
@@ -20,11 +27,6 @@ struct pool_free_slots_root {
     struct pool_free_slot_head head;
 };
 
-POBJ_LAYOUT_BEGIN(list);
-POBJ_LAYOUT_ROOT(list, struct pool_free_slot_root);
-POBJ_LAYOUT_TOID(list, struct pool_free_slot);
-POBJ_LAYOUT_END(list);
-
 // Initialise the metadata datastructures
 int initialize_pool();
 
@@ -35,7 +37,7 @@ uintptr_t get_pool_from_poolid(uint64_t pool_id);
 uint64_t get_current_poolid();
 
 // Returns the offset of the pointer to the allocated space in NVRAM
-uint64_t get_first_free_offset(size);
+uint64_t get_first_free_offset(size_t size);
 
 // Allocates the requested space in NVRAM and returns the offset of
 // the pointer to the allocated space.

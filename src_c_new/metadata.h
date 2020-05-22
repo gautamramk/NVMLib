@@ -10,14 +10,15 @@ typedef struct metadata_st {
     uint64_t inst_num;
 } metadata;
 
+POBJ_LAYOUT_BEGIN(init);
+POBJ_LAYOUT_TOID(init, metadata);
+POBJ_LAYOUT_END(init);
+
 typedef struct metadata_root_str {
     TOID(metadata) init_metadata;
 } metadata_root;
 
-POBJ_LAYOUT_BEGIN(init);
-POBJ_LAYOUT_ROOT(init, metadata_root);
-POBJ_LAYOUT_TOID(init, metadata);
-POBJ_LAYOUT_END(init);
+TOID_DECLARE_ROOT(metadata_root);
 
 PMEMobjpool *init_pop;
 
