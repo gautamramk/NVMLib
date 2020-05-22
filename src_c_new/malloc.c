@@ -86,7 +86,7 @@ MEMoidKey _memalloc(size_t size, uint8_t which_ram, const char *file, const char
     return key;
 }
 
-inline void* get_memobj_direct(MEMoid oid) {
+void* get_memobj_direct(MEMoid oid) {
     if (oid.offset == NULL || oid.pool_id == 0){
         return NULL;
     }

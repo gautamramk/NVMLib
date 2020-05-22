@@ -17,6 +17,12 @@ add_library( NVMlib STATIC
 )
 
 ##########################################
+# Setting C11 as the standard
+##########################################
+set_property(TARGET NVMlib PROPERTY C_STANDARD 11)
+
+
+##########################################
 # Making it save the .i files too and 
 # to give all warnings
 ##########################################

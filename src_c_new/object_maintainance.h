@@ -10,7 +10,7 @@
 #define MOVE_LOOP_SLEEP_TIME 5    // 5 milli secs
 
 typedef enum access_type_en {
-    UNKNOWN,
+    ACCESS_UNKNOWN,
     READ,
     WRITE
 } access_types_t;
@@ -25,7 +25,7 @@ typedef enum shitf_levels_en {
 } shift_levels_t;
 
 typedef enum where_en {
-    UNKNOWN,    // A default
+    RAM_UNKNOWN,    // A default
     DRAM,
     NVRAM,
     NO_RAM    // to be deleted

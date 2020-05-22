@@ -4,7 +4,13 @@
 #include "metadata.h"
 #include "pool.h"
 
-extern const char *program_invocation_short_name;
+extern char *program_invocation_short_name;
+
+
+// Open the logging files
+void open_logging_files() {
+    main_log_file_fd = fopen(MAIN_LOG_FILE_NAME, "w");
+}
 
 // Initializes all the metadata and data pools and loads corresponding
 // information into hashmaps.
@@ -16,9 +22,4 @@ void initialize() {
     initialize_pool();
     // Opening the logging files
     open_logging_files();
-}
-
-// Open the logging files
-void open_logging_files() {
-    main_log_file_fd = fopen(MAIN_LOG_FILE_NAME, "w");
 }
