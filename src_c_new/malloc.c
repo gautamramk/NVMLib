@@ -1,5 +1,4 @@
 #include "malloc.h"
-#include "pool.h"
 #include "types.h"
 #include "algo.h"
 #include "math.h"
@@ -26,7 +25,7 @@
 //     return new_obj;
 // }
 
-MEMoid __memalloc(size_t size, uint8_t which_ram) {
+MEMoid __memalloc(size_t size, int which_ram) {
     MEMoid new_obj;
 
     switch(which_ram) {
@@ -67,7 +66,7 @@ MEMoid __memalloc(size_t size, uint8_t which_ram) {
 uint64_t string_hash(const char *str) {
     uint64_t hash = 5381;
     int c;
-    while (c = *str++)
+    while ((c = *str++))
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     return hash;
@@ -78,11 +77,11 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
     MEMoidKey key = (((string_hash(file) + string_hash(func)) % __UINT64_MAX__)
                     + line) % __UINT64_MAX__;
 
-    uint8_t which_ram = ANY_RAM;
+    int which_ram = ANY_RAM;
     va_list arg_list;
     va_start(arg_list, num_args);
     while(num_args--) {
-        which_ram = va_arg(arg_list, uint8_t);
+        which_ram = va_arg(arg_list, int);
     }
 
     MEMoid oid =  __memalloc(size, which_ram);
@@ -93,8 +92,8 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
     struct addr2memoid_key* new_key = (struct addr2memoid_key*)malloc(sizeof(addr2memoid_key));
     new_key->comp = cmp_node;
     new_key->key = key;
-    splay_tree_insert(addr2MemOID_read, new_key, NULL);
-    splay_tree_insert(addr2MemOID_write, new_key, NULL);
+    splay_tree_insert(addr2MemOID_read, (uintptr_t)new_key, NULL);
+    splay_tree_insert(addr2MemOID_write, (uintptr_t)new_key, NULL);
     return key;
 }
 
@@ -115,7 +114,7 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
 // }
 
 void* get_memobj_direct(MEMoid oid) {
-    if (oid.offset == NULL || oid.pool_id == 0){
+    if (oid.offset == 0 || oid.pool_id == 0){
         return NULL;
     }
 
@@ -165,7 +164,7 @@ static inline void _memfree(MEMoidKey oidkey) {
 void* _key_get_first(MEMoidKey key) {
     MEMoid m = get_MEMoid(key);
     if (m.offset == MEMOID_NULL.offset && m.pool_id == MEMOID_NULL.pool_id) {
-        return MEMOID_FIRST(m);
+        return (void *)MEMOID_FIRST(m);
     }
     return NULL;
 }
@@ -173,7 +172,7 @@ void* _key_get_first(MEMoidKey key) {
 void* _key_get_last(MEMoidKey key) {
     MEMoid m = get_MEMoid(key);
     if (m.offset == MEMOID_NULL.offset && m.pool_id == MEMOID_NULL.pool_id) {
-        return MEMOID_FIRST(m) + m.size;
+        return (void *)MEMOID_FIRST(m) + m.size;
     }
     return NULL;
 }
