@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 #############################################
 # set the project name
 #############################################
-project(NVMlib LANGUAGES C VERSION 0.1.0)
+project(NVMlib LANGUAGES C CXX VERSION 0.1.0)
 
 #############################################
 # find the required libraries
@@ -63,6 +63,33 @@ if(NOT LibIberty_FOUND)
 endif()
 message(STATUS "LibIberty package found successfully.")
 
+
+#-------------------------------------------#
+# GCC-PLUGIN
+#-------------------------------------------#
+message(STATUS "Searching for Gcc-Plugin library package.")
+
+set(GccPlugin_SEARCHFILES gcc-plugin.h gimple.h basic-block.h)
+find_path(GccPlugin_INCLUDE_DIRS
+	NAMES ${GccPlugin_SEARCHFILES}
+	PATHS
+		/usr/lib/gcc/x86_64-linux-gnu/9/plugin/include   
+		/usr/lib/gcc/x86_64-linux-gnu/8/plugin/include   
+		/usr/lib/gcc/x86_64-linux-gnu/7/plugin/include   
+		/usr/lib/gcc/x86_64-linux-gnu/6/plugin/include
+		/usr/lib/gcc/x86_64-linux-gnu/5/plugin/include
+		/usr/lib/gcc/x86_64-linux-gnu/4/plugin/include
+	DOC "Gcc-Plugin include directory containing gcc-plugin.h.")
+
+if(GccPlugin_INCLUDE_DIRS)
+	set(GccPlugin_FOUND TRUE)
+endif()
+
+
+if(NOT GccPlugin_FOUND)
+	message(FATAL_ERROR "ERROR: Gcc-Plugin package not found. Install gcc-<version>-plugin-dev.")
+endif()
+message(STATUS "Gcc-Plugin package found successfully.")
 
 #############################################
 # Include the directory containing the
