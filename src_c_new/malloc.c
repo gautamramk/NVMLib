@@ -132,7 +132,7 @@ static inline void _memfree(MEMoidKey oidkey) {
 
 
 
-#define MEMOID_FIRST(m) (get_pool_from_poolid(m.pool_id) + m.offset)
+#define MEMOID_FIRST(m) (get_pool_from_poolid(m.pool_id) + m.offset) //need to use this in object_maintenence.c also, move to malloc.h?
 #define MEMOID_LAST(m) (get_pool_from_poolid(m.pool_id) + m.offset + m.size)
 
 void* _key_get_first(MEMoidKey key) {
