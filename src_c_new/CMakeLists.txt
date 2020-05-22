@@ -32,7 +32,7 @@ add_custom_command(TARGET NVMlib POST_BUILD
 	COMMAND bash -c 'if [ ! -d intermediate ]; then mkdir intermediate\; fi'
 	COMMAND bash -c 'mv ./*.i intermediate/'
 	COMMAND bash -c 'rm -f ./*.s'
-	WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+	WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/src_c_new/
 	COMMENT "Arranging the intermediate files"
 )
 

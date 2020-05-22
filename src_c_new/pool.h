@@ -1,5 +1,5 @@
 #ifndef __NVM_POOL__
-#define __NVM__POOL__
+#define __NVM_POOL__
 
 #include "globals.h"
 #include "free_slot_list.h"
