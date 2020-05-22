@@ -3,6 +3,7 @@
 #include <string.h>
 #include "metadata.h"
 #include "pool.h"
+#include "malloc.h"
 
 extern char *program_invocation_short_name;
 
@@ -16,6 +17,7 @@ void open_logging_files() {
 // information into hashmaps.
 
 void initialize() {
+    init_splay();
     // Initialize metadata and open metadata pools
     initialize_metadata();
     // Open data pools

@@ -65,5 +65,25 @@ void delete_from_maintainance_map(object_maintainance *obj);
 
 object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid, where_t which_ram, bool can_be_moved);
 
+void on_logistics_timer(uv_timer_t *timer, int status);
 
+void on_deletion_timer(uv_timer_t *timer, int status);
+
+void *logistics_thread_function(void *data);
+
+void *deletion_thread_function(void *data);
+
+void move_to_nvram(uv_work_t *req);
+
+void move_to_dram(uv_work_t *req);
+
+void on_after_work(uv_work_t* req, int status);
+
+void delete_object(uv_work_t *req);
+
+void create_maintainance_map();
+
+int check_if_required_to_move(MEMoidKey key, MEMoid oid);
+
+int check_if_required_to_delete(object_maintainance entry);
 #endif // !__NVM_OBJ_MAINTAIN__

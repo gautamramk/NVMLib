@@ -37,8 +37,6 @@ typedef struct MEMoid_st {
     // uint64_t *access_bitmap;
 } MEMoid;
 
-#define KEY_FIRST(key) (_key_get_first(key))
-#define KEY_LAST(key) (_key_get_last(key))
 
 // The key of the HashTable that contains <MEMoidKey, MEMoid>.
 typedef uint64_t MEMoidKey;
@@ -60,6 +58,12 @@ static const MEMoid MEMOID_NULL = { 0, 0, 0 };
 // Returns the direct pointer to the mem-object
 void* get_memobj_direct(MEMoid obj);
 
+void* _key_get_last(MEMoidKey key);
+void* _key_get_first(MEMoidKey key);
+
+#define KEY_FIRST(key) (_key_get_first(key))
+#define KEY_LAST(key) (_key_get_last(key))
+
 // #define memfree(o) _memfree((o).oidkey, sizeof(__typeof__(*(o)._type)))
 // #define memfree(o) _memfree((o).oidkey, get_MEMoid(o).size)
 #define memfree(o) _memfree((o).oidkey)
@@ -77,4 +81,5 @@ typedef struct addr2memoid_key {
 
 } addr2memoid_key;
 
+void init_splay();
 #endif // !__NVM_MALLOC__

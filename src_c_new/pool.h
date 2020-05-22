@@ -3,16 +3,17 @@
 
 #include "globals.h"
 #include "free_slot_list.h"
+#include <libpmemobj.h>
 
 #define POOL_ID_MALLOC_OBJ -1
 
 #define POOL_SIZE (2 << 12) // Pool size is 4kB
 
 
-POBJ_LAYOUT_BEGIN(list);
-POBJ_LAYOUT_ROOT(list, struct pool_free_slot_root);
-POBJ_LAYOUT_TOID(list, struct pool_free_slot);
-POBJ_LAYOUT_END(list);
+POBJ_LAYOUT_BEGIN(free_slot_layout);
+POBJ_LAYOUT_ROOT(free_slot_layout, struct pool_free_slots_root);
+POBJ_LAYOUT_TOID(free_slot_layout, struct pool_free_slot);
+POBJ_LAYOUT_END(free_slot_layout);
 
 
 typedef struct pool_free_slot {

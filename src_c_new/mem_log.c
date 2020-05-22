@@ -8,7 +8,7 @@ void log_write(void* addr, size_t size) {
     ad_log->addr = addr;
     ad_log->size = size;
     time(&ad_log->access_time);
-    TAILQ_INSERT_TAIL(write_queue_head, ad_log, list);
+    TAILQ_INSERT_TAIL(&write_queue_head, ad_log, list);
 }
 
 void log_read(void* addr, size_t size) {
@@ -16,5 +16,5 @@ void log_read(void* addr, size_t size) {
     ad_log->addr = addr;
     ad_log->size = size;
     time(&ad_log->access_time);
-    TAILQ_INSERT_TAIL(read_queue_head, ad_log, list);
+    TAILQ_INSERT_TAIL(&read_queue_head, ad_log, list);
 }

@@ -220,7 +220,7 @@ struct name {\
 	}\
 } while (0)
 
-#define POBJ_TAILQ_INSERT_AFTER(listelm, elm, field) do {\
+#define POBJ_TAILQ_INSERT_AFTER(head, listelm, elm, field) do {\
 	TOID_TYPEOF(elm) *elm_ptr = D_RW(elm);\
 	TOID_TYPEOF(listelm) *listelm_ptr = D_RW(listelm);\
 	TX_ADD_DIRECT(&elm_ptr->field);\
@@ -237,7 +237,7 @@ struct name {\
 	listelm_ptr->field.pe_next = elm;\
 } while (0)
 
-#define POBJ_TAILQ_INSERT_BEFORE(listelm, elm, field) do {\
+#define POBJ_TAILQ_INSERT_BEFORE(head, listelm, elm, field) do {\
 	TOID_TYPEOF(elm) *elm_ptr = D_RW(elm);\
 	TOID_TYPEOF(listelm) *listelm_ptr = D_RW(listelm);\
 	TX_ADD_DIRECT(&elm_ptr->field);\

@@ -191,6 +191,7 @@ int addr2memoid_cmp(splay_tree_key key1, splay_tree_key key2) {
         else
             return KEY_FIRST(((addr2memoid_key*)key1)->key) > ((addr2memoid_key*)key1)->addr?1:-1;
     }
+    return 0;
 }
 
 void addr2memoid_del(splay_tree_key key) {
@@ -199,7 +200,7 @@ void addr2memoid_del(splay_tree_key key) {
 
 // The splay tree is used for reverse mapping
 // from address to MemOiD
-static void init_splay() {
+void init_splay() {
     addr2MemOID_read = splay_tree_new(*addr2memoid_cmp, *addr2memoid_del, NULL);
     addr2MemOID_write = splay_tree_new(*addr2memoid_cmp, *addr2memoid_del, NULL);
 }

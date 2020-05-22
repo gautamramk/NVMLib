@@ -6,12 +6,36 @@
 #include "pool.h"
 #include "hashmap.h"
 #include "mem_log.h"
+#include "log.h"
 #include <uv.h>
 #include <pthread.h>
 
 uv_mutex_t object_maintainence_hashmap_mutex;   // used during manupulation of `types map`
 uv_mutex_t object_maintainence_memory_mutex;    // used during `nvm_free` / access too
 uv_mutex_t object_maintainence_maintain_map_mutex;   // used during manupulation of `maintainance map`
+
+/**
+ * Hashmap for object maintaince
+ * 
+ * will be used by `check_if_required_to_move`
+ * 
+**/
+
+uint64_t get_hash(object_maintainance *entry) {
+	return entry->key;
+}
+
+int compare(object_maintainance *a, object_maintainance *b) {
+    if(a->key == b->key) {
+        return 0;
+    }
+    return 1;
+}
+
+DECLARE_HASHMAP(object_maintainance)
+DEFINE_HASHMAP(object_maintainance, compare, get_hash, free, realloc)
+
+HASH_MAP(object_maintainance) *object_maintainance_map;
 
 void initialise_logistics() {
 
@@ -38,7 +62,7 @@ void *logistics_thread_function(void *data){
 
     uv_timer_t timer_logistics;
     uv_timer_init(thread_loop, &timer_logistics);
-    uv_timer_start(&timer_logistics, on_logistics_timer, 0, MOVE_LOOP_SLEEP_TIME);
+    uv_timer_start(&timer_logistics, (uv_timer_cb)on_logistics_timer, 0, MOVE_LOOP_SLEEP_TIME);
 
     //Start this loop
     uv_run(thread_loop, UV_RUN_DEFAULT);
@@ -51,7 +75,7 @@ void *deletion_thread_function(void *data){
 
     uv_timer_t timer_logistics;
     uv_timer_init(thread_loop, &timer_logistics);
-    uv_timer_start(&timer_logistics, on_deletion_timer, 0, MOVE_LOOP_SLEEP_TIME);
+    uv_timer_start(&timer_logistics, (uv_timer_cb)on_deletion_timer, 0, MOVE_LOOP_SLEEP_TIME);
 
     //Start this loop
     uv_run(thread_loop, UV_RUN_DEFAULT);
@@ -62,7 +86,7 @@ static inline void set_bits(uint64_t* bitmap, size_t offset, size_t size) {
     int byteno = offset/64;
     int shift = offset%64;
     uint64_t bit = 1<<shift;
-    for (int i = 0; i < size, i++) {
+    for (int i = 0; i < size; i++) {
         if (shift >= 64) {shift = 0; byteno++; bit = 1;}
         bitmap[byteno] |= bit;
         shift++;
@@ -78,7 +102,7 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         // nothing yet in the logistics map
         return;
     }
-    while(!TAILQ_EMPTY(write_queue_head)) {
+    while(!TAILQ_EMPTY(&write_queue_head)) {
         address_log* w_add = TAILQ_FIRST(&write_queue_head);
         addr2memoid_key skey;
         skey.comp = cmp_addr;
@@ -90,7 +114,7 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         om->last_accessed_at = w_add->access_time;
         set_bits(om->write_bitmap, w_add->addr - KEY_FIRST(mkey), w_add->size);
     }
-    while(!TAILQ_EMPTY(read_queue_head)) {
+    while(!TAILQ_EMPTY(&read_queue_head)) {
         address_log* r_add = TAILQ_FIRST(&read_queue_head);
         addr2memoid_key skey;
         skey.comp = cmp_addr;
@@ -176,7 +200,7 @@ void delete_object(uv_work_t *req){
 
             // freeing the contents in dram
             uv_mutex_lock(&object_maintainence_memory_mutex);
-            free(oid.offset);
+            free((void*)oid.offset);
             uv_mutex_unlock(&object_maintainence_memory_mutex);
             is_dram = true;
             break;
@@ -217,7 +241,7 @@ void move_to_dram(uv_work_t *req) {
     new_obj.size = size;
     
     // copying the object contents
-    memcpy(new_obj.offset, get_pool_from_poolid(oid.pool_id) + oid.offset, size);
+    memcpy((void*)new_obj.offset, (void*)(get_pool_from_poolid(oid.pool_id) + oid.offset), size);
 
     // Get the hashmap mutex first to ensure there are no leftover accesses
     uv_mutex_lock(&object_maintainence_hashmap_mutex);
@@ -265,7 +289,7 @@ void move_to_nvram(uv_work_t *req) {
     new_obj.offset = get_first_free_offset(size);
     new_obj.size = size;
 
-    memcpy(get_pool_from_poolid(new_obj.pool_id) + new_obj.offset, oid.offset, size);
+    memcpy((void*)(get_pool_from_poolid(new_obj.pool_id) + new_obj.offset), (void*)oid.offset, size);
     //TODO: need to call peme_persist ... later!!
 
      // Get the hashmap mutex first to ensure there are no leftover accesses
@@ -273,7 +297,7 @@ void move_to_nvram(uv_work_t *req) {
 
     // freeing the contents in dram
     uv_mutex_lock(&object_maintainence_memory_mutex);
-    free(oid.offset);
+    free((void*)oid.offset);
     uv_mutex_unlock(&object_maintainence_memory_mutex);
 
     // updating the `types_table`
@@ -328,30 +352,6 @@ int check_if_required_to_move(MEMoidKey key, MEMoid oid) {
     return 0;
 }
 
-
-/**
- * Hashmap for object maintaince
- * 
- * will be used by `check_if_required_to_move`
- * 
-**/
-
-int compare(object_maintainance *a, object_maintainance *b) {
-    if(a->key == a->key) {
-        return 0;
-    }
-    return 1;
-}
-
-uint64_t get_hash(object_maintainance *entry) {
-	return entry->key;
-}
-
-
-DECLARE_HASHMAP(object_maintainance)
-DEFINE_HASHMAP(object_maintainance, compare, get_hash, free, realloc)
-
-HASH_MAP(object_maintainance) *object_maintainance_map;
 
 void create_maintainance_map() {
     object_maintainance_map = HASH_MAP_CREATE(object_maintainance)();
