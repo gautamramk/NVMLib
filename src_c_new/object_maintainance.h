@@ -45,6 +45,15 @@ typedef struct object_maintainance_st {
     uint64_t *write_bitmap;
     uint64_t *read_bitmap;
 
+    uint64_t w_entropy;
+    uint64_t r_entropy;
+    void* last_write;
+    void* last_read;
+    size_t last_write_size;
+    size_t last_read_size;
+    size_t bytes_write;
+    size_t bytes_read;
+
     where_t which_ram;
 
     shift_levels_t shift_level;

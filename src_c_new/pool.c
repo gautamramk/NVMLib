@@ -10,17 +10,6 @@
 //extern const char *program_invocation_short_name;
 uint32_t num_pools;
 
-typedef struct pool_kv_st {
-    uint16_t key;
-    uintptr_t pool_ptr;
-} pool_kv;
-
-typedef struct pool_free_slot_val_st {
-    uint16_t key;
-    PMEMobjpool* pool;
-    pool_free_slot_head head;
-} pool_free_slot_val;
-
 static int compare_kv(pool_kv* left, pool_kv* right) {
     if (left->key == right->key) return 0;
     return 1;
@@ -39,12 +28,10 @@ int get_hash_free_slot(pool_free_slot_val *val){
     return val->key;
 }
 
-DECLARE_HASHMAP(pool_kv)
 DEFINE_HASHMAP(pool_kv, compare_kv, get_hash_kv, free, realloc)
 
 HASH_MAP(pool_kv) *pool_map;
 
-DECLARE_HASHMAP(pool_free_slot_val)
 DEFINE_HASHMAP(pool_free_slot_val, compare_free_slot, get_hash_free_slot, free, realloc)
 
 HASH_MAP(pool_free_slot_val) *pool_free_slot_map;
@@ -83,14 +70,13 @@ int initialize_pool() {
     return 0;
 }
 
-static inline uint64_t free_slot_size(TOID(struct pool_free_slot) slot) {
-    return D_RO(slot)->end_b - D_RO(slot)->start_b + 1;
-}
-
 uintptr_t get_pool_from_poolid(uint64_t pool_id) {
-    pool_kv* temp;
-    if (HASH_MAP_FIND(pool_kv)(pool_map, &temp)) {
-        return (uintptr_t)temp;
+    pool_kv temp;
+    pool_kv* temp_ptr = &temp;
+    temp.key = pool_id;
+    temp.pool_ptr = (uintptr_t)NULL;
+    if (HASH_MAP_FIND(pool_kv)(pool_map, &temp_ptr)) {
+        return (uintptr_t)temp_ptr->pool_ptr;
     }
     return NULL;
 }
@@ -114,7 +100,7 @@ void create_new_pool() {
     strcpy(pool_free_slot_file_name, program_invocation_short_name);
     strcat(pool_file_name, "_poolfile_");
     strcat(pool_free_slot_file_name, "_free_slot_");
-    sprintf(pool_number_str, "%3d", num_pools-1);
+    sprintf(pool_number_str, "%3d", num_pools);
     strcat(pool_file_name, pool_number_str);
     strcat(pool_free_slot_file_name, pool_number_str);
     // Need to corrected with proper pathss
@@ -128,34 +114,6 @@ void create_new_pool() {
     update_num_pools(num_pools);
     HASH_MAP_INSERT(pool_kv)(pool_map, &new_entry, HMDR_FIND);
     HASH_MAP_INSERT(pool_free_slot_val)(pool_free_slot_map, &new_free_slots, HMDR_FIND);
-}
-
-uint64_t allot_first_free_offset(uint64_t pool_id, size_t size) {
-    // LOG shit
-    pool_free_slot_val temp;
-    pool_free_slot_val* temp_ptr = &temp;
-    temp.key = pool_id;
-    HASH_MAP_FIND(pool_free_slot_val)(pool_free_slot_map, &temp_ptr);
-    pool_free_slot_head *f_head = &(temp_ptr->head);
-    uint64_t ret = -1;
-    TOID(struct pool_free_slot) node;
-    POBJ_TAILQ_FOREACH (node, f_head, fnd) {
-        if (free_slot_size(node) == size) {
-            ret = D_RO(node)->start_b;
-            TX_BEGIN(temp_ptr->pool) {
-                POBJ_TAILQ_REMOVE_FREE(f_head, node, fnd);
-            } TX_END
-            break;
-        } else if (free_slot_size(node) > size) {
-            ret = D_RO(node)->start_b;
-            uint64_t new_start = D_RO(node)->start_b + size;
-            TX_BEGIN(temp_ptr->pool) {
-                D_RW(node)->start_b = new_start;
-            } TX_END
-            break;
-        }
-    }
-    return ret;
 }
 
 void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {

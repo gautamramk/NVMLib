@@ -3,18 +3,19 @@
 
 #include "globals.h"
 #include "free_slot_list.h"
+#include "hashmap.h"
 #include <libpmemobj.h>
 
 #define POOL_ID_MALLOC_OBJ -1
 
 #define POOL_SIZE (2 << 12) // Pool size is 4kB
 
+uint32_t num_pools;
 
 POBJ_LAYOUT_BEGIN(free_slot_layout);
 POBJ_LAYOUT_ROOT(free_slot_layout, struct pool_free_slots_root);
 POBJ_LAYOUT_TOID(free_slot_layout, struct pool_free_slot);
 POBJ_LAYOUT_END(free_slot_layout);
-
 
 typedef struct pool_free_slot {
     uint64_t start_b;
@@ -28,6 +29,23 @@ struct pool_free_slots_root {
     struct pool_free_slot_head head;
 };
 
+typedef struct pool_kv_st {
+    uint16_t key;
+    uintptr_t pool_ptr;
+} pool_kv;
+
+typedef struct pool_free_slot_val_st {
+    uint16_t key;
+    PMEMobjpool* pool;
+    pool_free_slot_head head;
+} pool_free_slot_val;
+
+
+DECLARE_HASHMAP(pool_kv)
+DECLARE_HASHMAP(pool_free_slot_val);
+
+HASH_MAP(pool_kv) *pool_map;
+HASH_MAP(pool_free_slot_val) *pool_free_slot_map;
 // Initialise the metadata datastructures
 int initialize_pool();
 
@@ -40,12 +58,10 @@ uint64_t get_current_poolid();
 // Returns the offset of the pointer to the allocated space in NVRAM
 uint64_t get_first_free_offset(size_t size);
 
-// Allocates the requested space in NVRAM and returns the offset of
-// the pointer to the allocated space.
-// This is called internally by `get_current_free_offset()`
-uint64_t allot_current_free_offset(size_t size);
-
 // Frees the allocated spaces
 void nvm_free(uint64_t pool_id, uint64_t offset, size_t size);
+
+void create_new_pool();
+
 
 #endif // !__NVM_POOL__

@@ -98,16 +98,19 @@ void *deletion_thread_function(void *data){
     pthread_exit(NULL);
 }
 
-static inline void set_bits(uint64_t* bitmap, size_t offset, size_t size) {
+static inline size_t set_bits(uint64_t* bitmap, size_t offset, size_t size) {
     int byteno = offset/64;
     int shift = offset%64;
+    size_t new_set = 0;
     uint64_t bit = 1<<shift;
     for (int i = 0; i < size; i++) {
         if (shift >= 64) {shift = 0; byteno++; bit = 1;}
+        bitmap[byteno] & bit?0:new_set++;
         bitmap[byteno] |= bit;
         shift++;
         bit <<= 1;
     }
+    return new_set;
 }
 
 void on_logistics_timer(uv_timer_t *timer, int status) {
@@ -128,7 +131,13 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         object_maintainance* om = find_in_maintainance_map(mkey);
         om->num_writes++;
         om->last_accessed_at = w_add->access_time;
-        set_bits(om->write_bitmap, w_add->addr - KEY_FIRST(mkey), w_add->size);
+        size_t ent_inc = set_bits(om->write_bitmap, w_add->addr - KEY_FIRST(mkey), w_add->size);
+        if (om->last_write + om->last_write_size == w_add->addr) {
+            om->w_entropy += ent_inc;
+        }
+        om->last_write = w_add->addr;
+        om->last_write_size = w_add->size;
+        om->bytes_write += w_add->size;
     }
     while(!TAILQ_EMPTY(&read_queue_head)) {
         address_log* r_add = TAILQ_FIRST(&read_queue_head);
@@ -140,14 +149,21 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         object_maintainance* om = find_in_maintainance_map(mkey);
         om->num_reads++;
         om->last_accessed_at = r_add->access_time;
-        set_bits(om->read_bitmap, r_add->addr - KEY_FIRST(mkey), r_add->size);
+        size_t ent_inc = set_bits(om->read_bitmap, r_add->addr - KEY_FIRST(mkey), r_add->size);
+        if (om->last_read + om->last_read_size == r_add->addr) {
+            om->r_entropy += ent_inc;
+        }
+        om->last_read = r_add->addr;
+        om->last_read_size = r_add->size;
+        om->bytes_read += r_add->size;
     }
     for(size_t i=0; i<object_maintainance_map->power_of_two; i++) {
         HASH_MAP_BUCKET(object_maintainance) *bucket = &object_maintainance_map->entries[i];
         for(int j = 0; j < bucket->size; j++) {
             // by value !!!
             var = bucket->entries[j];
-            
+            var.r_entropy = var.bytes_read / var.r_entropy;
+            var.w_entropy = var.bytes_write / var.w_entropy;
 
             int ret = check_if_required_to_move(var.key, var.oid);
             switch (ret){
@@ -387,6 +403,12 @@ object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid
     obj->which_ram = which_ram;
     obj->shift_level = JUST_ENTERED;
     obj->can_be_moved = can_be_moved;
+    obj->last_read = NULL;
+    obj->last_write = NULL;
+    obj->last_read_size = 0;
+    obj->last_write_size = 0;
+    obj->bytes_read = 0;
+    obj->bytes_write =0;
 
     return obj;
 }

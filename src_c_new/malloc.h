@@ -26,6 +26,7 @@ splay_tree addr2MemOID_read;
 splay_tree addr2MemOID_write;
 
 // The struct that stores the memptr for the object.
+
 typedef struct MEMoid_st {
     uint64_t pool_id;
     uint64_t offset;
@@ -37,6 +38,12 @@ typedef struct MEMoid_st {
     // uint64_t *access_bitmap;
 } MEMoid;
 
+// Allocates the requested space in NVRAM and returns the offset of
+// the pointer to the allocated space.
+// This is called internally by `get_current_free_offset()`
+uint64_t allot_first_free_offset_pool(uint64_t pool_id, size_t size);
+
+MEMoid allot_first_free_offset(size_t size);
 
 // The key of the HashTable that contains <MEMoidKey, MEMoid>.
 typedef uint64_t MEMoidKey;
