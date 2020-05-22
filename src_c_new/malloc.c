@@ -7,37 +7,56 @@
 #include <libiberty/splay-tree.h>
 #include "object_maintainance.h"
 
-MEMoid __memalloc(size_t size) {
-    MEMoid new_obj;
+// MEMoid __memalloc(size_t size) {
+//     MEMoid new_obj;
 
-    if (decide_allocation(size) - NVRAM_HEAP == 0) {
-        // allocate in NVRAM
-        new_obj.pool_id = get_current_poolid();
-        new_obj.offset = get_first_free_offset(size);
+//     if (decide_allocation(size) - NVRAM_HEAP == 0) {
+//         // allocate in NVRAM
+//         new_obj.pool_id = get_current_poolid();
+//         new_obj.offset = get_first_free_offset(size);
 
-    } else if (decide_allocation(size) - DRAM_HEAP == 0) {
-        // allocate in DRAM
-        new_obj.offset = (uint64_t)(malloc(size));
-        new_obj.pool_id = POOL_ID_MALLOC_OBJ;
-    }
-    new_obj.size = size;
+//     } else if (decide_allocation(size) - DRAM_HEAP == 0) {
+//         // allocate in DRAM
+//         new_obj.offset = (uint64_t)(malloc(size));
+//         new_obj.pool_id = POOL_ID_MALLOC_OBJ;
+//     }
+//     new_obj.size = size;
 
-    // new_obj.access_bitmap = (uint64_t*)malloc((ceil((double)size/64));
-    return new_obj;
-}
+//     // new_obj.access_bitmap = (uint64_t*)malloc((ceil((double)size/64));
+//     return new_obj;
+// }
 
 MEMoid __memalloc(size_t size, uint8_t which_ram) {
     MEMoid new_obj;
 
-    if (which_ram - NVRAM_HEAP == 0) {
-        // allocate in NVRAM
-        new_obj.pool_id = get_current_poolid();
-        new_obj.offset = get_first_free_offset(size);
+    switch(which_ram) {
+        case ANY_RAM:
+            if (decide_allocation(size) - NVRAM_HEAP == 0) {
+                // allocate in NVRAM
+                new_obj.pool_id = get_current_poolid();
+                new_obj.offset = get_first_free_offset(size);
 
-    } else if (which_ram - DRAM_HEAP == 0) {
-        // allocate in DRAM
-        new_obj.offset = (uint64_t)(malloc(size));
-        new_obj.pool_id = POOL_ID_MALLOC_OBJ;
+            } else if (decide_allocation(size) - DRAM_HEAP == 0) {
+                // allocate in DRAM
+                new_obj.offset = (uint64_t)(malloc(size));
+                new_obj.pool_id = POOL_ID_MALLOC_OBJ;
+            }
+            break;
+
+        case NVRAM_HEAP:
+            // allocate in NVRAM
+            new_obj.pool_id = get_current_poolid();
+            new_obj.offset = get_first_free_offset(size);
+            break;
+
+        case DRAM_HEAP:
+            // allocate in DRAM
+            new_obj.offset = (uint64_t)(malloc(size));
+            new_obj.pool_id = POOL_ID_MALLOC_OBJ;
+            break;
+
+        default:
+            break;
     }
     new_obj.size = size;
 
@@ -54,11 +73,19 @@ uint64_t string_hash(const char *str) {
     return hash;
 }
 
-MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int line) {
+MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int line, int num_args, ...) {
     // Can be made faster ... but thats an after thought as of now xD
     MEMoidKey key = (((string_hash(file) + string_hash(func)) % __UINT64_MAX__)
                     + line) % __UINT64_MAX__;
-    MEMoid oid =  __memalloc(size);
+
+    uint8_t which_ram = ANY_RAM;
+    va_list arg_list;
+    va_start(arg_list, num_args);
+    while(num_args--) {
+        which_ram = va_arg(arg_list, uint8_t);
+    }
+
+    MEMoid oid =  __memalloc(size, which_ram);
     // Insert in the main types table
     insert_object_to_hashmap(key, oid);
     // Insert into the object maintainance table for logistics
@@ -71,21 +98,21 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
     return key;
 }
 
-MEMoidKey _memalloc(size_t size, uint8_t which_ram, const char *file, const char *func, const int line) {
-    // Can be made faster ... but thats an after thought as of now xD
-    MEMoidKey key = (((string_hash(file) + string_hash(func)) % __UINT64_MAX__)
-                    + line) % __UINT64_MAX__;
-    MEMoid oid =  __memalloc(size);
-    // Insert in the main types table
-    insert_object_to_hashmap(key, oid);
-    // Insert into the object maintainance table for logistics
-    insert_into_maintainance_map(create_new_maintainance_map_entry(key, oid, oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM, false));
-    struct addr2memoid_key* new_key = (struct addr2memoid_key*)malloc(sizeof(addr2memoid_key));
-    new_key->comp = cmp_node;
-    new_key->key = key;
-    splay_tree_insert(addr2MemOID, new_key, NULL);
-    return key;
-}
+// MEMoidKey _memalloc(size_t size, uint8_t which_ram, const char *file, const char *func, const int line) {
+//     // Can be made faster ... but thats an after thought as of now xD
+//     MEMoidKey key = (((string_hash(file) + string_hash(func)) % __UINT64_MAX__)
+//                     + line) % __UINT64_MAX__;
+//     MEMoid oid =  __memalloc(size);
+//     // Insert in the main types table
+//     insert_object_to_hashmap(key, oid);
+//     // Insert into the object maintainance table for logistics
+//     insert_into_maintainance_map(create_new_maintainance_map_entry(key, oid, oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM, false));
+//     struct addr2memoid_key* new_key = (struct addr2memoid_key*)malloc(sizeof(addr2memoid_key));
+//     new_key->comp = cmp_node;
+//     new_key->key = key;
+//     splay_tree_insert(addr2MemOID, new_key, NULL);
+//     return key;
+// }
 
 void* get_memobj_direct(MEMoid oid) {
     if (oid.offset == NULL || oid.pool_id == 0){

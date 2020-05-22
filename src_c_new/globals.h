@@ -15,6 +15,7 @@
 #define NVRAM_STACK 1
 #define DRAM_HEAP 2
 #define NVRAM_HEAP 3
+#define ANY_RAM 4
 
 typedef __uint128_t uint128_t;
 typedef __uint64_t uint64_t;

@@ -48,12 +48,12 @@ static const MEMoid MEMOID_NULL = { 0, 0, 0 };
 
 // The user facing fnction to allocate memory.
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define NUMARGS(...)  (sizeof((int[]){__VA_ARGS__})/sizeof(int))
+#define NUMARGS(...)  (sizeof((int[]){0, ##__VA_ARGS__})/sizeof(int)-1)
 
 // User doesn't worry about where the object is placed
 //
 // Note this supports both with and wothout `which_ram`
-#define memalloc(size, ...) _memalloc(size, __FILENAME__, __func__, __LINE__, NUMARGS(__VA_ARGS__), __VA_ARGS__)
+#define memalloc(size, ...) _memalloc(size, __FILENAME__, __func__, __LINE__, NUMARGS(__VA_ARGS__), ##__VA_ARGS__)
 // User specifies where to put the object
 // #define memmalloc(size, which_ram) _memalloc(size, which_ram, __FILENAME__, __func__, __LINE__)
 
