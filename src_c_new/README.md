@@ -27,7 +27,10 @@
     - Make sure `init_types_table` works
 
 * pool.c
-    - There seem to be a lot of compiler errors. Correct it.
+    - There seem to be a lot of compiler errors. Correct it.    --- DONE
+    - Complete the functions `get_first_free_offset` and `allot_current_free_offset`
+    - Write the creation of new pools function.
+    - Complete the logic to create new `pool` if the current one is insufficient.
 
 * See if `pmem_persist` needs to be called. 
 
