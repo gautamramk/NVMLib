@@ -66,7 +66,8 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
     struct addr2memoid_key* new_key = (struct addr2memoid_key*)malloc(sizeof(addr2memoid_key));
     new_key->comp = cmp_node;
     new_key->key = key;
-    splay_tree_insert(addr2MemOID, new_key, NULL);
+    splay_tree_insert(addr2MemOID_read, new_key, NULL);
+    splay_tree_insert(addr2MemOID_write, new_key, NULL);
     return key;
 }
 
@@ -131,7 +132,7 @@ static inline void _memfree(MEMoidKey oidkey) {
 
 
 
-#define MEMOID_FIRST(m) (get_pool_from_poolid(m.pool_id) + m.offset)
+#define MEMOID_FIRST(m) (get_pool_from_poolid(m.pool_id) + m.offset) //need to use this in object_maintenence.c also, move to malloc.h?
 #define MEMOID_LAST(m) (get_pool_from_poolid(m.pool_id) + m.offset + m.size)
 
 void* _key_get_first(MEMoidKey key) {
@@ -173,5 +174,6 @@ void addr2memoid_del(splay_tree_key key) {
 // The splay tree is used for reverse mapping
 // from address to MemOiD
 static void init_splay() {
-    addr2MemOID = splay_tree_new(*addr2memoid_cmp, *addr2memoid_del, NULL);
+    addr2MemOID_read = splay_tree_new(*addr2memoid_cmp, *addr2memoid_del, NULL);
+    addr2MemOID_write = splay_tree_new(*addr2memoid_cmp, *addr2memoid_del, NULL);
 }

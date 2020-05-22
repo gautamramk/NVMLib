@@ -5,6 +5,7 @@
 #include "globals.h"
 #include "pool.h"
 #include "hashmap.h"
+#include "mem_log.h"
 #include <uv.h>
 #include <pthread.h>
 
@@ -57,6 +58,17 @@ void *deletion_thread_function(void *data){
     pthread_exit(NULL);
 }
 
+static inline void set_bits(uint64_t* bitmap, size_t offset, size_t size) {
+    int byteno = offset/64;
+    int shift = offset%64;
+    uint64_t bit = 1<<shift;
+    for (int i = 0; i < size, i++) {
+        if (shift >= 64) {shift = 0; byteno++; bit = 1;}
+        bitmap[byteno] |= bit;
+        shift++;
+        bit <<= 1;
+    }
+}
 
 void on_logistics_timer(uv_timer_t *timer, int status) {
     uv_work_t* work_req;
@@ -66,7 +78,30 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         // nothing yet in the logistics map
         return;
     }
-    
+    while(!TAILQ_EMPTY(write_queue_head)) {
+        address_log* w_add = TAILQ_FIRST(&write_queue_head);
+        addr2memoid_key skey;
+        skey.comp = cmp_addr;
+        skey.addr = w_add->addr;
+        splay_tree_node ret_node = splay_tree_lookup(addr2MemOID_write, (splay_tree_key)&skey);
+        MEMoidKey mkey = ((addr2memoid_key*)ret_node->key)->key;
+        object_maintainance* om = find_in_maintainance_map(mkey);
+        om->num_writes++;
+        om->last_accessed_at = w_add->access_time;
+        set_bits(om->write_bitmap, w_add->addr - KEY_FIRST(mkey), w_add->size);
+    }
+    while(!TAILQ_EMPTY(read_queue_head)) {
+        address_log* r_add = TAILQ_FIRST(&read_queue_head);
+        addr2memoid_key skey;
+        skey.comp = cmp_addr;
+        skey.addr = r_add->addr;
+        splay_tree_node ret_node = splay_tree_lookup(addr2MemOID_read, (splay_tree_key)&skey);
+        MEMoidKey mkey = ((addr2memoid_key*)ret_node->key)->key;
+        object_maintainance* om = find_in_maintainance_map(mkey);
+        om->num_reads++;
+        om->last_accessed_at = r_add->access_time;
+        set_bits(om->read_bitmap, r_add->addr - KEY_FIRST(mkey), r_add->size);
+    }
     for(size_t i=0; i<object_maintainance_map->power_of_two; i++) {
         HASH_MAP_BUCKET(object_maintainance) *bucket = &object_maintainance_map->entries[i];
         for(int j = 0; j < bucket->size; j++) {
@@ -331,7 +366,8 @@ object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid
     obj->last_accessed_at = time(NULL);
     obj->time_since_previous_access = 0;
     obj->previous_access_type = ACCESS_UNKNOWN;
-    obj->access_bitmap = (uint64_t*)malloc((ceil((double)oid.size/64)));
+    obj->write_bitmap = (uint64_t*)malloc((ceil((double)oid.size/64)));
+    obj->read_bitmap = (uint64_t*)malloc((ceil((double)oid.size/64)));
     obj->which_ram = which_ram;
     obj->shift_level = JUST_ENTERED;
     obj->can_be_moved = can_be_moved;

@@ -42,7 +42,8 @@ typedef struct object_maintainance_st {
     time_t time_since_previous_access;
     access_types_t previous_access_type;
 
-    uint64_t *access_bitmap;
+    uint64_t *write_bitmap;
+    uint64_t *read_bitmap;
 
     where_t which_ram;
 

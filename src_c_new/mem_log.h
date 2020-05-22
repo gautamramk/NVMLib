@@ -1,11 +1,13 @@
 #ifndef __MEM_LOG_H__
 #define __MEM_LOG_H__
 #include "malloc.h"
+#include <time.h>
 #include <sys/queue.h>
 
 typedef struct address_log {
     void* addr;
     size_t size;
+    time_t access_time;
     TAILQ_ENTRY(address_log) list;
 } address_log;
 
