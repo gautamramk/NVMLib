@@ -1,5 +1,5 @@
 #ifndef __NVM_HASHMAP__
-#define __NVM__HASHMAP__
+#define __NVM_HASHMAP__
 
 /**
 * This file provides a generic hashmap stored in DRAM.
