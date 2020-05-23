@@ -113,6 +113,17 @@ static inline size_t set_bits(uint64_t* bitmap, size_t offset, size_t size) {
     return new_set;
 }
 
+void reset_om(object_maintainance* om) {
+    om->num_reads = 0;
+    om->num_writes = 0;
+    om->last_read = NULL;
+    om->last_write = NULL;
+    om->last_read_size = 0;
+    om->last_write_size = 0;
+    om->bytes_read = 0;
+    om->bytes_write =0;
+}
+
 void on_logistics_timer(uv_timer_t *timer, int status) {
     uv_work_t* work_req;
     object_maintainance var;
@@ -132,7 +143,7 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         om->num_writes++;
         om->last_accessed_at = w_add->access_time;
         size_t ent_inc = set_bits(om->write_bitmap, w_add->addr - KEY_FIRST(mkey), w_add->size);
-        if (om->last_write + om->last_write_size == w_add->addr) {
+        if (om->last_write + om->last_write_size != w_add->addr && w_add->addr + w_add->size != om->last_write) {
             om->w_entropy += ent_inc;
         }
         om->last_write = w_add->addr;
@@ -150,7 +161,7 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         om->num_reads++;
         om->last_accessed_at = r_add->access_time;
         size_t ent_inc = set_bits(om->read_bitmap, r_add->addr - KEY_FIRST(mkey), r_add->size);
-        if (om->last_read + om->last_read_size == r_add->addr) {
+        if (om->last_read + om->last_read_size != r_add->addr && r_add->addr + r_add->size != om->last_read ) {
             om->r_entropy += ent_inc;
         }
         om->last_read = r_add->addr;
@@ -184,6 +195,7 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
                 default:
                     break;
             }
+            reset_om(&var);
         }
     }
 }
