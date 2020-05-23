@@ -1,6 +1,7 @@
 #include "metadata.h"
 
 extern char *program_invocation_short_name;
+PMEMobjpool *init_pop;
 
 void initialize_metadata() {
     char init_file_name[50];
@@ -11,10 +12,11 @@ void initialize_metadata() {
     if (!init_pop) {
         opened = false;
         char layout_name[50];
-        strcpy(layout_name, program_invocation_short_name);
-        strcat(layout_name, "_init_layout");
+        strcpy(layout_name, POBJ_LAYOUT_NAME(init_struct));
+        // strcat(layout_name, "_init_layout");
         init_pop = pmemobj_create(init_file_name, layout_name, PMEMOBJ_MIN_POOL, 0666);
     }
+    printf("initialise_metadata: %p\n", init_pop);
     TOID(metadata_root) root = POBJ_ROOT(init_pop, metadata_root);
     if (!opened) {
         D_RW(D_RW(root)->init_metadata)->inst_num = 0;

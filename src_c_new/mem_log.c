@@ -2,6 +2,7 @@
 #include "malloc.h"
 #include <time.h>
 #include <libiberty/splay-tree.h>
+// #include <splay-tree.h>
 
 void log_write(void* addr, size_t size) {
     address_log* ad_log = (address_log*)malloc(sizeof(address_log));

@@ -24,7 +24,7 @@ message(STATUS "PTHREAD library found successfully.")
 # LIBPMEM (static version)
 #-------------------------------------------#
 message(STATUS "Searching for Intel PMDK-libpmem library.")
-find_library(libpmem_LIBRARY NAMES libpmem.a HINTS /usr/lib /usr/lib/x86_64-linux-gnu)
+find_library(libpmem_LIBRARY NAMES libpmem.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
 if(NOT libpmem_LIBRARY)
     message(FATAL_ERROR "ERROR: PMDK-libpmem not found. Install libpmem-dev")
 endif()
@@ -34,11 +34,42 @@ message(STATUS "PMDK-libpmem found successfully.")
 # LIBPMEMOBJ (static version)
 #-------------------------------------------#
 message(STATUS "Searching for Inter PMDK-libpmemobj library.")
-find_library(libpmemobj_LIBRARY NAMES libpmemobj.a HINTS /usr/lib /usr/lib/x86_64-linux-gnu)
+find_library(libpmemobj_LIBRARY NAMES libpmemobj.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
 if(NOT libpmemobj_LIBRARY)
     message(FATAL_ERROR "ERROR: PMDK-libpmemobj not found. Install libpmemobj-dev.")
 endif()
 message(STATUS "PMDK-libpmemobj found successfully.")
+
+#-------------------------------------------#
+# LIBDL (static version)
+#-------------------------------------------#
+message(STATUS "Searching for LibDL library.")
+find_library(libdl_LIBRARY NAMES libdl.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
+if(NOT libdl_LIBRARY)
+    message(FATAL_ERROR "ERROR: LibDL not found. Install libdl.")
+endif()
+message(STATUS "LibDL found successfully.")
+
+#-------------------------------------------#
+# LIBC (static version)
+#-------------------------------------------#
+message(STATUS "Searching for LibC library.")
+find_library(libc_LIBRARY NAMES libc.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
+if(NOT libc_LIBRARY)
+    message(FATAL_ERROR "ERROR: LibC not found. Install libdc.")
+endif()
+message(STATUS "LibC found successfully.")
+
+#-------------------------------------------#
+# LIBMATH (static version)
+#-------------------------------------------#
+message(STATUS "Searching for Lib-math library.")
+find_library(libmath_LIBRARY NAMES libm.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
+if(NOT libmath_LIBRARY)
+    message(FATAL_ERROR "ERROR: PMDK-libpmemobj not found. Install libpmath.")
+endif()
+message(STATUS "Lib-math found successfully.")
+
 
 #-------------------------------------------#
 # LIBIBERTY (static version)
@@ -46,7 +77,7 @@ message(STATUS "PMDK-libpmemobj found successfully.")
 message(STATUS "Searching for LibIberty library package.")
 
 # since static version
-set(LibIberty_SEARCHORDER libiberty.a libiberty.so)
+set(LibIberty_SEARCHORDER libiberty.so libiberty.a)
 find_library(LibIberty_LIBRARIES NAMES ${LibIberty_SEARCHORDER})
 find_path(LibIberty_INCLUDE_DIRS libiberty.h
 	PATHS
@@ -91,12 +122,25 @@ if(NOT GccPlugin_FOUND)
 endif()
 message(STATUS "Gcc-Plugin package found successfully.")
 
+#-------------------------------------------#
+# LIBUV (static)
+#-------------------------------------------#
+message(STATUS "Searching for LibUV library.")
+find_library(libuv_LIBRARY NAMES libuv.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
+if(NOT libuv_LIBRARY)
+    message(FATAL_ERROR "ERROR: LibUV library not found. Install libuv.")
+endif()
+message(STATUS "LibUV library found successfully.")
+
+
+
 #############################################
 # Include the directory containing the
 # files for the library
 #############################################
 add_subdirectory(src_c_new)
 
+add_subdirectory(examples)
 
 #############################################
 # Code Experimentation

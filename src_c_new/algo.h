@@ -12,6 +12,8 @@ void update_time_of_access(MEMoidKey key);
 
 void update_access_number(MEMoidKey key);
 
-int decide_allocation(size_t size);
+int decide_allocation(size_t size) {
+    return DRAM_HEAP;
+}
 
 #endif // !__NVM__ALGO__

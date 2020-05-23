@@ -58,6 +58,7 @@ static const MEMoid MEMOID_NULL = { 0, 0, 0 };
 // User doesn't worry about where the object is placed
 //
 // Note this supports both with and wothout `which_ram`
+MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int line, int num_args, ...);
 #define memalloc(size, ...) _memalloc(size, __FILENAME__, __func__, __LINE__, NUMARGS(__VA_ARGS__), ##__VA_ARGS__)
 // User specifies where to put the object
 // #define memmalloc(size, which_ram) _memalloc(size, which_ram, __FILENAME__, __func__, __LINE__)
@@ -73,6 +74,7 @@ void* _key_get_first(MEMoidKey key);
 
 // #define memfree(o) _memfree((o).oidkey, sizeof(__typeof__(*(o)._type)))
 // #define memfree(o) _memfree((o).oidkey, get_MEMoid(o).size)
+void _memfree(MEMoidKey oidkey);
 #define memfree(o) _memfree((o).oidkey)
 
 enum splay_comp {

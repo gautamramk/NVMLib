@@ -37,7 +37,7 @@ extern char* program_invocation_short_name;
 
 // The logging files
 #define MAIN_LOG_FILE_NAME "./nvm_main_log.log"
-extern FILE *main_log_file_fd;
+FILE *main_log_file_fd;
 #define MAIN_LOG_FILE main_log_file_fd
 
 // The mutex required when accessing the Types map
