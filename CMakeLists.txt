@@ -21,7 +21,7 @@ endif()
 message(STATUS "PTHREAD library found successfully.")
 
 #-------------------------------------------#
-# LIBPMEM (static version)
+# LIBPMEM (shared version)
 #-------------------------------------------#
 message(STATUS "Searching for Intel PMDK-libpmem library.")
 find_library(libpmem_LIBRARY NAMES libpmem.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
@@ -31,7 +31,7 @@ endif()
 message(STATUS "PMDK-libpmem found successfully.")
 
 #-------------------------------------------#
-# LIBPMEMOBJ (static version)
+# LIBPMEMOBJ (shared version)
 #-------------------------------------------#
 message(STATUS "Searching for Inter PMDK-libpmemobj library.")
 find_library(libpmemobj_LIBRARY NAMES libpmemobj.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
@@ -41,7 +41,7 @@ endif()
 message(STATUS "PMDK-libpmemobj found successfully.")
 
 #-------------------------------------------#
-# LIBDL (static version)
+# LIBDL (shared version)
 #-------------------------------------------#
 message(STATUS "Searching for LibDL library.")
 find_library(libdl_LIBRARY NAMES libdl.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
@@ -51,7 +51,7 @@ endif()
 message(STATUS "LibDL found successfully.")
 
 #-------------------------------------------#
-# LIBC (static version)
+# LIBC (shared version)
 #-------------------------------------------#
 message(STATUS "Searching for LibC library.")
 find_library(libc_LIBRARY NAMES libc.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
@@ -61,7 +61,7 @@ endif()
 message(STATUS "LibC found successfully.")
 
 #-------------------------------------------#
-# LIBMATH (static version)
+# LIBMATH (shared version)
 #-------------------------------------------#
 message(STATUS "Searching for Lib-math library.")
 find_library(libmath_LIBRARY NAMES libm.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
@@ -72,7 +72,7 @@ message(STATUS "Lib-math found successfully.")
 
 
 #-------------------------------------------#
-# LIBIBERTY (static version)
+# LIBIBERTY (shared version)
 #-------------------------------------------#
 message(STATUS "Searching for LibIberty library package.")
 
@@ -123,7 +123,7 @@ endif()
 message(STATUS "Gcc-Plugin package found successfully.")
 
 #-------------------------------------------#
-# LIBUV (static)
+# LIBUV (shared version)
 #-------------------------------------------#
 message(STATUS "Searching for LibUV library.")
 find_library(libuv_LIBRARY NAMES libuv.so PATHS /usr/lib /usr/lib/x86_64-linux-gnu)
@@ -140,6 +140,10 @@ message(STATUS "LibUV library found successfully.")
 #############################################
 add_subdirectory(src_c_new)
 
+#############################################
+# Include the directory containing the
+# files for the examples
+#############################################
 add_subdirectory(examples)
 
 #############################################
