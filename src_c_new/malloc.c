@@ -4,6 +4,7 @@
 #include "math.h"
 #include <stdint.h>
 #include <libiberty/splay-tree.h>
+// #include <splay-tree.h>
 #include "object_maintainance.h"
 
 // MEMoid __memalloc(size_t size) {
@@ -201,7 +202,7 @@ void* get_memobj_direct(MEMoid oid) {
 //     remove_object_from_hashmap(oidkey);
 // }
 
-static inline void _memfree(MEMoidKey oidkey) {
+void _memfree(MEMoidKey oidkey) {
     // Just hand over the task to `Deletion thread`
 
     object_maintainance *found_obj = find_in_maintainance_map(oidkey);

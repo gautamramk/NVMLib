@@ -20,8 +20,6 @@ typedef struct metadata_root_str {
 
 TOID_DECLARE_ROOT(metadata_root);
 
-PMEMobjpool *init_pop;
-
 void initialize_metadata();
 
 void update_num_pools(int numpools);

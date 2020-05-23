@@ -329,9 +329,10 @@ void move_to_nvram(uv_work_t *req) {
     size_t size = oid.size;
 
     MEMoid new_obj;
-    new_obj.pool_id = get_current_poolid();
-    new_obj.offset = get_first_free_offset(size);
-    new_obj.size = size;
+    // new_obj.pool_id = get_current_poolid();
+    // new_obj.offset = get_first_free_offset(size);
+    // new_obj.size = size;
+    new_obj = allot_first_free_offset(size);
 
     memcpy((void*)(get_pool_from_poolid(new_obj.pool_id) + new_obj.offset), (void*)oid.offset, size);
     //TODO: need to call peme_persist ... later!!

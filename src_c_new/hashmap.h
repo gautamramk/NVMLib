@@ -47,7 +47,7 @@ typedef enum {
     HMR_INSERTED,
 } HashMapResult; /*HMR*/
 
-size_t next_power_of_two(size_t i /*map->power_of_two + 1*/) {
+static inline size_t next_power_of_two(size_t i /*map->power_of_two + 1*/) {
     --i;
     i |= i >> 1;
     i |= i >> 2;
@@ -61,7 +61,7 @@ size_t next_power_of_two(size_t i /*map->power_of_two + 1*/) {
 
 // Fibonacci hashing
 // 11400714819323198485ull = 2^64 / golden_ratio
-size_t index_for_hash(size_t hash, size_t shift /*64 - __builtin_popcount(map->power_of_two)*/) {
+static inline size_t index_for_hash(size_t hash, size_t shift /*64 - __builtin_popcount(map->power_of_two)*/) {
     return (11400714819323198485ul * hash) >> shift;
 }
 
