@@ -18,14 +18,16 @@ void init_types_table() {
 
     if(pop == NULL) {
         pop = pmemobj_create(filename, POBJ_LAYOUT_NAME(types_tab), PMEMOBJ_MIN_POOL, 0666);
-        printf("%d %s %p\n", errno, filename, pop);
+        //printf("%d %s %p\n", errno, filename, pop);
         hashmap = POBJ_ROOT(pop, struct hashmap_tx);
         
         struct hashmap_args *args = (struct hashmap_args *) malloc(sizeof(struct hashmap_args));
         args->seed = 8274;  // Just a random number
         printf("hmap create result = %d\n",hm_tx_create(pop, &hashmap, (void *)args));
     } else {
+        //printf("%second d %s %p\n", errno, filename, pop);
         hashmap = POBJ_ROOT(pop, struct hashmap_tx);
+        printf("map address %p\n", (hashmap).oid.off);
         hm_tx_init(pop, hashmap);
     }
 }
