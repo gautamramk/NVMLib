@@ -346,12 +346,13 @@ hm_tx_create(PMEMobjpool *pop, TOID(struct hashmap_tx) *map, void *arg)
 	struct hashmap_args *args = (struct hashmap_args *)arg;
 	int ret = 0;
 	TX_BEGIN(pop) {
-		TX_ADD_DIRECT(map);
+				printf("map address %p", (*map).oid.off);
+		//TX_ADD_DIRECT(map);
 		*map = TX_ZNEW(struct hashmap_tx);
-
 		uint32_t seed = args ? args->seed : 0;
 		create_hashmap(pop, *map, seed);
 	} TX_ONABORT {
+		printf("hm create errno = %d\n", errno);
 		ret = -1;
 	} TX_END
 

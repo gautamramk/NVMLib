@@ -1,25 +1,31 @@
 #include "types.h"
 #include "hashmap_tx.h"
 #include <libpmemobj.h>
+#include <errno.h>
 
 // The pool that would contain this HashTable
 PMEMobjpool *pop;
+
 
 // The stored HashTable
 TOID(struct hashmap_tx) hashmap;
 
 void init_types_table() {
-    pop = pmemobj_open(TYPES_TABLE_POOL, TYPES_TABLE_LAYOUT);
-    hashmap = POBJ_ROOT(pop, struct hashmap_tx);
+    char filename[50];
+    strcpy(filename, program_invocation_short_name);
+    strcat(filename, "_types_table");
+    pop = pmemobj_open(filename, POBJ_LAYOUT_NAME(types_tab));
 
     if(pop == NULL) {
-        pop = pmemobj_create(TYPES_TABLE_POOL, TYPES_TABLE_LAYOUT, 4096, 0666);
+        pop = pmemobj_create(filename, POBJ_LAYOUT_NAME(types_tab), PMEMOBJ_MIN_POOL, 0666);
+        printf("%d %s %p\n", errno, filename, pop);
         hashmap = POBJ_ROOT(pop, struct hashmap_tx);
         
         struct hashmap_args *args = (struct hashmap_args *) malloc(sizeof(struct hashmap_args));
         args->seed = 8274;  // Just a random number
-        hm_tx_create(pop, &hashmap, (void *)args);
+        printf("hmap create result = %d\n",hm_tx_create(pop, &hashmap, (void *)args));
     } else {
+        hashmap = POBJ_ROOT(pop, struct hashmap_tx);
         hm_tx_init(pop, hashmap);
     }
 }

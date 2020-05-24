@@ -4,21 +4,19 @@
 #include "globals.h"
 #include <libpmemobj.h>
 
+POBJ_LAYOUT_BEGIN(init);
+POBJ_LAYOUT_ROOT(init, struct metadata_root)
+POBJ_LAYOUT_TOID(init, struct metadata);
+POBJ_LAYOUT_END(init);
 
-typedef struct metadata_st {
+typedef struct metadata {
     int num_pools;
     uint64_t inst_num;
 } metadata;
 
-POBJ_LAYOUT_BEGIN(init);
-POBJ_LAYOUT_TOID(init, metadata);
-POBJ_LAYOUT_END(init);
-
-typedef struct metadata_root_str {
-    TOID(metadata) init_metadata;
+typedef struct metadata_root {
+    metadata init_metadata;
 } metadata_root;
-
-TOID_DECLARE_ROOT(metadata_root);
 
 void initialize_metadata();
 

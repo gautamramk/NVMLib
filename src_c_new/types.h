@@ -72,6 +72,7 @@ LIB_TOID(t)\
 
 // Fuctions
 
+void init_types_table();
 // It returns the MEMoid struct after querrying the HashTable.
 MEMoid get_MEMoid(MEMoidKey key);
 

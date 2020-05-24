@@ -16,22 +16,29 @@ void initialize_metadata() {
         // strcat(layout_name, "_init_layout");
         init_pop = pmemobj_create(init_file_name, layout_name, PMEMOBJ_MIN_POOL, 0666);
     }
-    printf("initialise_metadata: %p\n", init_pop);
-    TOID(metadata_root) root = POBJ_ROOT(init_pop, metadata_root);
+
+    metadata_root* root = D_RO(POBJ_ROOT(init_pop, struct metadata_root));
     if (!opened) {
-        D_RW(D_RW(root)->init_metadata)->inst_num = 0;
-        D_RW(D_RW(root)->init_metadata)->num_pools = 0;
+        metadata data;
+        data.inst_num = 0;
+        data.num_pools = 0;
+        TX_BEGIN(init_pop) {
+            TX_SET_DIRECT(root, init_metadata, data);
+        } TX_END
     }
 }
 
 void update_num_pools(int num_pools) {
-    TOID(metadata_root) root = POBJ_ROOT(init_pop, metadata_root);
+    metadata_root* root = D_RO(POBJ_ROOT(init_pop, struct metadata_root));
+    metadata data;
+    data.inst_num = root->init_metadata.inst_num;
+    data.num_pools = num_pools;
     TX_BEGIN(init_pop) {
-        D_RW(D_RW(root)->init_metadata)->num_pools = num_pools;
+        TX_SET_DIRECT(root, init_metadata, data);
     } TX_END
 }
 
 int retrieve_num_pools() {
-    TOID(metadata_root) root = POBJ_ROOT(init_pop, metadata_root);
-    return D_RO(D_RO(root)->init_metadata)->num_pools;
+    metadata_root* root = D_RO(POBJ_ROOT(init_pop, struct metadata_root));
+    return root->init_metadata.num_pools;
 }
