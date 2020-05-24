@@ -141,6 +141,18 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
     }
 
     MEMoid oid =  __memalloc(size, which_ram);
+    //DRAM variables in the table need to be replaced
+    // Get the hashmap mutex first to ensure there are no leftover accesses
+    uv_mutex_lock(&object_maintainence_hashmap_mutex);
+    if(oid.pool_id == POOL_ID_MALLOC_OBJ) {
+        // dram object
+        // need to replace the value
+        remove_object_from_hashmap(key);
+    }
+
+    // Insert in the main types table
+    insert_object_to_hashmap(key, oid);
+    uv_mutex_unlock(&object_maintainence_hashmap_mutex);
     // Insert in the main types table
     insert_object_to_hashmap(key, oid);
     // Insert into the object maintainance table for logistics
