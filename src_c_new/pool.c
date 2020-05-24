@@ -59,7 +59,7 @@ int initialize_pool() {
 
         free_slots->key = idx;
         free_slots->pool = free_slot_pool;
-        free_slots->head = D_RO(POBJ_ROOT(free_slot_pool, struct pool_free_slots_root))->head;
+        free_slots->head = &(D_RO(POBJ_ROOT(free_slot_pool, struct pool_free_slots_root))->head);
 
         HASH_MAP_INSERT(pool_free_slot_val)(pool_free_slot_map, &free_slots, HMDR_FIND);
 
@@ -108,8 +108,15 @@ void create_new_pool() {
 			                                      0666, NULL, NULL);
     PMEMobjpool* free_slot_pool = pmemobj_create(pool_free_slot_file_name, POBJ_LAYOUT_NAME(free_slot_layout),
 			                                     PMEMOBJ_MIN_POOL, 0666);
+    TOID(struct pool_free_slots_root) pool_root = POBJ_ROOT(free_slot_pool, struct pool_free_slots_root);
+    TX_BEGIN (free_slot_pool) {
+        TOID(struct pool_free_slot) new_slot = TX_NEW(struct pool_free_slot);
+        POBJ_TAILQ_INSERT_HEAD(&(D_RW(pool_root)->head), new_slot, fnd);
+    } TX_END
+
     new_entry->pool_ptr = pmemaddr;
     new_free_slots->pool = free_slot_pool;
+    new_free_slots->head = &(D_RO(pool_root)->head);
 
     update_num_pools(num_pools);
     HASH_MAP_INSERT(pool_kv)(pool_map, &new_entry, HMDR_FIND);
@@ -121,7 +128,7 @@ void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {
     pool_free_slot_val* temp_ptr = &temp;
     temp.key = pool_id;
     HASH_MAP_FIND(pool_free_slot_val)(pool_free_slot_map, &temp_ptr);
-    pool_free_slot_head *f_head = &(temp_ptr->head);
+    pool_free_slot_head* f_head = temp_ptr->head;
     TOID(struct pool_free_slot) node;
     TOID(struct pool_free_slot) next_node;
     POBJ_TAILQ_FOREACH (node, f_head, fnd) {

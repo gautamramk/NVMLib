@@ -25,9 +25,9 @@ typedef struct pool_free_slot {
 POBJ_TAILQ_HEAD(pool_free_slot_head, struct pool_free_slot);
 typedef struct pool_free_slot_head pool_free_slot_head;
 
-struct pool_free_slots_root {
+typedef struct pool_free_slots_root {
     struct pool_free_slot_head head;
-};
+} pool_free_slots_root;
 
 typedef struct pool_kv_st {
     uint16_t key;
@@ -37,7 +37,7 @@ typedef struct pool_kv_st {
 typedef struct pool_free_slot_val_st {
     uint16_t key;
     PMEMobjpool* pool;
-    pool_free_slot_head head;
+    pool_free_slot_head* head;
 } pool_free_slot_val;
 
 

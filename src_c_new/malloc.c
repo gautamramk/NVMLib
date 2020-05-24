@@ -38,7 +38,7 @@ uint64_t allot_first_free_offset_pool(uint64_t pool_id, size_t size) {
     pool_free_slot_val* temp_ptr = &temp;
     temp.key = pool_id;
     HASH_MAP_FIND(pool_free_slot_val)(pool_free_slot_map, &temp_ptr);
-    pool_free_slot_head *f_head = &(temp_ptr->head);
+    pool_free_slot_head *f_head = temp_ptr->head;
     uint64_t ret = -1;
     TOID(struct pool_free_slot) node;
     POBJ_TAILQ_FOREACH (node, f_head, fnd) {
