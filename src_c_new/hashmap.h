@@ -61,8 +61,8 @@ static inline size_t next_power_of_two(size_t i /*map->power_of_two + 1*/) {
 
 // Fibonacci hashing
 // 11400714819323198485ull = 2^64 / golden_ratio
-static inline size_t index_for_hash(size_t hash, size_t shift /*64 - __builtin_popcount(map->power_of_two)*/) {
-    return (11400714819323198485ul * hash) >> shift;
+static inline size_t index_for_hash(size_t hash, size_t shift, size_t pow_of_two) {
+    return ((11400714819323198485ul * hash) >> shift ) % pow_of_two;
 }
 
 
@@ -164,8 +164,8 @@ HASH_MAP(VALUE_TYPE)*  create_new_##VALUE_TYPE##_hash_map() {\
     HASH_MAP(VALUE_TYPE) *new_map = (HASH_MAP(VALUE_TYPE) *)malloc(sizeof(HASH_MAP(VALUE_TYPE)));\
     new_map->size = 0;\
     new_map->power_of_two = 2;\
-	HASH_MAP_BUCKET(VALUE_TYPE) *new_entries = REALLOC(NULL, 2 * sizeof(HASH_MAP(VALUE_TYPE)));\
-	memset(new_entries, 0, 2 * sizeof(HASH_MAP(VALUE_TYPE)));\
+	HASH_MAP_BUCKET(VALUE_TYPE) *new_entries = REALLOC(NULL, 2 * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
+	memset(new_entries, 0, 2 * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
     new_map->entries = new_entries;\
     return new_map;\
 }\
@@ -177,7 +177,7 @@ bool find_in_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE **res
     }\
     HASH_MAP_BUCKET(VALUE_TYPE) *bucket = &map->entries[index_for_hash(\
                                         GET_HASH(*result_of_search), \
-                                        64 - __builtin_popcount(map->power_of_two-1))];\
+                                        64 - __builtin_popcount(map->power_of_two-1), map->power_of_two)];\
     for (size_t i = 0; i < bucket->size; i++) {\
         if (!(CMP((&bucket->entries[i]), (*result_of_search)))) {\
             *result_of_search = &bucket->entries[i];\
@@ -191,7 +191,7 @@ bool find_in_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE **res
 bool erase_from_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE *deleted_entry){\
     HASH_MAP_BUCKET(VALUE_TYPE) *bucket = &map->entries[index_for_hash(\
                                         GET_HASH(deleted_entry),\
-                                        64 - __builtin_popcount(map->power_of_two-1))];\
+                                        64 - __builtin_popcount(map->power_of_two-1), map->power_of_two)];\
     for (size_t i = 0; i < bucket->size; i++) {\
         if (CMP(deleted_entry, &bucket->entries[i]) == 0) {\
             *deleted_entry = bucket->entries[i];\
@@ -212,13 +212,12 @@ bool erase_from_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE *d
 VALUE_TYPE* actual_insert_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VALUE_TYPE *entry){\
     HASH_MAP_BUCKET(VALUE_TYPE) *bucket = &map->entries[index_for_hash(\
                                         GET_HASH(entry), \
-                                        64 - __builtin_popcount(map->power_of_two-1))];\
+                                        64 - __builtin_popcount(map->power_of_two-1), map->power_of_two)];\
     /* check if available to add */\
     size_t old_size = bucket->size;\
     if (bucket->power_of_two < old_size + 1) {\
         size_t new_capacity = next_power_of_two(bucket->power_of_two + 1);\
-        bucket->entries = REALLOC(bucket->entries,\
-                    new_capacity * sizeof(HASH_MAP_BUCKET(VALUE_TYPE)));\
+        bucket->entries = REALLOC(bucket->entries,new_capacity * sizeof(VALUE_TYPE));\
         bucket->power_of_two = new_capacity;\
     }\
     VALUE_TYPE *result = &bucket->entries[old_size];\
@@ -293,7 +292,8 @@ HashMapResult insert_into_##VALUE_TYPE##_hash_map(HASH_MAP(VALUE_TYPE) *map, VAL
     }\
 	if (!map->entries[index_for_hash(\
                 GET_HASH(current), \
-                64 - __builtin_popcount(map->power_of_two-1))].size) {\
+                64 - __builtin_popcount(map->power_of_two-1), \
+                map->power_of_two)].size) {\
         /* New bucket is going to be filled */\
         hash_map_##VALUE_TYPE##_ensure_size(map, map->size + 1);\
     }\
