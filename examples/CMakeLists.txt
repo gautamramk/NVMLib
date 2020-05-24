@@ -8,12 +8,7 @@ target_compile_options(test_prog PRIVATE -fsanitize=address)
 set_target_properties(test_prog PROPERTIES LINK_FLAGS "-fsanitize=address")
 
 target_link_libraries(test_prog PRIVATE NVMlib)
-<<<<<<< HEAD
-target_compile_options(test_prog PRIVATE -g)
 target_compile_options(test_prog PRIVATE -save-temps)
-=======
 target_compile_options(test_prog PRIVATE -g3)
 
-target_compile_options(test_prog PRIVATE -save-temps)
 #target_compile_options(test_prog PRIVATE -ldl)
->>>>>>> Fixed hashmap create
