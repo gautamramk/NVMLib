@@ -4,6 +4,8 @@
 #include "metadata.h"
 #include "pool.h"
 #include "malloc.h"
+#include "types.h"
+#include "object_maintainance.h"
 
 extern char *program_invocation_short_name;
 
@@ -19,7 +21,7 @@ void initialize() {
     printf("1\n");
     init_splay();
     printf("2\n");
-
+    init_types_table();
     // Initialize metadata and open metadata pools
     printf("3\n");
 
@@ -32,4 +34,5 @@ void initialize() {
     printf("5\n");
 
     open_logging_files();
+    initialise_logistics();
 }

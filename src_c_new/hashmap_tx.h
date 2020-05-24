@@ -24,26 +24,31 @@ enum hashmap_cmd {
 
 
 /* layout definition */
-TOID_DECLARE(struct hashmap_tx, HASHMAP_TX_TYPE_OFFSET + 0);
-TOID_DECLARE(struct buckets, HASHMAP_TX_TYPE_OFFSET + 1);
-TOID_DECLARE(struct entry, HASHMAP_TX_TYPE_OFFSET + 2);
+//TOID_DECLARE(struct hashmap_tx, HASHMAP_TX_TYPE_OFFSET + 0);
+//TOID_DECLARE(struct buckets, HASHMAP_TX_TYPE_OFFSET + 1);
+//TOID_DECLARE(struct entry, HASHMAP_TX_TYPE_OFFSET + 2);
+POBJ_LAYOUT_BEGIN(types_tab);
+POBJ_LAYOUT_ROOT(types_tab, struct hashmap_tx);
+POBJ_LAYOUT_TOID(types_tab, struct buckets);
+POBJ_LAYOUT_TOID(types_tab, struct entry);
+POBJ_LAYOUT_END(types_tab);
 
-struct entry {
+typedef struct entry {
 	uint64_t key;
 	MEMoid value;
 
 	/* next entry list pointer */
 	TOID(struct entry) next;
-};
+} entry;
 
-struct buckets {
+typedef struct buckets {
 	/* number of buckets */
 	size_t nbuckets;
 	/* array of lists */
 	TOID(struct entry) bucket[];
-};
+} buckets;
 
-struct hashmap_tx {
+typedef struct hashmap_tx {
 	/* random number generator seed */
 	uint32_t seed;
 
@@ -57,7 +62,7 @@ struct hashmap_tx {
 
 	/* buckets */
 	TOID(struct buckets) buckets;
-};
+} hashmap_tx;
 
 int hm_tx_check(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap);
 int hm_tx_create(PMEMobjpool *pop, TOID(struct hashmap_tx) *map, void *arg);
