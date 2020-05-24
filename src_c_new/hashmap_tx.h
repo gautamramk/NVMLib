@@ -80,5 +80,5 @@ int hm_tx_foreach(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap,
 size_t hm_tx_count(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap);
 int hm_tx_cmd(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap,
 		unsigned cmd, uint64_t arg);
-
+void hm_tx_debug(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, FILE *out);
 #endif // !__NVM_HASHMAP_TX_H 

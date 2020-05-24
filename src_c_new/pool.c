@@ -6,9 +6,9 @@
 #include "hashmap.h"
 #include "types.h"
 #include "free_slot_list.h"
+#include "log.h"
 
 //extern const char *program_invocation_short_name;
-uint32_t num_pools;
 
 static int compare_kv(pool_kv* left, pool_kv* right) {
     if (left->key == right->key) return 0;
@@ -38,7 +38,9 @@ HASH_MAP(pool_free_slot_val) *pool_free_slot_map;
 
 int initialize_pool() {
     pool_map = HASH_MAP_CREATE(pool_kv)();
+    pool_free_slot_map = HASH_MAP_CREATE(pool_free_slot_val)();
     num_pools = retrieve_num_pools();
+    printf("initialize pool num_pools= %d\n", num_pools);
     for (int idx = 1; idx <= num_pools; idx++) {
         char pool_file_name[50];
         char pool_free_slot_file_name[50];
@@ -61,8 +63,8 @@ int initialize_pool() {
         free_slots->pool = free_slot_pool;
         free_slots->head = &(D_RO(POBJ_ROOT(free_slot_pool, struct pool_free_slots_root))->head);
 
-        HASH_MAP_INSERT(pool_free_slot_val)(pool_free_slot_map, &free_slots, HMDR_FIND);
-
+        int ret = HASH_MAP_INSERT(pool_free_slot_val)(pool_free_slot_map, &free_slots, HMDR_FIND);
+        printf("pool free slot insert return %d\n", ret);
         init_pool_kv->key = idx;
         init_pool_kv->pool_ptr = pool_ptr;
         HASH_MAP_INSERT(pool_kv)(pool_map, &init_pool_kv, HMDR_FIND);
@@ -85,7 +87,7 @@ uint64_t get_current_poolid() {
     return num_pools;
 }
 
-void create_new_pool() {
+void create_new_pool(size_t size) {
     num_pools++;
     pool_kv* new_entry = (pool_kv*)malloc(sizeof(pool_kv));
     pool_free_slot_val* new_free_slots = malloc(sizeof(pool_free_slot_val));
@@ -104,7 +106,8 @@ void create_new_pool() {
     strcat(pool_file_name, pool_number_str);
     strcat(pool_free_slot_file_name, pool_number_str);
     // Need to corrected with proper pathss
-    uintptr_t pmemaddr = (uintptr_t)pmem_map_file(pool_file_name, POOL_SIZE, PMEM_FILE_CREATE,
+    size_t allot_size = (size_t)ceil((double)size/POOL_SIZE)*POOL_SIZE;
+    uintptr_t pmemaddr = (uintptr_t)pmem_map_file(pool_file_name, allot_size, PMEM_FILE_CREATE,
 			                                      0666, NULL, NULL);
     PMEMobjpool* free_slot_pool = pmemobj_create(pool_free_slot_file_name, POBJ_LAYOUT_NAME(free_slot_layout),
 			                                     PMEMOBJ_MIN_POOL, 0666);
@@ -117,13 +120,16 @@ void create_new_pool() {
     new_entry->pool_ptr = pmemaddr;
     new_free_slots->pool = free_slot_pool;
     new_free_slots->head = &(D_RO(pool_root)->head);
-
+    printf("new_entry %p new_free_slots %p\n", new_entry, new_free_slots);
+    printf("new_entry->pool_ptr %ld pmemaddr %ld\n", new_entry->pool_ptr, pmemaddr);
+    printf("new_free_slots->pool %ld free_slot_pool %ld\n", new_free_slots->pool, free_slot_pool);
     update_num_pools(num_pools);
     HASH_MAP_INSERT(pool_kv)(pool_map, &new_entry, HMDR_FIND);
     HASH_MAP_INSERT(pool_free_slot_val)(pool_free_slot_map, &new_free_slots, HMDR_FIND);
 }
 
 void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {
+    LOG_INFO("NVM freeing value pool_id = %ld, offset = %ld size = %ld\n", pool_id, offset, size);
     pool_free_slot_val temp;
     pool_free_slot_val* temp_ptr = &temp;
     temp.key = pool_id;

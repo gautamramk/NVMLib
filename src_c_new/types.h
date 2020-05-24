@@ -83,6 +83,9 @@ void remove_object_from_hashmap(MEMoidKey key);
 // Will be used by the logistics thread
 TOID(struct hashmap_tx) *get_types_map();
 
+void debug_hashmap(MEMoidKey key);
+
+
 // void* _key_get_first(MEMoidKey key);
 // void* _key_get_last(MEMoidKey key)
 // #define KEY_FIRST(key) (_key_get_first(key))

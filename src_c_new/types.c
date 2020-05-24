@@ -49,7 +49,9 @@ void init_types_table() {
 // }
 
 MEMoid get_MEMoid(MEMoidKey key) {
-    return hm_tx_get(pop, hashmap, (uint64_t) key);
+    MEMoid m = hm_tx_get(pop, hashmap, (uint64_t) key);
+    printf("memoid poolid = %d, offset = %ld, size = %ld\n", m.pool_id, m.offset, m.size);
+    return m;
 }
 
 void insert_object_to_hashmap(MEMoidKey key, MEMoid oid) {
@@ -62,4 +64,8 @@ void remove_object_from_hashmap(MEMoidKey key) {
 
 TOID(struct hashmap_tx)* get_types_map(){
     return &hashmap;
+}
+
+void debug_hashmap(MEMoidKey key) {
+    hm_tx_debug(pop, hashmap, stderr);
 }

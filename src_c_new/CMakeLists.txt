@@ -45,8 +45,8 @@ set_property(TARGET mem_track_plugin PROPERTY CXX_STANDARD 17)
 target_compile_options(NVMlib PRIVATE -save-temps)
 target_compile_options(NVMlib PRIVATE -Wall)
 target_compile_options(NVMlib PRIVATE -g3)
-#target_compile_options(NVMlib PRIVATE -static-libasan)
-#target_compile_options(NVMlib PRIVATE -fsanitize=address)
+target_compile_options(NVMlib PRIVATE -static-libasan)
+target_compile_options(NVMlib PRIVATE -fsanitize=address)
 add_custom_command(TARGET NVMlib POST_BUILD
 	COMMAND bash -c 'if [ ! -d intermediate ]; then mkdir intermediate\; fi'
 	COMMAND bash -c 'mv ./*.i intermediate/'

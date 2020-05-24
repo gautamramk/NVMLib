@@ -61,7 +61,7 @@ uint64_t get_first_free_offset(size_t size);
 // Frees the allocated spaces
 void nvm_free(uint64_t pool_id, uint64_t offset, size_t size);
 
-void create_new_pool();
+void create_new_pool(size_t size);
 
 
 #endif // !__NVM_POOL__

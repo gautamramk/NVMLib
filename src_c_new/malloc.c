@@ -37,8 +37,11 @@ uint64_t allot_first_free_offset_pool(uint64_t pool_id, size_t size) {
     pool_free_slot_val temp;
     pool_free_slot_val* temp_ptr = &temp;
     temp.key = pool_id;
-    HASH_MAP_FIND(pool_free_slot_val)(pool_free_slot_map, &temp_ptr);
+    printf("allot_free_slot_offset_pool temp_ptr->pool_id %d\n", temp_ptr->key);
+    int hmret = HASH_MAP_FIND(pool_free_slot_val)(pool_free_slot_map, &temp_ptr);
+    printf("affop find = %d\n", hmret);
     pool_free_slot_head *f_head = temp_ptr->head;
+    printf("fhead value is %p\n", f_head);
     uint64_t ret = -1;
     TOID(struct pool_free_slot) node;
     POBJ_TAILQ_FOREACH (node, f_head, fnd) {
@@ -61,7 +64,8 @@ uint64_t allot_first_free_offset_pool(uint64_t pool_id, size_t size) {
 }
 
 MEMoid allot_first_free_offset(size_t size) {
-    for (int i = 0; i < num_pools; i++) {
+    printf("allot_frst_free_offset num_pools = %d\n", num_pools);
+    for (int i = 1; i <= num_pools; i++) {
         uint64_t ret = allot_first_free_offset_pool(i, size);
         if (ret >= 0) {
             MEMoid m;
@@ -71,11 +75,12 @@ MEMoid allot_first_free_offset(size_t size) {
             return m;
         }
     }
-    create_new_pool();
+    create_new_pool(size);
     uint64_t ret = allot_first_free_offset_pool(num_pools, size);
     MEMoid m;
     m.pool_id = num_pools;
     m.offset = ret;
+    m.size = size;
     return m;
 }
 
@@ -182,7 +187,7 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
 // }
 
 void* get_memobj_direct(MEMoid oid) {
-    if (oid.offset == 0 || oid.pool_id == 0){
+    if (oid.offset == 0 && oid.pool_id == POOL_ID_MALLOC_OBJ){
         return NULL;
     }
 

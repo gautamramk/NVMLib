@@ -49,7 +49,7 @@ void move_to_dram(uv_work_t *req);
 void on_after_work(uv_work_t* req, int status);
 void delete_object(uv_work_t *req);
 void create_maintainance_map();
-int check_if_required_to_move(MEMoidKey key, MEMoid oid);
+int check_if_required_to_move(object_maintainance entry);
 int check_if_required_to_delete(object_maintainance entry);
 
 
@@ -173,24 +173,28 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         for(int j = 0; j < bucket->size; j++) {
             // by value !!!
             var = bucket->entries[j];
-            var.r_entropy = var.bytes_read / var.r_entropy;
-            var.w_entropy = var.bytes_write / var.w_entropy;
+            //var.r_entropy = var.bytes_read / var.r_entropy;
+            //var.w_entropy = var.bytes_write / var.w_entropy;
 
-            int ret = check_if_required_to_move(var.key, var.oid);
+            int ret = check_if_required_to_move(var);
             switch (ret){
                 case 1:
                     work_req = (uv_work_t*)malloc(sizeof(*work_req));
                     work_req->data = malloc(sizeof(object_maintainance));
                     *((object_maintainance *)(work_req->data)) = var;
 
-                    uv_queue_work(timer->loop, work_req, move_to_nvram, on_after_work);
+                    //uv_queue_work(timer->loop, work_req, move_to_nvram, on_after_work);
+                    move_to_nvram(work_req);
+                    on_after_work(work_req, 0);
                     break;
                 case 2:
                     work_req = (uv_work_t*)malloc(sizeof(*work_req));
                     work_req->data = malloc(sizeof(object_maintainance));
                     *((object_maintainance *)(work_req->data)) = var;
 
-                    uv_queue_work(timer->loop, work_req, move_to_dram, on_after_work);
+                    //uv_queue_work(timer->loop, work_req, move_to_dram, on_after_work);
+                    move_to_dram(work_req);
+                    on_after_work(work_req, 0);
                     break;
                 default:
                     break;
@@ -204,7 +208,6 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
 void on_deletion_timer(uv_timer_t *timer, int status) {
     uv_work_t* work_req;
     object_maintainance var;
-
     if(!object_maintainance_map->entries){
         // nothing yet in the logistics map
         return;
@@ -223,7 +226,10 @@ void on_deletion_timer(uv_timer_t *timer, int status) {
                 work_req->data = malloc(sizeof(object_maintainance));
                 *((object_maintainance *)(work_req->data)) = var;
 
-                uv_queue_work(timer->loop, work_req, delete_object, on_after_work);
+                //uv_queue_work(timer->loop, work_req, delete_object, on_after_work);
+                delete_object(work_req);
+                on_after_work(work_req, 0);
+                LOG_INFO("delete_object scheduled: %ld from %d at [%ld ms]\n", var.key, var.which_ram, (uv_hrtime() / 1000000) % 100000);
             }
         }
     }
@@ -299,7 +305,7 @@ void move_to_dram(uv_work_t *req) {
     // NOTE: we have to mannually delete before inserting for the same key
     remove_object_from_hashmap(key);
     insert_object_to_hashmap(key, new_obj);
-
+    //debug_hashmap(key);
     uv_mutex_unlock(&object_maintainence_hashmap_mutex);
 
     // Updating the `object_maintainance_map`
@@ -333,7 +339,7 @@ void move_to_nvram(uv_work_t *req) {
     // new_obj.offset = get_first_free_offset(size);
     // new_obj.size = size;
     new_obj = allot_first_free_offset(size);
-
+    printf("move to nvram nvram poolid = %d, offset = %d addr = %p\n", new_obj.pool_id, new_obj.offset, (void*)get_pool_from_poolid(new_obj.pool_id)+new_obj.offset);
     memcpy((void*)(get_pool_from_poolid(new_obj.pool_id) + new_obj.offset), (void*)oid.offset, size);
     //TODO: need to call peme_persist ... later!!
 
@@ -349,7 +355,7 @@ void move_to_nvram(uv_work_t *req) {
     // NOTE: we have to mannually delete before inserting for the same key
     remove_object_from_hashmap(key);
     insert_object_to_hashmap(key, new_obj);
-
+    //debug_hashmap(key);
     uv_mutex_unlock(&object_maintainence_hashmap_mutex);
 
 
@@ -362,7 +368,7 @@ void move_to_nvram(uv_work_t *req) {
     // changed fields
     new_maintainance_map_obj->oid = new_obj;
     new_maintainance_map_obj->shift_level = JUST_ENTERED;
-    new_maintainance_map_obj->which_ram = DRAM;
+    new_maintainance_map_obj->which_ram = NVRAM;
 
     // not this replaces the previous
     insert_into_maintainance_map(new_maintainance_map_obj);
@@ -392,8 +398,11 @@ int check_if_required_to_delete(object_maintainance entry) {
 // @return : 1 - If needs to be moved from DRAM to NVRAM
 //           2 - If needs to be moved from NVRAM to DRAM             
 //           0 - otherwise
-int check_if_required_to_move(MEMoidKey key, MEMoid oid) {
+int check_if_required_to_move(object_maintainance entry) {
     // To be completed
+    //int ret = 0;
+    // if (entry.which_ram == NO_RAM || entry.which_ram == RAM_UNKNOWN) return 0;
+    //return entry.which_ram==DRAM?1:2;
     return 0;
 }
 
