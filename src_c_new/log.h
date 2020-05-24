@@ -33,7 +33,7 @@ static inline char *timenow();
 #define LOG_LEVEL   DEBUG_LEVEL
 #endif
 
-#define PRINTFUNCTION(format, ...)      fprintf(MAIN_LOG_FILE, format, __VA_ARGS__)
+#define PRINTFUNCTION(format, ...)      fprintf(MAIN_LOG_FILE, format, __VA_ARGS__); fflush(MAIN_LOG_FILE)
 
 #define LOG_FMT             "%s | %-7s | %-15s | %s:%d | "
 #define LOG_ARGS(LOG_TAG)   timenow(), LOG_TAG, _FILE, __FUNCTION__, __LINE__
