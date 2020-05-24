@@ -411,8 +411,8 @@ object_maintainance* create_new_maintainance_map_entry(MEMoidKey key, MEMoid oid
     obj->last_accessed_at = time(NULL);
     obj->time_since_previous_access = 0;
     obj->previous_access_type = ACCESS_UNKNOWN;
-    obj->write_bitmap = (uint64_t*)malloc((ceil((double)oid.size/64)));
-    obj->read_bitmap = (uint64_t*)malloc((ceil((double)oid.size/64)));
+    obj->write_bitmap = (uint64_t*)malloc(sizeof(uint64_t)*(ceil((double)oid.size/64)));
+    obj->read_bitmap = (uint64_t*)malloc(sizeof(uint64_t)*(ceil((double)oid.size/64)));
     obj->which_ram = which_ram;
     obj->shift_level = JUST_ENTERED;
     obj->can_be_moved = can_be_moved;
