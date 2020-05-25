@@ -243,17 +243,17 @@ void _memfree(MEMoidKey oidkey) {
 void* _key_get_first(MEMoidKey key) {
     MEMoid m = get_MEMoid(key);
     if (m.offset == MEMOID_NULL.offset && m.pool_id == MEMOID_NULL.pool_id) {
-        return (void *)MEMOID_FIRST(m);
+        return NULL;
     }
-    return NULL;
+    return (void *)MEMOID_FIRST(m);
 }
 
 void* _key_get_last(MEMoidKey key) {
     MEMoid m = get_MEMoid(key);
     if (m.offset == MEMOID_NULL.offset && m.pool_id == MEMOID_NULL.pool_id) {
-        return (void *)MEMOID_FIRST(m) + m.size;
+        return NULL;
     }
-    return NULL;
+    return (void *)MEMOID_FIRST(m) + m.size;
 }
 
 int addr2memoid_cmp(splay_tree_key key1, splay_tree_key key2) {

@@ -4,6 +4,11 @@
 #include <libiberty/splay-tree.h>
 // #include <splay-tree.h>
 
+void initialize_log_queues() {
+    TAILQ_INIT(&write_queue_head);
+    TAILQ_INIT(&read_queue_head);
+}
+
 void log_write(void* addr, size_t size) {
     address_log* ad_log = (address_log*)malloc(sizeof(address_log));
     ad_log->addr = addr;

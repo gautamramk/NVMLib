@@ -26,27 +26,24 @@ int main() {
 
     // }
 
-    LIB_TOID(int) obj1 = (LIB_TOID(int))memalloc(2 * sizeof(int), NVRAM_HEAP);
-    LIB_TOID(int) obj2 = (LIB_TOID(int))memalloc(3 * sizeof(int), NVRAM_HEAP);
+    // LIB_TOID(int) obj1 = (LIB_TOID(int))memalloc(2 * sizeof(int), NVRAM_HEAP);
+    // LIB_TOID(int) obj2 = (LIB_TOID(int))memalloc(3 * sizeof(int), NVRAM_HEAP);
 
-    LIB_TOID(int) obj3;
+    // LIB_TOID(int) obj3;
 
-    memfree(obj1);
-
+    //memfree(obj1);
+    *LIB_D_RW(obj) = 1;
     while (true) {
 
-        obj3 = (LIB_TOID(int))memalloc(sizeof(int), NVRAM_HEAP);
-        // *LIB_D_RW(obj) = 2;
-        LIB_TX_BEGIN;
-        printf("\n=========================================\nTEST: printing value %p.\n======================================\n", LIB_D_RO(obj3));
-        LIB_TX_END;
-       
-        memfree(obj3);
+        // obj = (LIB_TOID(int))memalloc(sizeof(int), NVRAM_HEAP);
+        (*LIB_D_RW(obj))++;
+        printf("\n=================\nvalue = %d\n==========================\n", *LIB_D_RO(obj));
+        // memfree(obj3);
         
         
-        sleep(2);
+        sleep(5);
     }
-
+    memfree(obj);
     // printf("The stored value: %d\n", *LIB_D_RO(obj));
     // sleep(5); // for cleanup
 

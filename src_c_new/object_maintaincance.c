@@ -134,7 +134,6 @@ void reset_om(object_maintainance* om) {
 void on_logistics_timer(uv_timer_t *timer, int status) {
     uv_work_t* work_req;
     object_maintainance var;
-
     if(!object_maintainance_map->entries){
         // nothing yet in the logistics map
         return;
@@ -175,6 +174,7 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         om->last_read_size = r_add->size;
         om->bytes_read += r_add->size;
     }
+    LOG_INFO("MIdway through log timer.\n");
     for(size_t i=0; i<object_maintainance_map->power_of_two; i++) {
         HASH_MAP_BUCKET(object_maintainance) *bucket = &object_maintainance_map->entries[i];
         for(int j = 0; j < bucket->size; j++) {
@@ -182,7 +182,7 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
             var = bucket->entries[j];
             //var.r_entropy = var.bytes_read / var.r_entropy;
             //var.w_entropy = var.bytes_write / var.w_entropy;
-
+            LOG_INFO("Im firing inside log timer.\n");
             int ret = check_if_required_to_move(var);
             switch (ret){
                 case 1:
@@ -287,8 +287,8 @@ void delete_object(uv_work_t *req){
 
 
 void move_to_dram(uv_work_t *req) {
-
     MEMoidKey key = ((object_maintainance*)(req->data))->key;
+    LOG_INFO("Trying to move to DRAM key=%ld.\n", key);
     MEMoid oid = ((object_maintainance*)(req->data))->oid;
     size_t size = oid.size;
 
@@ -407,10 +407,10 @@ int check_if_required_to_delete(object_maintainance entry) {
 //           0 - otherwise
 int check_if_required_to_move(object_maintainance entry) {
     // To be completed
-    // int ret = 0;
-    // if (entry.which_ram == NO_RAM || entry.which_ram == RAM_UNKNOWN) return 0;
-    // return entry.which_ram==DRAM?1:2;
-    return 0;
+    int ret = 0;
+    if (entry.which_ram == NO_RAM || entry.which_ram == RAM_UNKNOWN) return 0;
+    return entry.which_ram==DRAM?1:2;
+    // return 0;
 }
 
 

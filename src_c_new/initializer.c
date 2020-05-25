@@ -6,6 +6,7 @@
 #include "malloc.h"
 #include "types.h"
 #include "object_maintainance.h"
+#include "mem_log.h"
 
 extern char *program_invocation_short_name;
 
@@ -18,21 +19,21 @@ void open_logging_files() {
 // information into hashmaps.
 
 void initialize() {
-    printf("1\n");
     init_splay();
-    printf("2\n");
+
     init_types_table();
     // Initialize metadata and open metadata pools
-    printf("3\n");
+
 
     initialize_metadata();
-    printf("4\n");
+
 
     // Open data pools
     initialize_pool();
     // Opening the logging files
-    printf("5\n");
+
 
     open_logging_files();
     initialise_logistics();
+    initialize_log_queues();
 }

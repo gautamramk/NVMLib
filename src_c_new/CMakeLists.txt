@@ -68,7 +68,7 @@ add_custom_command(TARGET NVMlib POST_BUILD
 #----------------------------------------#
 target_compile_options(mem_track_plugin PRIVATE -fPIC)
 target_compile_options(mem_track_plugin PRIVATE -fno-rtti)
-
+target_compile_options(mem_track_plugin PRIVATE -g3)
 
 ##########################################
 # Linking libraries

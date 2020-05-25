@@ -50,7 +50,7 @@ void init_types_table() {
 
 MEMoid get_MEMoid(MEMoidKey key) {
     MEMoid m = hm_tx_get(pop, hashmap, (uint64_t) key);
-    printf("memoid poolid = %d, offset = %ld, size = %ld\n", m.pool_id, m.offset, m.size);
+    //printf("memoid poolid = %d, offset = %ld, size = %ld\n", m.pool_id, m.offset, m.size);
     return m;
 }
 

@@ -84,7 +84,7 @@ namespace
                         vars.insert(ret_tree);
                         gimple_stmt_iterator end_it = it;
                         for(; !gsi_end_p(end_it); gsi_next(&end_it)) {
-                            debug_gimple_stmt(gsi_stmt(end_it));
+                            // debug_gimple_stmt(gsi_stmt(end_it));
                             if (gsi_stmt(end_it)->code == GIMPLE_ASSIGN) {                               
                                if (TREE_CODE(gimple_assign_lhs(gsi_stmt(end_it))) == MEM_REF) {
                                    tree reffed = gimple_assign_lhs(gsi_stmt(end_it));
@@ -121,22 +121,16 @@ namespace
                     }
                 }
             }
-            printf("______________________________\n");
+            /*printf("______________________________\n");
             gimple_stmt_iterator it1 = gsi_start_1(&gimple_body);
             for(; !gsi_end_p(it1); gsi_next(&it1)) {
                 debug_gimple_stmt(gsi_stmt(it1));
             }
+            printf("\n======================\nInjected mutexes.\n======================\n\n");*/
 
             it = gsi_start_1(&gimple_body);
             for(; !gsi_end_p(it); gsi_next(&it)) {
-                struct walk_stmt_info walk_stmt_info;
-                memset(&walk_stmt_info, 0, sizeof(walk_stmt_info));
-                int mem_ref = 0;
-                walk_stmt_info.info = &mem_ref;
-                //print_gimple_expr(stderr, gsi_stmt(it), 100, 100);
-                //std::cerr << "\n";
-                //walk_gimple_op(gsi_stmt(it), callback_op, &walk_stmt_info);
-                //if (mem_ref == 1){
+                // debug_gimple_stmt(gsi_stmt(it));
                 if (gsi_stmt(it)->code == GIMPLE_ASSIGN){
                     if (TREE_CODE(gimple_assign_lhs(gsi_stmt(it))) == MEM_REF) {
                         tree lt = TREE_OPERAND(gimple_assign_lhs(gsi_stmt(it)), 0);
@@ -157,6 +151,7 @@ namespace
                         tree lty = TREE_TYPE(lt);
                         tree ltyty = TREE_TYPE(lty);
                         tree ltsiz = TYPE_SIZE(ltyty);
+                        //printf("debug lt %s\n", );
 
                         tree fntype = build_function_type_list(void_type_node, ptr_type_node, integer_type_node, NULL_TREE);
                         rfndecl = build_fn_decl ("log_read", fntype);
@@ -168,8 +163,14 @@ namespace
                     }
                 }
             }
-
-            //std::cerr << "*******************\n\n";
+            /*printf("______________________________\n");
+            it1 = gsi_start_1(&gimple_body);
+            for(; !gsi_end_p(it1); gsi_next(&it1)) {
+                print_gimple_stmt(stderr, gsi_stmt(it1), 100, 100);
+                debug_gimple_stmt(gsi_stmt(it1));
+                printf ("\n\n");
+            }
+            std::cout << "*******************\n\n";*/
 
             return 0;
         }
