@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <unordered_set>
 // This is the first gcc header to be included
 #include "gcc-plugin.h"
 #include "plugin-version.h"
@@ -65,6 +65,69 @@ namespace
             // Dump its body
             //print_gimple_seq(stderr, gimple_body, 0, 0);
             gimple_stmt_iterator it = gsi_start_1(&gimple_body);
+            for(; !gsi_end_p(it); gsi_next(&it)) {
+                if (gsi_stmt(it)->code == GIMPLE_CALL) {
+                    tree ret_tree = gimple_call_lhs(gsi_stmt(it));
+                    tree fn_tree = gimple_call_fndecl(gsi_stmt(it));
+                    gimple* last_stmt = gsi_stmt(it);
+                    if (!strcmp(IDENTIFIER_POINTER(DECL_NAME(fn_tree)), "get_memobj_direct")) {
+                        //printf("GV_________________\n");
+
+                        tree fntype = build_function_type_list(void_type_node, NULL_TREE);
+                        tree ldecl = build_fn_decl ("lock_om", fntype);
+                        gimple *lcall = gimple_build_call (ldecl, 0);
+                        gsi_prev(&it);
+                        gsi_insert_before(&it, lcall, GSI_SAME_STMT);
+                        gsi_next(&it);
+
+                        std::unordered_set<tree> vars;
+                        vars.insert(ret_tree);
+                        gimple_stmt_iterator end_it = it;
+                        for(; !gsi_end_p(end_it); gsi_next(&end_it)) {
+                            debug_gimple_stmt(gsi_stmt(end_it));
+                            if (gsi_stmt(end_it)->code == GIMPLE_ASSIGN) {                               
+                               if (TREE_CODE(gimple_assign_lhs(gsi_stmt(end_it))) == MEM_REF) {
+                                   tree reffed = gimple_assign_lhs(gsi_stmt(end_it));
+                                   tree reffed_id = TREE_OPERAND(reffed, 0);
+                                   if (vars.find(reffed_id) != vars.end()) {
+                                       //printf("unlock here\n");
+                                       last_stmt = gsi_stmt(end_it);
+                                       break;
+                                   }
+                               } else if (TREE_CODE(gimple_assign_lhs(gsi_stmt(end_it))) == SSA_NAME ||
+                                          TREE_CODE(gimple_assign_lhs(gsi_stmt(end_it))) == VAR_DECL) {
+                                    tree rhs1, rhs2, rhs3;
+                                    rhs1 = gimple_assign_rhs1(gsi_stmt(end_it));
+                                    rhs2 = gimple_assign_rhs2(gsi_stmt(end_it));
+                                    rhs3 = gimple_assign_rhs3(gsi_stmt(end_it));
+                                    if (vars.find(rhs1) != vars.end() || vars.find(rhs2) != vars.end() ||
+                                        vars.find(rhs3) != vars.end()) {
+                                            vars.insert(gimple_assign_lhs(gsi_stmt(end_it)));
+                                    }
+                                }
+                                if (gimple_assign_rhs_code(gsi_stmt(end_it)) == MEM_REF) {
+                                    tree reffed = TREE_OPERAND(gimple_assign_rhs1(gsi_stmt(end_it)), 0);
+                                    if (vars.find(reffed) != vars.end()) {
+                                        last_stmt = gsi_stmt(end_it);
+                                        //printf("Could end here.\n");
+                                    }
+                                }
+                            }
+                        }
+                        end_it.ptr = last_stmt;
+                        tree udecl = build_fn_decl ("unlock_om", fntype);
+                        gimple *ucall = gimple_build_call (udecl, 0);
+                        gsi_insert_after(&end_it, ucall, GSI_NEW_STMT);
+                    }
+                }
+            }
+            printf("______________________________\n");
+            gimple_stmt_iterator it1 = gsi_start_1(&gimple_body);
+            for(; !gsi_end_p(it1); gsi_next(&it1)) {
+                debug_gimple_stmt(gsi_stmt(it1));
+            }
+
+            it = gsi_start_1(&gimple_body);
             for(; !gsi_end_p(it); gsi_next(&it)) {
                 struct walk_stmt_info walk_stmt_info;
                 memset(&walk_stmt_info, 0, sizeof(walk_stmt_info));

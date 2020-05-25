@@ -67,8 +67,10 @@ LIB_TOID(t)\
 // Direct Read
 #define LIB_DIRECT_RO(o) ((const __typeof__(*(o)._type) *)get_memobj_direct(get_MEMoid((o).oidkey)))
 
-#define LIB_TX_BEGIN uv_mutex_lock(&object_maintainence_hashmap_mutex)
-#define LIB_TX_END uv_mutex_unlock(&object_maintainence_hashmap_mutex)
+//#define LIB_TX_BEGIN uv_mutex_lock(&object_maintainence_hashmap_mutex)
+//#define LIB_TX_END uv_mutex_unlock(&object_maintainence_hashmap_mutex)
+#define LIB_TX_BEGIN
+#define LIB_TX_END
 
 #define LIB_D_RW	LIB_DIRECT_RW
 #define LIB_D_RO	LIB_DIRECT_RO

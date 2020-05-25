@@ -63,6 +63,9 @@ typedef struct object_maintainance_st {
 
 void initialise_logistics();
 
+void lock_om();
+
+void unlock_om();
 // uv_loop_t* get_logistics_loop();
 
 // Returns the actaul object in the map as a pointer.

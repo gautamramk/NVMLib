@@ -52,6 +52,13 @@ void create_maintainance_map();
 int check_if_required_to_move(object_maintainance entry);
 int check_if_required_to_delete(object_maintainance entry);
 
+void lock_om(){
+    uv_mutex_lock(&object_maintainence_hashmap_mutex);
+}
+
+void unlock_om() {
+    uv_mutex_unlock(&object_maintainence_hashmap_mutex);
+}
 
 void initialise_logistics() {
 
