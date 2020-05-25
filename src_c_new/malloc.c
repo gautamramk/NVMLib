@@ -43,22 +43,28 @@ uint64_t allot_first_free_offset_pool(uint64_t pool_id, size_t size) {
     pool_free_slot_head *f_head = temp_ptr->head;
     printf("fhead value is %p\n", f_head);
     uint64_t ret = -1;
+    int flag = 0;
     TOID(struct pool_free_slot) node;
     POBJ_TAILQ_FOREACH (node, f_head, fnd) {
         if (free_slot_size(node) == size) {
             ret = D_RO(node)->start_b;
-            TX_BEGIN(temp_ptr->pool) {
-                POBJ_TAILQ_REMOVE_FREE(f_head, node, fnd);
-            } TX_END
+            flag = 1;
             break;
         } else if (free_slot_size(node) > size) {
             ret = D_RO(node)->start_b;
             uint64_t new_start = D_RO(node)->start_b + size;
+            printf("Allot flag 2\n");
             TX_BEGIN(temp_ptr->pool) {
                 D_RW(node)->start_b = new_start;
             } TX_END
             break;
         }
+    }
+
+    if (flag == 1) {
+        TX_BEGIN(temp_ptr->pool) {
+            POBJ_TAILQ_REMOVE_FREE(f_head, node, fnd);
+        } TX_END
     }
     return ret;
 }

@@ -137,6 +137,37 @@ void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {
     pool_free_slot_head* f_head = temp_ptr->head;
     TOID(struct pool_free_slot) node;
     TOID(struct pool_free_slot) next_node;
+    TOID(struct pool_free_slot) to_remove_node;
+    TOID(struct pool_free_slot) to_insert_node;
+
+    /**
+     * Flag : 1 -- to remove node
+     *        2 -- to insert node
+    **/
+    int flag = 0;
+
+    node = POBJ_TAILQ_FIRST(f_head);
+    if (offset < D_RO(node)->start_b) {
+        // its in the very first location
+        if (offset + size - 1 == D_RO(node)->start_b - 1) {
+            TX_BEGIN(temp_ptr->pool) {
+                D_RW(node)->start_b = offset;
+                flag = -2;
+            } TX_END
+        } else {
+            TX_BEGIN(temp_ptr->pool) {
+                to_insert_node = TX_NEW(struct pool_free_slot);
+                // POBJ_TAILQ_INSERT_AFTER(f_head, node, to_insert_node, fnd);
+
+                D_RW(to_insert_node)->start_b = offset;
+                D_RW(to_insert_node)->end_b = offset + size - 1;
+
+                flag = -3;                
+            } TX_END
+        }
+        goto end;
+    }   
+
     POBJ_TAILQ_FOREACH (node, f_head, fnd) {
         if (offset == D_RO(node)->end_b + 1) {
             TX_BEGIN(temp_ptr->pool) {
@@ -145,26 +176,68 @@ void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {
                 if (!TOID_IS_NULL(next_node)) {
                     if (offset + size - 1 == D_RO(next_node)->start_b - 1) {
                         D_RW(node)->end_b = D_RO(next_node)->end_b;
-                        POBJ_TAILQ_REMOVE_FREE(f_head, next_node, fnd);
+                        // POBJ_TAILQ_REMOVE_FREE(f_head, next_node, fnd);
+                        
+                        // can't modify the datastructure within a loop
+                        to_remove_node = next_node;
+                        flag = 1;
                     }
                 }
             } TX_END
+            break;
         } else if (offset > D_RO(node)->end_b + 1) {
             next_node = POBJ_TAILQ_NEXT(node, fnd);
             if (!TOID_IS_NULL(next_node)) {
-                if (offset + size - 1 == D_RO(POBJ_TAILQ_NEXT(node, fnd))->start_b - 1) {
+                if (offset + size - 1 == D_RO(next_node)->start_b - 1) {
                     TX_BEGIN(temp_ptr->pool) {
                         D_RW(next_node)->start_b = offset;
+                        flag = 2;
                     } TX_END
+                    break;
+                } else {
+                    TX_BEGIN(temp_ptr->pool) {
+                        to_insert_node = TX_NEW(struct pool_free_slot);
+                        // POBJ_TAILQ_INSERT_AFTER(f_head, node, to_insert_node, fnd);
+
+                        D_RW(to_insert_node)->start_b = offset;
+                        D_RW(to_insert_node)->end_b = offset + size - 1;
+
+                        flag = 3;                  
+                    } TX_END
+
+                    break;
                 }
-            } else {
-                TX_BEGIN(temp_ptr->pool) {
-                    TOID(struct pool_free_slot) new_node = TX_NEW(struct pool_free_slot);
-                    POBJ_TAILQ_INSERT_AFTER(f_head, node, new_node, fnd);
-                    D_RW(new_node)->start_b = offset;
-                    D_RW(new_node)->end_b = offset + size - 1;
-                } TX_END
-            }
+            } 
         }
+    }
+
+end:
+    printf("nvm_free: f_head %p\n", f_head);
+    printf("nvm free: flag %d\n", flag);
+    printf("nvm_free: node->end_b %p\n", D_RO(node)->end_b);
+    
+
+    if (flag == 1) {
+        printf("nvm_free: to_remove->end_b %p\n", D_RO(to_remove_node)->end_b);
+        TX_BEGIN(temp_ptr->pool) {
+            POBJ_TAILQ_REMOVE_FREE(f_head, to_remove_node, fnd);
+        } TX_END
+        return;
+    }
+
+    if(flag == 3) {
+        printf("nvm_free: to_insert_node->end_b %p, to_insert_node->start_b %p\n", D_RO(to_insert_node)->end_b, D_RO(to_insert_node)->start_b);
+        TX_BEGIN(temp_ptr->pool) {
+            POBJ_TAILQ_INSERT_AFTER(f_head, node, to_insert_node, fnd);
+        } TX_END
+        return;
+    }
+
+    if (flag == -3) {
+        printf("nvm_free: to_insert_node->end_b %p, to_insert_node->start_b %p\n", D_RO(to_insert_node)->end_b, D_RO(to_insert_node)->start_b);
+        TX_BEGIN(temp_ptr->pool) {
+            POBJ_TAILQ_INSERT_HEAD(f_head, to_insert_node, fnd);
+        } TX_END
+        return;
     }
 }
