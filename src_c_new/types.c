@@ -17,7 +17,7 @@ void init_types_table() {
     pop = pmemobj_open(filename, POBJ_LAYOUT_NAME(types_tab));
 
     if(pop == NULL) {
-        pop = pmemobj_create(filename, POBJ_LAYOUT_NAME(types_tab), PMEMOBJ_MIN_POOL, 0666);
+        pop = pmemobj_create(filename, POBJ_LAYOUT_NAME(types_tab), 5*PMEMOBJ_MIN_POOL, 0666);
         //printf("%d %s %p\n", errno, filename, pop);
         hashmap = POBJ_ROOT(pop, struct hashmap_tx);
         
