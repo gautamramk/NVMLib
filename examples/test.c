@@ -8,26 +8,47 @@ int main() {
 
     LIB_TOID(int) obj = (LIB_TOID(int))memalloc(sizeof(int), NVRAM_HEAP);
 
-    LIB_TX_BEGIN;
-    *LIB_D_RW(obj) = 2;
-    LIB_TX_END;
+    // LIB_TX_BEGIN;
+    // *LIB_D_RW(obj) = 2;
+    // LIB_TX_END;
+
+    // while (true) {
+    //     LIB_TX_BEGIN;
+    //     printf("printing value %d.\n", *LIB_D_RO(obj));
+    //     LIB_TX_END;
+       
+    //     LIB_TX_BEGIN;
+
+    //     LIB_TX_END;
+
+    
+    //     sleep(1);
+
+    // }
+
+    LIB_TOID(int) obj1 = (LIB_TOID(int))memalloc(2 * sizeof(int), NVRAM_HEAP);
+    LIB_TOID(int) obj2 = (LIB_TOID(int))memalloc(3 * sizeof(int), NVRAM_HEAP);
+
+    LIB_TOID(int) obj3;
+
+    memfree(obj1);
 
     while (true) {
+
+        obj3 = (LIB_TOID(int))memalloc(sizeof(int), NVRAM_HEAP);
+        // *LIB_D_RW(obj) = 2;
         LIB_TX_BEGIN;
-        printf("printing value %d.\n", *LIB_D_RO(obj));
+        printf("\n=========================================\nTEST: printing value %p.\n======================================\n", LIB_D_RO(obj3));
         LIB_TX_END;
        
-        LIB_TX_BEGIN;
-        (*LIB_D_RW(obj))++;
-        LIB_TX_END;
-
-        LIB_TOID(int) obj = (LIB_TOID(int))memalloc(sizeof(int), NVRAM_HEAP);
-        sleep(1);
-
+        memfree(obj3);
+        
+        
+        sleep(2);
     }
 
-    printf("The stored value: %d\n", *LIB_D_RO(obj));
-    sleep(5); // for cleanup
+    // printf("The stored value: %d\n", *LIB_D_RO(obj));
+    // sleep(5); // for cleanup
 
 
 
@@ -44,7 +65,7 @@ int main() {
 //         LIB_TX_END;
 //         goto skip_init;
 //     }
-//     LIB_TX_END;    
+//     LIB_TX_END;
 
 //     for(int i = 0; i< size; i++) {
 //         LIB_TX_BEGIN;
@@ -85,6 +106,6 @@ int main() {
 //     memfree(arr);
 //     memfree(flag);
 //     memfree(idx);
-    // sleep(5);
+//     sleep(5);
     return 0;
 }
