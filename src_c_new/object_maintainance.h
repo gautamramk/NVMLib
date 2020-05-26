@@ -5,6 +5,7 @@
 #include "globals.h"
 #include "malloc.h"
 #include <time.h>
+#include <sys/queue.h>
 
 #define DELETE_LOOP_SLEEP_TIME 1000    // 5 milli secs
 #define MOVE_LOOP_SLEEP_TIME 1000    // 5 milli secs
@@ -60,6 +61,33 @@ typedef struct object_maintainance_st {
 
     bool can_be_moved;
 } object_maintainance;
+
+
+typedef struct object_maintainance_addition {
+    MEMoidKey key;
+    MEMoid oid;
+
+    where_t which_ram;
+    bool can_be_moved;
+
+    TAILQ_ENTRY(object_maintainance_addition) list;
+
+} object_maintainance_addition;
+
+typedef struct object_maintainance_deletion {
+    MEMoidKey key;
+    MEMoid oid;
+
+    where_t which_ram;
+    bool can_be_moved;
+
+    TAILQ_ENTRY(object_maintainance_deletion) list;
+
+} object_maintainance_deletion;
+
+TAILQ_HEAD(object_maintainance_addition_list, object_maintainance_addition) addition_queue_head;
+TAILQ_HEAD(object_maintainance_deletion_list, object_maintainance_deletion) deletion_queue_head;
+
 
 void initialise_logistics();
 

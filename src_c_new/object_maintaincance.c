@@ -13,6 +13,8 @@
 uv_mutex_t object_maintainence_hashmap_mutex;   // used during manupulation of `types map`
 uv_mutex_t object_maintainence_memory_mutex;    // used during `nvm_free` / access too
 uv_mutex_t object_maintainence_maintain_map_mutex;   // used during manupulation of `maintainance map`
+uv_mutex_t object_maintainence_addtion_mutex;   // used during manupulation of `maintainance map`
+uv_mutex_t object_maintainence_deletion_mutex;   // used during manupulation of `maintainance map`
 
 /**
  * Hashmap for object maintaince
@@ -57,8 +59,10 @@ void *deletion_thread_function(void *data);
 void move_to_nvram(uv_work_t *req);
 void move_to_dram(uv_work_t *req);
 void on_after_work(uv_work_t* req, int status);
-void delete_object(uv_work_t *req);
+// void delete_object(uv_work_t *req);
+void delete_object(MEMoidKey key, MEMoid oid);
 void create_maintainance_map();
+void create_addition_deletion_queues();
 int check_if_required_to_move(object_maintainance entry);
 int check_if_required_to_delete(object_maintainance entry);
 
@@ -74,6 +78,8 @@ void initialise_logistics() {
 
     // Initialising hashmap for logistics
     create_maintainance_map();
+
+    create_addition_deletion_queues();
 
     // Initialising the mutexes
     uv_mutex_init(&object_maintainence_hashmap_mutex);
@@ -149,6 +155,19 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         // nothing yet in the logistics map
         return;
     }
+
+    uv_mutex_lock(&object_maintainence_addtion_mutex);
+    while(!TAILQ_EMPTY(&addition_queue_head)) {
+        object_maintainance_deletion *to_add = TAILQ_FIRST(&addition_queue_head);
+
+        uv_mutex_lock(&object_maintainence_maintain_map_mutex);
+        insert_into_maintainance_map(create_new_maintainance_map_entry(to_add->key, to_add->oid, to_add->which_ram, to_add->can_be_moved));
+        uv_mutex_unlock(&object_maintainence_maintain_map_mutex);
+
+        TAILQ_REMOVE(&addition_queue_head, to_add, list);
+    }
+    uv_mutex_unlock(&object_maintainence_addtion_mutex);
+
     while(!TAILQ_EMPTY(&write_queue_head)) {
         address_log* w_add = TAILQ_FIRST(&write_queue_head);
         addr2memoid_key skey;
@@ -236,35 +255,52 @@ void on_deletion_timer(uv_timer_t *timer, int status) {
         // nothing yet in the logistics map
         return;
     }
+
+    uv_mutex_lock(&object_maintainence_deletion_mutex);
     
-    for(size_t i=0; i<object_maintainance_map->power_of_two; i++) {
-        HASH_MAP_BUCKET(object_maintainance) *bucket = &object_maintainance_map->entries[i];
-        for(int j = 0; j < bucket->size; j++) {
-            // by value !!!
-            var = bucket->entries[j];
+    while(!TAILQ_EMPTY(&deletion_queue_head)) {
+        object_maintainance_addition *to_delete = TAILQ_FIRST(&deletion_queue_head);
 
-            int ret = check_if_required_to_delete(var);
-            if(ret) {
-                // Needs to be deleted
-                work_req = (uv_work_t*)malloc(sizeof(*work_req));
-                work_req->data = malloc(sizeof(object_maintainance));
-                *((object_maintainance *)(work_req->data)) = var;
+        delete_object(to_delete->key, to_delete->oid);
 
-                //uv_queue_work(timer->loop, work_req, delete_object, on_after_work);
-                delete_object(work_req);
-                on_after_work(work_req, 0);
-                LOG_INFO("delete_object scheduled: %ld from %d at [%ld ms]\n", var.key, var.which_ram, (uv_hrtime() / 1000000) % 100000);
-            }
-        }
+        TAILQ_REMOVE(&deletion_queue_head, to_delete, list);
     }
+    uv_mutex_unlock(&object_maintainence_deletion_mutex);
+
+
+    // for(size_t i=0; i<object_maintainance_map->power_of_two; i++) {
+    //     HASH_MAP_BUCKET(object_maintainance) *bucket = &object_maintainance_map->entries[i];
+    //     for(int j = 0; j < bucket->size; j++) {
+    //         // by value !!!
+    //         var = bucket->entries[j];
+
+    //         int ret = check_if_required_to_delete(var);
+    //         if(ret) {
+    //             // Needs to be deleted
+    //             work_req = (uv_work_t*)malloc(sizeof(*work_req));
+    //             work_req->data = malloc(sizeof(object_maintainance));
+    //             *((object_maintainance *)(work_req->data)) = var;
+
+    //             //uv_queue_work(timer->loop, work_req, delete_object, on_after_work);
+    //             delete_object(work_req);
+    //             on_after_work(work_req, 0);
+    //             LOG_INFO("delete_object scheduled: %ld from %d at [%ld ms]\n", var.key, var.which_ram, (uv_hrtime() / 1000000) % 100000);
+    //         }
+    //     }
+    // }
 }
 
-void delete_object(uv_work_t *req){
-    MEMoidKey key = ((object_maintainance*)(req->data))->key;
-    MEMoid oid = ((object_maintainance*)(req->data))->oid;
+// void delete_object(uv_work_t *req){
+//     MEMoidKey key = ((object_maintainance*)(req->data))->key;
+//     MEMoid oid = ((object_maintainance*)(req->data))->oid;
+//     size_t size = oid.size;
+//     bool is_dram = false;
+
+void delete_object(MEMoidKey key, MEMoid oid){
+
     size_t size = oid.size;
     bool is_dram = false;
-
+    
     // Get the hashmap mutex first to ensure there are no leftover accesses
     uv_mutex_lock(&object_maintainence_hashmap_mutex);
     
@@ -296,7 +332,7 @@ void delete_object(uv_work_t *req){
 
     // Updating the `object_maintainance_map`
     uv_mutex_lock(&object_maintainence_maintain_map_mutex);
-    delete_from_maintainance_map((object_maintainance*)(req->data));
+    delete_from_maintainance_map(create_new_maintainance_map_entry(key, oid, NO_RAM, true));
     uv_mutex_unlock(&object_maintainence_maintain_map_mutex);
 
     LOG_INFO("delete_object: %ld from %s at [%ld ms]\n", key, is_dram?"DRAM":"NVRAM", (uv_hrtime() / 1000000) % 100000);
@@ -372,7 +408,7 @@ void move_to_nvram(uv_work_t *req) {
 
      // Get the hashmap mutex first to ensure there are no leftover accesses
     uv_mutex_lock(&object_maintainence_hashmap_mutex);
-    
+
     // updating the `types_table`
     // NOTE: we have to mannually delete before inserting for the same key
     remove_object_from_hashmap(key);
@@ -484,6 +520,11 @@ object_maintainance* find_in_maintainance_map(MEMoidKey key) {
 
 }
 
+
+void create_addition_deletion_queues() {
+    TAILQ_INIT(&addition_queue_head);
+    TAILQ_INIT(&deletion_queue_head);
+}
 
 
 // ==============================================================================================================================
