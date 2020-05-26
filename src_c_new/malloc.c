@@ -161,28 +161,54 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
         which_ram = va_arg(arg_list, int);
     }
 
-    MEMoid oid =  __memalloc(size, which_ram);
-    //DRAM variables in the table need to be replaced
-    // Get the hashmap mutex first to ensure there are no leftover accesses
-    uv_mutex_lock(&object_maintainence_hashmap_mutex);
-    if(oid.pool_id == POOL_ID_MALLOC_OBJ) {
-        // dram object
-        // need to replace the value
-        remove_object_from_hashmap(key);
+    // Check if the element is already in NVRAM
+    MEMoid oid = get_MEMoid(key);
+#ifdef DEBUG
+    printf("\n------------------------------------\nmemalloc: oid->pool_id = %ld,  oid->offset = %ld\n------------------------------------------------\n");
+#endif
+
+    if (oid.offset == MEMOID_NULL.offset && oid.pool_id == MEMOID_NULL.pool_id){
+        // Need to create the new object
+
+        oid =  __memalloc(size, which_ram);
+        
+        // Get the hashmap mutex first to ensure there are no leftover accesses
+        uv_mutex_lock(&object_maintainence_hashmap_mutex);
+        insert_object_to_hashmap(key, oid);
+        uv_mutex_unlock(&object_maintainence_hashmap_mutex);
+
+        // Insert into the object maintainance table for logistics
+        uv_mutex_lock(&object_maintainence_maintain_map_mutex);
+        insert_into_maintainance_map(create_new_maintainance_map_entry(key, oid, oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM, true));
+        uv_mutex_unlock(&object_maintainence_maintain_map_mutex);
+    } else {
+        // obj is already present in the map
+
+        //DRAM variables in the table need to be replaced
+        // Get the hashmap mutex first to ensure there are no leftover accesses
+        uv_mutex_lock(&object_maintainence_hashmap_mutex);
+        if(oid.pool_id == POOL_ID_MALLOC_OBJ) {
+            // dram object
+            oid =  __memalloc(size, DRAM);
+            // need to replace the value
+            remove_object_from_hashmap(key);
+            // Insert in the main types table
+            insert_object_to_hashmap(key, oid);
+        }
+        uv_mutex_unlock(&object_maintainence_hashmap_mutex);
+
+        // Insert into the object maintainance table for logistics
+        uv_mutex_lock(&object_maintainence_maintain_map_mutex);
+        insert_into_maintainance_map(create_new_maintainance_map_entry(key, oid, oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM, true));
+        uv_mutex_unlock(&object_maintainence_maintain_map_mutex);
     }
 
-    // Insert in the main types table
-    insert_object_to_hashmap(key, oid);
-    uv_mutex_unlock(&object_maintainence_hashmap_mutex);
-    // Insert in the main types table
-    insert_object_to_hashmap(key, oid);
-    // Insert into the object maintainance table for logistics
-    insert_into_maintainance_map(create_new_maintainance_map_entry(key, oid, oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM, true));
     struct addr2memoid_key* new_key = (struct addr2memoid_key*)malloc(sizeof(addr2memoid_key));
     new_key->comp = cmp_node;
     new_key->key = key;
     splay_tree_insert(addr2MemOID_read, (uintptr_t)new_key, NULL);
     splay_tree_insert(addr2MemOID_write, (uintptr_t)new_key, NULL);
+
     return key;
 }
 

@@ -71,8 +71,6 @@ LIB_TOID(t)\
 
 //#define LIB_TX_BEGIN uv_mutex_lock(&object_maintainence_hashmap_mutex)
 //#define LIB_TX_END uv_mutex_unlock(&object_maintainence_hashmap_mutex)
-#define LIB_TX_BEGIN
-#define LIB_TX_END
 
 #define LIB_D_RW	LIB_DIRECT_RW
 #define LIB_D_RO	LIB_DIRECT_RO

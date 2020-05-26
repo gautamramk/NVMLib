@@ -57,45 +57,30 @@ int main() {
     LIB_TOID(int) arr = (LIB_TOID(int))memalloc(size * sizeof(int), NVRAM_HEAP);
     LIB_TOID(int) flag = (LIB_TOID(int))memalloc(sizeof(int), NVRAM_HEAP);
 
-    LIB_TX_BEGIN;
     if(*LIB_D_RO(flag) == 1) {
-        LIB_TX_END;
         goto skip_init;
     }
-    LIB_TX_END;
 
     for(int i = 0; i< size; i++) {
-        LIB_TX_BEGIN;
         LIB_D_RW(arr)[i] = size-i;
-        LIB_TX_END;
     }
 
-    LIB_TX_BEGIN;
     *LIB_D_RW(flag) = 1;
-    LIB_TX_END;
 
 skip_init:
     printf("values in array: ");
     for(int i = 0; i < size; i++) {
-        LIB_TX_BEGIN;
         printf(" %d,", LIB_D_RO(arr)[i]);
-        LIB_TX_END;
     }
     printf("\n");
 
     LIB_TOID(int) idx = (LIB_TOID(int))memalloc(sizeof(int), NVRAM_HEAP);
 
-    LIB_TX_BEGIN;
     int k =  *LIB_D_RO(idx) < 10 ? *LIB_D_RO(idx):0;
-    LIB_TX_END;
     for ( ; k < size ; k++) {
-        LIB_TX_BEGIN;
         LIB_D_RW(arr)[k] = -1;
-        LIB_TX_END;
 
-        LIB_TX_BEGIN;
         *LIB_D_RW(idx) = k;
-        LIB_TX_END;
 
         sleep(1);
     }

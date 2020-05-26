@@ -312,22 +312,24 @@ void move_to_dram(uv_work_t *req) {
     new_obj.offset = (uint64_t)(malloc(size));
     new_obj.pool_id = POOL_ID_MALLOC_OBJ;
     new_obj.size = size;
-    
+#ifdef DEBUG
+    printf("move to dram dram poolid = %d, offset = %d addr = %p\n", new_obj.pool_id, new_obj.offset, (void*)get_pool_from_poolid(new_obj.pool_id)+new_obj.offset);
+#endif 
     // copying the object contents
     memcpy((void*)new_obj.offset, (void*)(get_pool_from_poolid(oid.pool_id) + oid.offset), size);
 
     // Get the hashmap mutex first to ensure there are no leftover accesses
     uv_mutex_lock(&object_maintainence_hashmap_mutex);
+    // updating the `types_table`
+    // NOTE: we have to mannually delete before inserting for the same key
+    remove_object_from_hashmap(key);
+    insert_object_to_hashmap(key, new_obj);
 
     // freeing the contents in nvram
     uv_mutex_lock(&object_maintainence_memory_mutex);
     nvm_free(oid.pool_id, oid.offset, size);
     uv_mutex_unlock(&object_maintainence_memory_mutex);
 
-    // updating the `types_table`
-    // NOTE: we have to mannually delete before inserting for the same key
-    remove_object_from_hashmap(key);
-    insert_object_to_hashmap(key, new_obj);
     //debug_hashmap(key);
     uv_mutex_unlock(&object_maintainence_hashmap_mutex);
 
@@ -370,16 +372,17 @@ void move_to_nvram(uv_work_t *req) {
 
      // Get the hashmap mutex first to ensure there are no leftover accesses
     uv_mutex_lock(&object_maintainence_hashmap_mutex);
+    
+    // updating the `types_table`
+    // NOTE: we have to mannually delete before inserting for the same key
+    remove_object_from_hashmap(key);
+    insert_object_to_hashmap(key, new_obj);
 
     // freeing the contents in dram
     uv_mutex_lock(&object_maintainence_memory_mutex);
     free((void*)oid.offset);
     uv_mutex_unlock(&object_maintainence_memory_mutex);
 
-    // updating the `types_table`
-    // NOTE: we have to mannually delete before inserting for the same key
-    remove_object_from_hashmap(key);
-    insert_object_to_hashmap(key, new_obj);
     //debug_hashmap(key);
     uv_mutex_unlock(&object_maintainence_hashmap_mutex);
 
