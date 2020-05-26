@@ -6,6 +6,7 @@
 #include <libiberty/splay-tree.h>
 // #include <splay-tree.h>
 #include "object_maintainance.h"
+#include <uv.h>
 
 // MEMoid __memalloc(size_t size) {
 //     MEMoid new_obj;
@@ -224,8 +225,15 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
     struct addr2memoid_key* new_key = (struct addr2memoid_key*)malloc(sizeof(addr2memoid_key));
     new_key->comp = cmp_node;
     new_key->key = key;
-    splay_tree_insert(addr2MemOID_read, (uintptr_t)new_key, NULL);
+    
+    uv_mutex_lock(&write_splay_tree_mutex);
     splay_tree_insert(addr2MemOID_write, (uintptr_t)new_key, NULL);
+    uv_mutex_unlock(&write_splay_tree_mutex);
+
+    uv_mutex_lock(&read_splay_tree_mutex);
+    splay_tree_insert(addr2MemOID_read, (uintptr_t)new_key, NULL);
+    uv_mutex_unlock(&read_splay_tree_mutex);
+
 
     return key;
 }

@@ -13,8 +13,11 @@
 uv_mutex_t object_maintainence_hashmap_mutex;   // used during manupulation of `types map`
 uv_mutex_t object_maintainence_memory_mutex;    // used during `nvm_free` / access too
 uv_mutex_t object_maintainence_maintain_map_mutex;   // used during manupulation of `maintainance map`
-uv_mutex_t object_maintainence_addtion_mutex;   // used during manupulation of `maintainance map`
-uv_mutex_t object_maintainence_deletion_mutex;   // used during manupulation of `maintainance map`
+uv_mutex_t object_maintainence_addtion_mutex;   // used during manupulation of `addition_queue`
+uv_mutex_t object_maintainence_deletion_mutex;   // used during manupulation of `deletion_queue`
+uv_mutex_t read_splay_tree_mutex;               // used during manupulation of `read splay tree`
+uv_mutex_t write_splay_tree_mutex;              // used during manupulation of `read splay tree`
+
 
 /**
  * Hashmap for object maintaince
@@ -84,6 +87,12 @@ void initialise_logistics() {
     // Initialising the mutexes
     uv_mutex_init(&object_maintainence_hashmap_mutex);
     uv_mutex_init(&object_maintainence_memory_mutex);
+    uv_mutex_init(&object_maintainence_maintain_map_mutex);
+    uv_mutex_init(&object_maintainence_addtion_mutex);
+
+    uv_mutex_init(&read_splay_tree_mutex);
+    uv_mutex_init(&write_splay_tree_mutex);   
+    
 
     // The logistics and deletion threads
     pthread_t logistics_thread, deletion_thread;
@@ -173,7 +182,11 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         addr2memoid_key skey;
         skey.comp = cmp_addr;
         skey.addr = w_add->addr;
+        
+        uv_mutex_lock(&write_splay_tree_mutex);
         splay_tree_node ret_node = splay_tree_lookup(addr2MemOID_write, (splay_tree_key)&skey);
+        uv_mutex_unlock(&write_splay_tree_mutex);
+
         MEMoidKey mkey = ((addr2memoid_key*)ret_node->key)->key;
         object_maintainance* om = find_in_maintainance_map(mkey);
         om->num_writes++;
@@ -192,7 +205,11 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         addr2memoid_key skey;
         skey.comp = cmp_addr;
         skey.addr = r_add->addr;
+
+        uv_mutex_lock(&read_splay_tree_mutex);
         splay_tree_node ret_node = splay_tree_lookup(addr2MemOID_read, (splay_tree_key)&skey);
+        uv_mutex_unlock(&read_splay_tree_mutex);
+
         MEMoidKey mkey = ((addr2memoid_key*)ret_node->key)->key;
         object_maintainance* om = find_in_maintainance_map(mkey);
         om->num_reads++;
@@ -464,9 +481,9 @@ int check_if_required_to_delete(object_maintainance entry) {
 //           0 - otherwise
 int check_if_required_to_move(object_maintainance entry) {
     // To be completed
-    // if (!entry.can_be_moved) {
-    //     return 0;
-    // }
+    if (!entry.can_be_moved) {
+        return 0;
+    }
     int ret = 0;
     if (entry.which_ram == NO_RAM || entry.which_ram == RAM_UNKNOWN) return 0;
     return entry.which_ram==DRAM?1:2;
