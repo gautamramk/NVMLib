@@ -6,7 +6,7 @@ LIB_TOID_DECLARE(int);
 int main() {
     initialize();
 
-    LIB_TOID(int) obj = (LIB_TOID(int))memalloc(sizeof(int), NVRAM_HEAP);
+    LIB_TOID(int) obj = (LIB_TOID(int))memalloc(sizeof(int));
 
     // LIB_TX_BEGIN;
     // *LIB_D_RW(obj) = 2;

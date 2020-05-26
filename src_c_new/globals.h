@@ -46,4 +46,6 @@ extern uv_mutex_t object_maintainence_memory_mutex;    // used during `nvm_free`
 extern uv_mutex_t object_maintainence_maintain_map_mutex;   // used during manupulation of `maintainance map`
 extern uv_mutex_t object_maintainence_addtion_mutex;   // used during manupulation of `maintainance map`
 extern uv_mutex_t object_maintainence_deletion_mutex;   // used during manupulation of `maintainance map`
+extern uv_mutex_t read_splay_tree_mutex;               // used during manupulation of `read splay tree`
+extern uv_mutex_t write_splay_tree_mutex;              // used during manupulation of `read splay tree`
 #endif // !__NVM_GLOBALS__
