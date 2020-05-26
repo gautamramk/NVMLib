@@ -167,7 +167,7 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
     printf("\n------------------------------------\nmemalloc: oid->pool_id = %ld,  oid->offset = %ld\n------------------------------------------------\n", oid.pool_id, oid.offset);
 #endif
 
-    if (oid.offset == MEMOID_NULL.offset || oid.pool_id == MEMOID_NULL.pool_id || oid.pool_id == POOL_ID_MALLOC_OBJ){
+    if ((oid.offset == MEMOID_NULL.offset && oid.pool_id == MEMOID_NULL.pool_id) || oid.pool_id == POOL_ID_MALLOC_OBJ){
         // Need to create the new object
 
     #ifdef DEBUG
@@ -185,7 +185,7 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
 
         // Insert into the object maintainance table for logistics
         uv_mutex_lock(&object_maintainence_maintain_map_mutex);
-        insert_into_maintainance_map(create_new_maintainance_map_entry(key, oid, oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM, true));
+        insert_into_maintainance_map(create_new_maintainance_map_entry(key, oid, oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM, which_ram==ANY_RAM ? true:false));
         uv_mutex_unlock(&object_maintainence_maintain_map_mutex);
     } else {
         // obj is already present in the map
@@ -213,7 +213,7 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
 
         to_add->key = key;
         to_add->oid = oid;
-        to_add->can_be_moved = true;
+        to_add->can_be_moved = which_ram==ANY_RAM ? true:false;
         to_add->which_ram = oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM;
         TAILQ_INSERT_TAIL(&addition_queue_head, to_add, list);
 

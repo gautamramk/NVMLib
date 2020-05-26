@@ -464,6 +464,9 @@ int check_if_required_to_delete(object_maintainance entry) {
 //           0 - otherwise
 int check_if_required_to_move(object_maintainance entry) {
     // To be completed
+    // if (!entry.can_be_moved) {
+    //     return 0;
+    // }
     int ret = 0;
     if (entry.which_ram == NO_RAM || entry.which_ram == RAM_UNKNOWN) return 0;
     return entry.which_ram==DRAM?1:2;

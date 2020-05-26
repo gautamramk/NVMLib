@@ -135,6 +135,9 @@ void create_new_pool(size_t size) {
 }
 
 void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {
+    // memset the freed location since its NVRAM
+    memset(get_memobj_direct((MEMoid){.pool_id=pool_id, .offset=offset}), 0, size);
+
     pool_free_slot_val temp;
     pool_free_slot_val* temp_ptr = &temp;
     temp.key = pool_id;
