@@ -12,7 +12,7 @@ void initialize_log_queues() {
 void log_write(void* addr, size_t size) {
     address_log* ad_log = (address_log*)malloc(sizeof(address_log));
     ad_log->addr = addr;
-    ad_log->size = size;
+    ad_log->size = size >> 3;
     time(&ad_log->access_time);
     TAILQ_INSERT_TAIL(&write_queue_head, ad_log, list);
 }
@@ -20,7 +20,7 @@ void log_write(void* addr, size_t size) {
 void log_read(void* addr, size_t size) {
     address_log* ad_log = (address_log*)malloc(sizeof(address_log));
     ad_log->addr = addr;
-    ad_log->size = size;
+    ad_log->size = size >> 3;
     time(&ad_log->access_time);
     TAILQ_INSERT_TAIL(&read_queue_head, ad_log, list);
 }

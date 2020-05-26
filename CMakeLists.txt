@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 3.10)
 #############################################
 project(NVMlib LANGUAGES C CXX VERSION 0.1.0)
 
+option(BUILD_DEBUG "Enable debug mode" OFF)
+
 #############################################
 # find the required libraries
 #############################################
@@ -132,7 +134,12 @@ if(NOT libuv_LIBRARY)
 endif()
 message(STATUS "LibUV library found successfully.")
 
-
+#############################################
+# Enabling DEBUG mode
+#############################################
+if (BUILD_DEBUG)
+  add_definitions(-DDEBUG)
+endif(BUILD_DEBUG)
 
 #############################################
 # Include the directory containing the

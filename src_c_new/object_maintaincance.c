@@ -32,10 +32,20 @@ int compare(object_maintainance *a, object_maintainance *b) {
     return 1;
 }
 
+#ifdef DEBUG
+void print(object_maintainance *entry) {
+    printf("%ld -- num_read %ld , num_writes %ld", entry->key, entry->num_reads, entry->num_writes);
+}
+#endif
+
 DECLARE_HASHMAP(object_maintainance)
 DEFINE_HASHMAP(object_maintainance, compare, get_hash, free, realloc)
 
 HASH_MAP(object_maintainance) *object_maintainance_map;
+
+#ifdef DEBUG
+HASH_MAP_PRINT_FUNC(object_maintainance, print);
+#endif
 
 /**
  * Declaring all the fuctions just to avoid compiler ordering issues
@@ -134,6 +144,7 @@ void reset_om(object_maintainance* om) {
 void on_logistics_timer(uv_timer_t *timer, int status) {
     uv_work_t* work_req;
     object_maintainance var;
+    
     if(!object_maintainance_map->entries){
         // nothing yet in the logistics map
         return;
@@ -155,6 +166,7 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         om->last_write = w_add->addr;
         om->last_write_size = w_add->size;
         om->bytes_write += w_add->size;
+        TAILQ_REMOVE(&write_queue_head, w_add, list);
     }
     while(!TAILQ_EMPTY(&read_queue_head)) {
         address_log* r_add = TAILQ_FIRST(&read_queue_head);
@@ -173,8 +185,14 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
         om->last_read = r_add->addr;
         om->last_read_size = r_add->size;
         om->bytes_read += r_add->size;
+        TAILQ_REMOVE(&read_queue_head, r_add, list);
     }
-    LOG_INFO("MIdway through log timer.\n");
+
+#ifdef DEBUG
+    // debug
+    HASH_MAP_PRINT(object_maintainance)(object_maintainance_map);
+#endif
+
     for(size_t i=0; i<object_maintainance_map->power_of_two; i++) {
         HASH_MAP_BUCKET(object_maintainance) *bucket = &object_maintainance_map->entries[i];
         for(int j = 0; j < bucket->size; j++) {
@@ -182,7 +200,6 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
             var = bucket->entries[j];
             //var.r_entropy = var.bytes_read / var.r_entropy;
             //var.w_entropy = var.bytes_write / var.w_entropy;
-            LOG_INFO("Im firing inside log timer.\n");
             int ret = check_if_required_to_move(var);
             switch (ret){
                 case 1:
@@ -288,7 +305,6 @@ void delete_object(uv_work_t *req){
 
 void move_to_dram(uv_work_t *req) {
     MEMoidKey key = ((object_maintainance*)(req->data))->key;
-    LOG_INFO("Trying to move to DRAM key=%ld.\n", key);
     MEMoid oid = ((object_maintainance*)(req->data))->oid;
     size_t size = oid.size;
 
@@ -346,7 +362,9 @@ void move_to_nvram(uv_work_t *req) {
     // new_obj.offset = get_first_free_offset(size);
     // new_obj.size = size;
     new_obj = allot_first_free_offset(size);
+#ifdef DEBUG
     printf("move to nvram nvram poolid = %d, offset = %d addr = %p\n", new_obj.pool_id, new_obj.offset, (void*)get_pool_from_poolid(new_obj.pool_id)+new_obj.offset);
+#endif
     memcpy((void*)(get_pool_from_poolid(new_obj.pool_id) + new_obj.offset), (void*)oid.offset, size);
     //TODO: need to call peme_persist ... later!!
 

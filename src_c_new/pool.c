@@ -40,7 +40,9 @@ int initialize_pool() {
     pool_map = HASH_MAP_CREATE(pool_kv)();
     pool_free_slot_map = HASH_MAP_CREATE(pool_free_slot_val)();
     num_pools = retrieve_num_pools();
+#ifdef DEBUG
     printf("initialize pool num_pools= %d\n", num_pools);
+#endif
     for (int idx = 1; idx <= num_pools; idx++) {
         char pool_file_name[50];
         char pool_free_slot_file_name[50];
@@ -64,7 +66,9 @@ int initialize_pool() {
         free_slots->head = &(D_RO(POBJ_ROOT(free_slot_pool, struct pool_free_slots_root))->head);
 
         int ret = HASH_MAP_INSERT(pool_free_slot_val)(pool_free_slot_map, &free_slots, HMDR_FIND);
+    #ifdef DEBUG
         printf("pool free slot insert return %d\n", ret);
+    #endif
         init_pool_kv->key = idx;
         init_pool_kv->pool_ptr = pool_ptr;
         HASH_MAP_INSERT(pool_kv)(pool_map, &init_pool_kv, HMDR_FIND);
@@ -120,9 +124,11 @@ void create_new_pool(size_t size) {
     new_entry->pool_ptr = pmemaddr;
     new_free_slots->pool = free_slot_pool;
     new_free_slots->head = &(D_RO(pool_root)->head);
+#ifdef DEBUG
     printf("new_entry %p new_free_slots %p\n", new_entry, new_free_slots);
     printf("new_entry->pool_ptr %ld pmemaddr %ld\n", new_entry->pool_ptr, pmemaddr);
     printf("new_free_slots->pool %ld free_slot_pool %ld\n", new_free_slots->pool, free_slot_pool);
+#endif
     update_num_pools(num_pools);
     HASH_MAP_INSERT(pool_kv)(pool_map, &new_entry, HMDR_FIND);
     HASH_MAP_INSERT(pool_free_slot_val)(pool_free_slot_map, &new_free_slots, HMDR_FIND);
@@ -212,13 +218,17 @@ void nvm_free(uint64_t pool_id, uint64_t offset, size_t size) {
     }
 
 end:
+#ifdef DEBUG
     printf("nvm_free: f_head %p\n", f_head);
     printf("nvm free: flag %d\n", flag);
     printf("nvm_free: node->end_b %p\n", D_RO(node)->end_b);
+#endif
     
 
     if (flag == 1) {
+    #ifdef DEBUG
         printf("nvm_free: to_remove->end_b %p\n", D_RO(to_remove_node)->end_b);
+    #endif
         TX_BEGIN(temp_ptr->pool) {
             POBJ_TAILQ_REMOVE_FREE(f_head, to_remove_node, fnd);
         } TX_END
@@ -226,7 +236,9 @@ end:
     }
 
     if(flag == 3) {
+    #ifdef DEBUG
         printf("nvm_free: to_insert_node->end_b %p, to_insert_node->start_b %p\n", D_RO(to_insert_node)->end_b, D_RO(to_insert_node)->start_b);
+    #endif
         TX_BEGIN(temp_ptr->pool) {
             POBJ_TAILQ_INSERT_AFTER(f_head, node, to_insert_node, fnd);
         } TX_END
@@ -234,7 +246,9 @@ end:
     }
 
     if (flag == -3) {
+    #ifdef DEBUG
         printf("nvm_free: to_insert_node->end_b %p, to_insert_node->start_b %p\n", D_RO(to_insert_node)->end_b, D_RO(to_insert_node)->start_b);
+    #endif
         TX_BEGIN(temp_ptr->pool) {
             POBJ_TAILQ_INSERT_HEAD(f_head, to_insert_node, fnd);
         } TX_END

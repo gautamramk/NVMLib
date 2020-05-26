@@ -26,7 +26,9 @@ void initialize_metadata() {
             TX_SET_DIRECT(root, init_metadata, data);
         } TX_END
     }
+#ifdef DEBUG
     printf("metadata.c num_pools = %d\n", root->init_metadata.num_pools);
+#endif
 }
 
 void update_num_pools(int num_pools) {

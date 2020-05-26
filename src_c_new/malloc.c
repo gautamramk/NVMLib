@@ -37,11 +37,17 @@ uint64_t allot_first_free_offset_pool(uint64_t pool_id, size_t size) {
     pool_free_slot_val temp;
     pool_free_slot_val* temp_ptr = &temp;
     temp.key = pool_id;
+#ifdef DEBUG
     printf("allot_free_slot_offset_pool temp_ptr->pool_id %d\n", temp_ptr->key);
+#endif
     int hmret = HASH_MAP_FIND(pool_free_slot_val)(pool_free_slot_map, &temp_ptr);
+#ifdef DEBUG
     printf("affop find = %d\n", hmret);
+#endif
     pool_free_slot_head *f_head = temp_ptr->head;
+#ifdef DEBUG
     printf("fhead value is %p\n", f_head);
+#endif
     uint64_t ret = -1;
     int flag = 0;
     TOID(struct pool_free_slot) node;
@@ -53,7 +59,9 @@ uint64_t allot_first_free_offset_pool(uint64_t pool_id, size_t size) {
         } else if (free_slot_size(node) > size) {
             ret = D_RO(node)->start_b;
             uint64_t new_start = D_RO(node)->start_b + size;
+        #ifdef DEBUG
             printf("Allot flag 2\n");
+        #endif
             TX_BEGIN(temp_ptr->pool) {
                 D_RW(node)->start_b = new_start;
             } TX_END
@@ -70,7 +78,9 @@ uint64_t allot_first_free_offset_pool(uint64_t pool_id, size_t size) {
 }
 
 MEMoid allot_first_free_offset(size_t size) {
+#ifdef DEBUG
     printf("allot_frst_free_offset num_pools = %d\n", num_pools);
+#endif
     for (int i = 1; i <= num_pools; i++) {
         uint64_t ret = allot_first_free_offset_pool(i, size);
         if (ret >= 0) {
