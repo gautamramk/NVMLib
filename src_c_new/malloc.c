@@ -164,16 +164,22 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
     // Check if the element is already in NVRAM
     MEMoid oid = get_MEMoid(key);
 #ifdef DEBUG
-    printf("\n------------------------------------\nmemalloc: oid->pool_id = %ld,  oid->offset = %ld\n------------------------------------------------\n");
+    printf("\n------------------------------------\nmemalloc: oid->pool_id = %ld,  oid->offset = %ld\n------------------------------------------------\n", oid.pool_id, oid.offset);
 #endif
 
-    if (oid.offset == MEMOID_NULL.offset && oid.pool_id == MEMOID_NULL.pool_id){
+    if (oid.offset == MEMOID_NULL.offset || oid.pool_id == MEMOID_NULL.pool_id || oid.pool_id == POOL_ID_MALLOC_OBJ){
         // Need to create the new object
+
+    #ifdef DEBUG
+        printf("memalloc: Creating new object or it was previously in DRAM\n");
+    #endif
 
         oid =  __memalloc(size, which_ram);
         
         // Get the hashmap mutex first to ensure there are no leftover accesses
         uv_mutex_lock(&object_maintainence_hashmap_mutex);
+        // need to replace the value
+        remove_object_from_hashmap(key); // This is done because there is chance that the object remains after free
         insert_object_to_hashmap(key, oid);
         uv_mutex_unlock(&object_maintainence_hashmap_mutex);
 
@@ -184,23 +190,35 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
     } else {
         // obj is already present in the map
 
+    #ifdef DEBUG
+        printf("memalloc: Object already existing and is from NVRAM\n");
+    #endif
+
         //DRAM variables in the table need to be replaced
         // Get the hashmap mutex first to ensure there are no leftover accesses
-        uv_mutex_lock(&object_maintainence_hashmap_mutex);
-        if(oid.pool_id == POOL_ID_MALLOC_OBJ) {
-            // dram object
-            oid =  __memalloc(size, DRAM);
-            // need to replace the value
-            remove_object_from_hashmap(key);
-            // Insert in the main types table
-            insert_object_to_hashmap(key, oid);
-        }
-        uv_mutex_unlock(&object_maintainence_hashmap_mutex);
+        // uv_mutex_lock(&object_maintainence_hashmap_mutex);
+        // if(oid.pool_id == POOL_ID_MALLOC_OBJ) {
+        //     // dram object
+        //     oid =  __memalloc(size, DRAM);
+        //     // need to replace the value
+        //     remove_object_from_hashmap(key);
+        //     // Insert in the main types table
+        //     insert_object_to_hashmap(key, oid);
+        // }
+        // uv_mutex_unlock(&object_maintainence_hashmap_mutex);
 
         // Insert into the object maintainance table for logistics
-        uv_mutex_lock(&object_maintainence_maintain_map_mutex);
-        insert_into_maintainance_map(create_new_maintainance_map_entry(key, oid, oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM, true));
-        uv_mutex_unlock(&object_maintainence_maintain_map_mutex);
+        uv_mutex_lock(&object_maintainence_addtion_mutex);
+        object_maintainance_addition* to_add = (object_maintainance_addition*)malloc(sizeof(object_maintainance_addition));
+
+        to_add->key = key;
+        to_add->oid = oid;
+        to_add->can_be_moved = true;
+        to_add->which_ram = oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM;
+        TAILQ_INSERT_TAIL(&addition_queue_head, to_add, list);
+
+        // insert_into_maintainance_map(create_new_maintainance_map_entry(key, oid, oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM, true));
+        uv_mutex_unlock(&object_maintainence_addtion_mutex);
     }
 
     struct addr2memoid_key* new_key = (struct addr2memoid_key*)malloc(sizeof(addr2memoid_key));
@@ -268,7 +286,18 @@ void _memfree(MEMoidKey oidkey) {
     if (!found_obj)
         return;
 
-    found_obj->which_ram = NO_RAM; // Delete the object
+    uv_mutex_lock(&object_maintainence_addtion_mutex);
+    object_maintainance_deletion* to_del = (object_maintainance_deletion*)malloc(sizeof(object_maintainance_deletion));
+
+    to_del->key = found_obj->key;
+    to_del->oid = found_obj->oid;
+    to_del->can_be_moved = found_obj->can_be_moved;
+    to_del->which_ram = NO_RAM;
+    TAILQ_INSERT_TAIL(&deletion_queue_head, to_del, list);
+    // insert_into_maintainance_map(create_new_maintainance_map_entry(key, oid, oid.pool_id==POOL_ID_MALLOC_OBJ?DRAM:NVRAM, true));
+    uv_mutex_unlock(&object_maintainence_addtion_mutex);
+
+    // found_obj->which_ram = NO_RAM; // Delete the object
 }
 
 
@@ -297,14 +326,14 @@ int addr2memoid_cmp(splay_tree_key key1, splay_tree_key key2) {
         if (KEY_FIRST(((addr2memoid_key*)key1)->key) == KEY_FIRST(((addr2memoid_key*)key2)->key))
             return 0;
         else
-            return KEY_FIRST(((addr2memoid_key*)key1)->key) > KEY_FIRST(((addr2memoid_key*)key1)->key)?1:-1;
+            return KEY_FIRST(((addr2memoid_key*)key1)->key) > KEY_FIRST(((addr2memoid_key*)key2)->key)?1:-1;
 
     }else if (((addr2memoid_key*)key2)->comp == cmp_addr) {
         if (((addr2memoid_key*)key2)->addr >= KEY_FIRST(((addr2memoid_key*)key1)->key) &&
             ((addr2memoid_key*)key2)->addr < KEY_LAST(((addr2memoid_key*)key1)->key))
             return 0;
         else
-            return KEY_FIRST(((addr2memoid_key*)key1)->key) > ((addr2memoid_key*)key1)->addr?1:-1;
+            return KEY_FIRST(((addr2memoid_key*)key1)->key) > ((addr2memoid_key*)key2)->addr?1:-1;
     }
     return 0;
 }

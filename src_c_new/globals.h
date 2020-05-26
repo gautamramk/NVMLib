@@ -44,4 +44,6 @@ FILE *main_log_file_fd;
 extern uv_mutex_t object_maintainence_hashmap_mutex;   // used during manupulation of `types map`
 extern uv_mutex_t object_maintainence_memory_mutex;    // used during `nvm_free` / access too
 extern uv_mutex_t object_maintainence_maintain_map_mutex;   // used during manupulation of `maintainance map`
+extern uv_mutex_t object_maintainence_addtion_mutex;   // used during manupulation of `maintainance map`
+extern uv_mutex_t object_maintainence_deletion_mutex;   // used during manupulation of `maintainance map`
 #endif // !__NVM_GLOBALS__
