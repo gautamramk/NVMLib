@@ -23,11 +23,17 @@ void init_types_table() {
         
         struct hashmap_args *args = (struct hashmap_args *) malloc(sizeof(struct hashmap_args));
         args->seed = 8274;  // Just a random number
+    #ifdef DEBUG
         printf("hmap create result = %d\n",hm_tx_create(pop, &hashmap, (void *)args));
+    #else
+        hm_tx_create(pop, &hashmap, (void *)args);
+    #endif
     } else {
         //printf("%second d %s %p\n", errno, filename, pop);
         hashmap = POBJ_ROOT(pop, struct hashmap_tx);
+    #ifdef DEBUG
         printf("map address %p\n", (hashmap).oid.off);
+    #endif
         hm_tx_init(pop, hashmap);
     }
 }
