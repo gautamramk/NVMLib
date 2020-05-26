@@ -7,8 +7,8 @@
 #include <time.h>
 #include <sys/queue.h>
 
-#define DELETE_LOOP_SLEEP_TIME 10000    // 5 milli secs
-#define MOVE_LOOP_SLEEP_TIME 10000    // 5 milli secs
+#define DELETE_LOOP_SLEEP_TIME 1000    // 5 milli secs
+#define MOVE_LOOP_SLEEP_TIME 1000    // 5 milli secs
 
 typedef enum access_type_en {
     ACCESS_UNKNOWN,

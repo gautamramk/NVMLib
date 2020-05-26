@@ -14,7 +14,7 @@ void initialize_metadata() {
         char layout_name[50];
         strcpy(layout_name, POBJ_LAYOUT_NAME(init_struct));
         // strcat(layout_name, "_init_layout");
-        init_pop = pmemobj_create(init_file_name, layout_name, PMEMOBJ_MIN_POOL, 0666);
+        init_pop = pmemobj_create(init_file_name, layout_name, PMEMOBJ_MIN_POOL * 4, 0666);
     }
 
     metadata_root* root = D_RO(POBJ_ROOT(init_pop, struct metadata_root));
@@ -32,12 +32,19 @@ void initialize_metadata() {
 }
 
 void update_num_pools(int num_pools) {
-    metadata_root* root = D_RO(POBJ_ROOT(init_pop, struct metadata_root));
+#ifdef DEBUG
+    printf("metadata: numpools = %d \n", num_pools);
+#endif
+    metadata_root* root = D_RW(POBJ_ROOT(init_pop, struct metadata_root));
     metadata data;
     data.inst_num = root->init_metadata.inst_num;
     data.num_pools = num_pools;
     TX_BEGIN(init_pop) {
         TX_SET_DIRECT(root, init_metadata, data);
+    } TX_ONABORT {
+		fprintf(stderr, "%s: Updation of num_pools aborted: %s\n", __func__,
+			pmemobj_errormsg());
+		abort();
     } TX_END
 }
 
