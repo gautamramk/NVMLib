@@ -346,7 +346,9 @@ hm_tx_create(PMEMobjpool *pop, TOID(struct hashmap_tx) *map, void *arg)
 	struct hashmap_args *args = (struct hashmap_args *)arg;
 	int ret = 0;
 	TX_BEGIN(pop) {
-				printf("map address %p\n", (*map).oid.off);
+	#ifdef DEBUG
+		printf("map address %p\n", (*map).oid.off);
+	#endif	
 		//TX_ADD_DIRECT(map);
 		//*map = TX_ZNEW(struct hashmap_tx);
 		uint32_t seed = args ? args->seed : 0;

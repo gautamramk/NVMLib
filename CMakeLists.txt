@@ -131,8 +131,15 @@ if(NOT libuv_LIBRARY)
     message(FATAL_ERROR "ERROR: LibUV library not found. Install libuv.")
 endif()
 message(STATUS "LibUV library found successfully.")
+message(STATUS "BUILD_DEBUG evaluates to ${BUILD_DEBUG}")
 
 
+#############################################
+# Enabling DEBUG mode
+#############################################
+if ($(BUILD_DEBUG))
+  add_definitions(-DDEBUG)
+endif(BUILD_DEBUG)
 
 #############################################
 # Include the directory containing the
