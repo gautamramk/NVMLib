@@ -6,7 +6,8 @@
 #include <sys/queue.h>
 
 typedef struct address_log {
-    void* addr;
+    MEMoidKey key;
+    size_t offset;
     size_t size;
     time_t access_time;
     TAILQ_ENTRY(address_log) list;

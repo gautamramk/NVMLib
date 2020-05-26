@@ -179,46 +179,48 @@ void on_logistics_timer(uv_timer_t *timer, int status) {
 
     while(!TAILQ_EMPTY(&write_queue_head)) {
         address_log* w_add = TAILQ_FIRST(&write_queue_head);
-        addr2memoid_key skey;
-        skey.comp = cmp_addr;
-        skey.addr = w_add->addr;
+        // addr2memoid_key skey;
+        // skey.comp = cmp_addr;
+        // skey.addr = w_add->addr;
         
-        uv_mutex_lock(&write_splay_tree_mutex);
-        splay_tree_node ret_node = splay_tree_lookup(addr2MemOID_write, (splay_tree_key)&skey);
-        uv_mutex_unlock(&write_splay_tree_mutex);
+        // uv_mutex_lock(&write_splay_tree_mutex);
+        // splay_tree_node ret_node = splay_tree_lookup(addr2MemOID_write, (splay_tree_key)&skey);
 
-        MEMoidKey mkey = ((addr2memoid_key*)ret_node->key)->key;
+        // MEMoidKey mkey = ((addr2memoid_key*)ret_node->key)->key;
+        // uv_mutex_unlock(&write_splay_tree_mutex);
+        MEMoidKey mkey = w_add->key;
         object_maintainance* om = find_in_maintainance_map(mkey);
         om->num_writes++;
         om->last_accessed_at = w_add->access_time;
-        size_t ent_inc = set_bits(om->write_bitmap, w_add->addr - KEY_FIRST(mkey), w_add->size);
-        if (om->last_write + om->last_write_size != w_add->addr && w_add->addr + w_add->size != om->last_write) {
+        size_t ent_inc = set_bits(om->write_bitmap, w_add->offset, w_add->size);
+        if (om->last_write + om->last_write_size != w_add->offset && w_add->offset + w_add->size != om->last_write) {
             om->w_entropy += ent_inc;
         }
-        om->last_write = w_add->addr;
+        om->last_write = w_add->offset;
         om->last_write_size = w_add->size;
         om->bytes_write += w_add->size;
         TAILQ_REMOVE(&write_queue_head, w_add, list);
     }
     while(!TAILQ_EMPTY(&read_queue_head)) {
         address_log* r_add = TAILQ_FIRST(&read_queue_head);
-        addr2memoid_key skey;
-        skey.comp = cmp_addr;
-        skey.addr = r_add->addr;
+        // addr2memoid_key skey;
+        // skey.comp = cmp_addr;
+        // skey.addr = r_add->addr;
 
-        uv_mutex_lock(&read_splay_tree_mutex);
-        splay_tree_node ret_node = splay_tree_lookup(addr2MemOID_read, (splay_tree_key)&skey);
-        uv_mutex_unlock(&read_splay_tree_mutex);
+        // uv_mutex_lock(&read_splay_tree_mutex);
+        // splay_tree_node ret_node = splay_tree_lookup(addr2MemOID_read, (splay_tree_key)&skey);
 
-        MEMoidKey mkey = ((addr2memoid_key*)ret_node->key)->key;
+        // MEMoidKey mkey = ((addr2memoid_key*)ret_node->key)->key;
+        // uv_mutex_unlock(&read_splay_tree_mutex);
+        MEMoidKey mkey = r_add->key;
         object_maintainance* om = find_in_maintainance_map(mkey);
         om->num_reads++;
         om->last_accessed_at = r_add->access_time;
-        size_t ent_inc = set_bits(om->read_bitmap, r_add->addr - KEY_FIRST(mkey), r_add->size);
-        if (om->last_read + om->last_read_size != r_add->addr && r_add->addr + r_add->size != om->last_read ) {
+        size_t ent_inc = set_bits(om->read_bitmap, r_add->offset, r_add->size);
+        if (om->last_read + om->last_read_size != r_add->offset && r_add->offset + r_add->size != om->last_read ) {
             om->r_entropy += ent_inc;
         }
-        om->last_read = r_add->addr;
+        om->last_read = r_add->offset;
         om->last_read_size = r_add->size;
         om->bytes_read += r_add->size;
         TAILQ_REMOVE(&read_queue_head, r_add, list);
