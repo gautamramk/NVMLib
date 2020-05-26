@@ -114,10 +114,11 @@ namespace
                                 }
                             }
                         }
-                        end_it.ptr = last_stmt;
+                        //end_it.ptr = last_stmt;
+                        it.ptr = last_stmt;
                         tree udecl = build_fn_decl ("unlock_om", fntype);
                         gimple *ucall = gimple_build_call (udecl, 0);
-                        gsi_insert_after(&end_it, ucall, GSI_NEW_STMT);
+                        gsi_insert_after(&it, ucall, GSI_NEW_STMT);
                     }
                 }
             }

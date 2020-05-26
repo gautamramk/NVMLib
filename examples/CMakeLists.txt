@@ -1,15 +1,29 @@
 add_executable(test_prog test.c)
+add_executable(bubble_sort bubble_sort.c)
+add_executable(new_bubble_sort new_bubble_sort.c)
 
 target_include_directories(test_prog PRIVATE ${PROJECT_BINARY_DIR}/src_c_new/include/)
-target_compile_options(test_prog PRIVATE -static-libasan)
-set_target_properties(test_prog PROPERTIES LINK_FLAGS "-static-libasan")
+#target_compile_options(test_prog PRIVATE -static-libasan)
+#set_target_properties(test_prog PROPERTIES LINK_FLAGS "-static-libasan")
 
-target_compile_options(test_prog PRIVATE -fsanitize=address)
-set_target_properties(test_prog PROPERTIES LINK_FLAGS "-fsanitize=address")
+#target_compile_options(test_prog PRIVATE -fsanitize=address)
+#set_target_properties(test_prog PROPERTIES LINK_FLAGS "-fsanitize=address")
 
 target_link_libraries(test_prog PRIVATE NVMlib)
 target_compile_options(test_prog PRIVATE -save-temps)
 target_compile_options(test_prog PRIVATE -g3)
 target_compile_options(test_prog PRIVATE -fplugin=${PROJECT_BINARY_DIR}/src_c_new/libmem_track_plugin.so)
 
+target_include_directories(bubble_sort PRIVATE ${PROJECT_BINARY_DIR}/src_c_new/include/)
+#target_compile_options(bubble_sort PRIVATE -static-libasan)
+#set_target_properties(bubble_sort PROPERTIES LINK_FLAGS "-static-libasan")
+
+#target_compile_options(bubble_sort PRIVATE -fsanitize=address)
+#set_target_properties(bubble_sort PROPERTIES LINK_FLAGS "-fsanitize=address")
+
+target_link_libraries(bubble_sort PRIVATE NVMlib)
+target_compile_options(bubble_sort PRIVATE -save-temps)
+target_compile_options(bubble_sort PRIVATE -g3)
+target_compile_options(bubble_sort PRIVATE -fplugin=${PROJECT_BINARY_DIR}/src_c_new/libmem_track_plugin.so)
+#target_compile_options(bubble_sort PRIVATE -fdump-tree-gimple)
 #target_compile_options(test_prog PRIVATE -ldl)
