@@ -322,19 +322,29 @@ void* _key_get_last(MEMoidKey key) {
 }
 
 int addr2memoid_cmp(splay_tree_key key1, splay_tree_key key2) {
-    if (((addr2memoid_key*)key2)->comp == cmp_node) {
-        if (KEY_FIRST(((addr2memoid_key*)key1)->key) == KEY_FIRST(((addr2memoid_key*)key2)->key))
+    if (((addr2memoid_key*)key2)->comp == cmp_node && ((addr2memoid_key*)key1)->comp == cmp_node) {
+        //printf("splay tree comp node key1addr = %p key2addr = %p\n", KEY_FIRST(((addr2memoid_key*)key1)->key), KEY_FIRST(((addr2memoid_key*)key2)->key));
+        if (((addr2memoid_key*)key1)->key == ((addr2memoid_key*)key2)->key)
             return 0;
         else
             return KEY_FIRST(((addr2memoid_key*)key1)->key) > KEY_FIRST(((addr2memoid_key*)key2)->key)?1:-1;
 
-    }else if (((addr2memoid_key*)key2)->comp == cmp_addr) {
+    } else if (((addr2memoid_key*)key2)->comp == cmp_addr) {
+        //printf("splay tree comp addr key1addr = %p key2addr = %p\n", KEY_FIRST(((addr2memoid_key*)key1)->key), ((addr2memoid_key*)key2)->addr);
         if (((addr2memoid_key*)key2)->addr >= KEY_FIRST(((addr2memoid_key*)key1)->key) &&
             ((addr2memoid_key*)key2)->addr < KEY_LAST(((addr2memoid_key*)key1)->key))
             return 0;
         else
             return KEY_FIRST(((addr2memoid_key*)key1)->key) > ((addr2memoid_key*)key2)->addr?1:-1;
+    } else if (((addr2memoid_key*)key1)->comp == cmp_addr) {
+        //printf("splay tree comp addr key1addr = %p key2addr = %p\n", ((addr2memoid_key*)key1)->addr, KEY_FIRST(((addr2memoid_key*)key2)->key));
+        if (((addr2memoid_key*)key1)->addr >= KEY_FIRST(((addr2memoid_key*)key2)->key) &&
+            ((addr2memoid_key*)key1)->addr < KEY_LAST(((addr2memoid_key*)key2)->key))
+            return 0;
+        else
+            return KEY_FIRST(((addr2memoid_key*)key2)->key) > ((addr2memoid_key*)key1)->addr?-1:1;
     }
+    printf("Something wrong.\n");
     return 0;
 }
 
@@ -345,6 +355,6 @@ void addr2memoid_del(splay_tree_key key) {
 // The splay tree is used for reverse mapping
 // from address to MemOiD
 void init_splay() {
-    addr2MemOID_read = splay_tree_new(*addr2memoid_cmp, *addr2memoid_del, NULL);
-    addr2MemOID_write = splay_tree_new(*addr2memoid_cmp, *addr2memoid_del, NULL);
+    addr2MemOID_read = splay_tree_new(addr2memoid_cmp, addr2memoid_del, NULL);
+    addr2MemOID_write = splay_tree_new(addr2memoid_cmp, addr2memoid_del, NULL);
 }
