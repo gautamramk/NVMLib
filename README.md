@@ -50,7 +50,7 @@ Here we do `cmake` before `make` inorder to rebuild the `Makefiles`. This should
 
 * For verbose build use `make VERBOSE=1`
 
-After `make` the static library file (`libNVMlib.a`) and the gcc-plugin (`libmem_track_plugin.so`) will be in `build/` and the intermediate files (`.i`) will be in `build/intermediate/`.
+After `make` the static library file (`libNVMlib.so`) and the gcc-plugin (`libmem_track_plugin.so`) will be in `build/` and the intermediate files (`.i`) will be in `build/intermediate/`.
 
 ## Dependecy graph
 
