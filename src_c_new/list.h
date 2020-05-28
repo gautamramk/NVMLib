@@ -1,3 +1,10 @@
+/**
+ * @file
+ * This file provides a complete implementation of a
+ * generic `linked list`.
+ * 
+ */
+
 #ifndef __NVM_LIST__
 #define __NVM_LIST__
 

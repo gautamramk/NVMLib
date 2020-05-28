@@ -1,0 +1,49 @@
+<map id="initialize" name="initialize">
+<area shape="rect" id="node1" title="The function to initialise all the internal datastructures." alt="" coords="5,299,75,325"/>
+<area shape="rect" id="node2" href="$malloc_8c.html#a31c7f60fab67b015482fbbed60faad2f" title=" " alt="" coords="155,147,233,173"/>
+<area shape="rect" id="node5" href="$types_8h.html#a0b4edf7b9c6368078e9665d3aca042bf" title=" " alt="" coords="137,197,251,224"/>
+<area shape="rect" id="node6" href="$object__maintainance_8c.html#a24bae7877722f6470d11e949baf0f8fe" title=" " alt="" coords="132,248,256,275"/>
+<area shape="rect" id="node44" href="$mem__log_8c.html#a7973e2c84dda6fa347d2b751a903fc76" title=" " alt="" coords="123,299,265,325"/>
+<area shape="rect" id="node45" href="$metadata_8c.html#a1ded3f1a5c3906692a9965ec4cdfb1cf" title=" " alt="" coords="129,349,259,376"/>
+<area shape="rect" id="node46" href="$pool_8h.html#a91fd7a09c387c01dda936163588ec994" title=" " alt="" coords="144,400,244,427"/>
+<area shape="rect" id="node47" href="$initializer_8c.html#a71754a499744d82d45d263f67a1b0479" title="Open the logging files." alt="" coords="130,451,258,477"/>
+<area shape="rect" id="node3" href="$malloc_8c.html#a0fafa4090235254e2653fd0044136115" title="The compare function used by the splay_tree." alt="" coords="335,96,467,123"/>
+<area shape="rect" id="node4" href="$malloc_8c.html#abcb012afec77198ae2902c78db18dfa6" title=" " alt="" coords="339,147,463,173"/>
+<area shape="rect" id="node7" href="$object__maintainance_8c.html#ad62a44372df73d47905b39744b899235" title=" " alt="" coords="319,299,482,341"/>
+<area shape="rect" id="node8" href="$object__maintainance_8c.html#ab3898b6e945a296b902b54e0d8b6de59" title=" " alt="" coords="313,365,488,392"/>
+<area shape="rect" id="node9" href="$object__maintainance_8c.html#a839a030d869cf09c89d7963e99343d0a" title="The deletion thread function." alt="" coords="319,197,482,224"/>
+<area shape="rect" id="node25" href="$object__maintainance_8c.html#a25d6f7276b127a4bf1ef9b4b5a149489" title="The logistics thread function." alt="" coords="318,248,483,275"/>
+<area shape="rect" id="node10" href="$object__maintainance_8c.html#a2084fb327903ff36fb54d15c15adaafb" title="The function thats called when the deletion thread wakes up." alt="" coords="537,179,661,205"/>
+<area shape="rect" id="node11" href="$object__maintainance_8c.html#a452e0f74bcef5d1d5de6467cdfbc9e2d" title="The function to delete the object specified." alt="" coords="751,140,849,167"/>
+<area shape="rect" id="node12" href="$object__maintainance_8c.html#a682d32a48c1f67a56fdf7364bae0cc9e" title=" " alt="" coords="954,83,1126,125"/>
+<area shape="rect" id="node13" href="$object__maintainance_8c.html#a6dfbf56c1146269d1857d45099d14309" title=" " alt="" coords="937,149,1143,176"/>
+<area shape="rect" id="node14" href="$pool_8c.html#a28ce7da828ef429fb1dd15805c87db0f" title=" " alt="" coords="1003,275,1077,301"/>
+<area shape="rect" id="node21" href="$types_8c.html#a65a9069ae1e63d2d3dd7626ba254c065" title=" " alt="" coords="971,326,1109,367"/>
+<area shape="rect" id="node15" href="$malloc_8c.html#a3b64c374d91e0b2aef9d6cb6a0f356f2" title="The function to return the actual memptr for a given MEMoid object." alt="" coords="1195,341,1327,368"/>
+<area shape="rect" id="node17" href="$types_8c.html#a567e91342f85d285b35f0cf818fa578a" title=" " alt="" coords="1637,240,1688,267"/>
+<area shape="rect" id="node16" href="$pool_8c.html#accda9093eb20c792100720649819fea5" title=" " alt="" coords="1392,392,1536,419"/>
+<area shape="rect" id="node18" href="$hashmap__tx_8c.html#ae7fd776979cc06f6d38973df15a817d1" title="Allocates a new hashmap." alt="" coords="1776,240,1877,267"/>
+<area shape="rect" id="node20" href="$hashmap__tx_8c.html#a44bcf6cfafcc0905f09bfd1c94e15f7b" title="Recovers hashmap state." alt="" coords="1785,291,1868,317"/>
+<area shape="rect" id="node19" href="$hashmap__tx_8c.html#ae4394abe7bff15fc82d393fa2d1e990e" title="Hashmap initializer." alt="" coords="1925,215,2044,241"/>
+<area shape="rect" id="node22" href="$hashmap__tx_8c.html#a44ef2737f6037faa4f11d7c9516db798" title="Removes specified value from the hashmap." alt="" coords="1207,112,1314,139"/>
+<area shape="rect" id="node23" href="$hashmap__tx_8c.html#a24255ccaa211cacef0e8b7d4dbc7a632" title="The hash function." alt="" coords="1637,88,1688,115"/>
+<area shape="rect" id="node24" href="$hashmap__tx_8c.html#af344987fbfbf33abb60cf63500191a92" title="Rebuilds the hashmap when the hashmap size threshold is reached." alt="" coords="1413,139,1515,165"/>
+<area shape="rect" id="node26" href="$object__maintainance_8c.html#ab60dc9d50567bdf261b38311b22a3e77" title="The function thats called when the logistic thread wakes up." alt="" coords="536,267,663,293"/>
+<area shape="rect" id="node27" href="$object__maintainance_8c.html#a236868e06bd36cbe9c95de8250a464fa" title="Checks if an object can be moved or not." alt="" coords="711,343,889,369"/>
+<area shape="rect" id="node28" href="$object__maintainance_8c.html#a125daa0ba06be536137c5befbea8b73a" title=" " alt="" coords="713,39,887,65"/>
+<area shape="rect" id="node31" href="$object__maintainance_8c.html#a14ed57b40c1f22c3441d919586df642a" title=" " alt="" coords="941,443,1139,469"/>
+<area shape="rect" id="node32" href="$object__maintainance_8c.html#a4697423e604aca81542580109258d0f8" title="The function to move an object from NVRAM to DRAM." alt="" coords="747,393,853,420"/>
+<area shape="rect" id="node35" href="$object__maintainance_8c.html#ac51030a0a3066b94cd12be54ab44599a" title="The function to move an object from DRAM to NVRAM." alt="" coords="745,495,855,521"/>
+<area shape="rect" id="node41" href="$object__maintainance_8c.html#ad28d606e7d9b15fe8568f3804725fe76" title=" " alt="" coords="749,191,851,217"/>
+<area shape="rect" id="node42" href="$object__maintainance_8c.html#a9cfdbba61cdf3b1981d26a6513ef6f61" title=" " alt="" coords="762,241,838,268"/>
+<area shape="rect" id="node43" href="$object__maintainance_8c.html#a7652b61b5ce5bb11c0a74c5487042d2b" title=" " alt="" coords="766,292,834,319"/>
+<area shape="rect" id="node29" href="$types_8c.html#acee43f1b9adb6ab63b7b03ec1afcd640" title="The function to obtain the MEMoid object given the MEMoidKey" alt="" coords="1213,36,1308,63"/>
+<area shape="rect" id="node30" href="$hashmap__tx_8c.html#ac68742bc3ffa00033d5b784f8b684310" title="Checks whether specified key is in the hashmap and retries the value associated with it." alt="" coords="1423,37,1505,64"/>
+<area shape="rect" id="node33" href="$types_8c.html#a7e683744111a1b32aa9f7f4f69a382eb" title=" " alt="" coords="953,493,1127,520"/>
+<area shape="rect" id="node34" href="$hashmap__tx_8c.html#a0b2a675c7dea77e7b9275607e37df095" title="Inserts the specified value into the hashmap." alt="" coords="1212,215,1309,241"/>
+<area shape="rect" id="node36" href="$malloc_8c.html#a0df1ef11e96766e5d164df49c6cff431" title="Allocates the first free memory chunk of the given size." alt="" coords="1191,595,1331,621"/>
+<area shape="rect" id="node37" href="$malloc_8c.html#ad489a3f823bbecee05e3bf35e839befc" title="Allocates first free memory chunk of the given size in the given pool specified by pool_id." alt="" coords="1379,569,1549,596"/>
+<area shape="rect" id="node39" href="$pool_8c.html#a1afe02e751eebfb5e9ae37928883226f" title=" " alt="" coords="1405,468,1523,495"/>
+<area shape="rect" id="node38" href="$malloc_8c.html#a52b890956bff192cfc604f38ca2f5f9c" title=" " alt="" coords="1611,569,1714,596"/>
+<area shape="rect" id="node40" href="$metadata_8c.html#ac4f37b5e81d4c9dee8f96e2ebe382c6e" title=" " alt="" coords="1597,468,1728,495"/>
+</map>

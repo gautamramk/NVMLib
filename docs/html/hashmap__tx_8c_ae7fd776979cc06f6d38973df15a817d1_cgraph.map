@@ -1,0 +1,6 @@
+<map id="hm_tx_create" name="hm_tx_create">
+<area shape="rect" id="node1" title="Allocates a new hashmap." alt="" coords="5,31,107,57"/>
+<area shape="rect" id="node2" href="$hashmap__tx_8c.html#ae4394abe7bff15fc82d393fa2d1e990e" title="Hashmap initializer." alt="" coords="155,5,273,32"/>
+<area shape="rect" id="node3" href="$types_8c.html#a567e91342f85d285b35f0cf818fa578a" title=" " alt="" coords="321,31,372,57"/>
+<area shape="rect" id="node4" href="$hashmap__tx_8c.html#a44bcf6cfafcc0905f09bfd1c94e15f7b" title="Recovers hashmap state." alt="" coords="420,31,503,57"/>
+</map>

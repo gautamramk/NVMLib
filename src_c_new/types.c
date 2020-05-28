@@ -54,6 +54,13 @@ void init_types_table() {
 //     return NULL;
 // }
 
+/**
+ * The function to obtain the `MEMoid` object given the `MEMoidKey`
+ * 
+ * @param key: the `MEMoidKey`
+ * @return The `MEMoid` object represented by the `key` upon success.
+ * @return `MEMOID_NULL` upon failure.
+ */
 MEMoid get_MEMoid(MEMoidKey key) {
     MEMoid m = hm_tx_get(pop, hashmap, (uint64_t) key);
     //printf("memoid poolid = %d, offset = %ld, size = %ld\n", m.pool_id, m.offset, m.size);

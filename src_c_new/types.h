@@ -1,8 +1,12 @@
 #ifndef  __NVM_TYPES__
 #define __NVM_TYPES__
 
-// this file contains the information required for maintaining the types
-// of objects.
+/**
+ * @file
+ * This file contains the information required for maintaining the types
+ * of objects. The user facing APIs for reading and wrinting the object are
+ * defined here.
+ */
 
 #include "globals.h"
 #include "malloc.h"
@@ -30,12 +34,24 @@
 #define _lib_toid_enum
 
 
-// Typed Object 
+/// The MACRO used by user while allocating memory.
+///
+/// ### Example
+/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.cpp
+/// LIB_TOID(int) array = LIB_TOID(int)memalloc(10 * sizeof(int));  // allocated an integer array of size 10.
+/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #define LIB_TOID(t)\
 union _lib_toid_##t##_toid
 
-// Declaration of type
-// Note:- only one instance of __COUNTER__ exists in preporcess!!!!
+/// Declaration of a type.
+///
+/// ### Example 
+/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.cpp
+/// LIB_TOID_DECLARE(int)  // after this LIB_TOID(int) is valid.
+/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/// @attention The user has to use this for every `type` they want to use with memalloc,
+/// before the declare the varibale using `LIB_TOID`.
+/// @warning There is only one instance of `__COUNTER__` in preprocessor!!!!!
 #define LIB_TOID_DECLARE(t)\
 typedef uint8_t _lib_toid_##t##_toid_type_num[__COUNTER__ + 1];\
 LIB_TOID(t)\
@@ -53,7 +69,7 @@ LIB_TOID(t)\
 #define LIB_TOID_TYPE_NUM_OF(o) (sizeof(*(o)._type_num) - 1)
 
 
-// NULL check
+/// NULL check
 #define LIB_TOID_IS_NULL(o)	(get_MEMoid((o).oidkey).off == 0)
 
 // Actual type of stored object
@@ -72,7 +88,20 @@ LIB_TOID(t)\
 //#define LIB_TX_BEGIN uv_mutex_lock(&object_maintainence_hashmap_mutex)
 //#define LIB_TX_END uv_mutex_unlock(&object_maintainence_hashmap_mutex)
 
+/// The MACRO used by the user when they want to **write** into the object.
+///
+/// ### Example
+/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.cpp
+/// LIB_D_RW(array)[3] = 1729;  // Wrote `3` into array[3].
+/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #define LIB_D_RW	LIB_DIRECT_RW
+
+/// The MACRO used by the user when they want to **read** from the object.
+///
+/// ### Example
+/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.cpp
+/// int temp = LIB_D_RO(array)[3];  // Read from array[3].
+/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #define LIB_D_RO	LIB_DIRECT_RO
 
 // Fuctions

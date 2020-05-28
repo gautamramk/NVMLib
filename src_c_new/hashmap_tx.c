@@ -1,4 +1,8 @@
-/* integer hash set implementation which uses only transaction APIs */
+/**
+ * @file
+ * The implemantation of a Persistent Hashmap using only transaction APIs
+ * of `libpmemobj`
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,8 +22,17 @@
 /* number of values in a bucket which force hashtable rebuild */
 #define MAX_HASHSET_THRESHOLD 10
 
-/*
- * create_hashmap -- hashmap initializer
+/**
+ * Hashmap initializer
+ * 
+ * This is the function called by hm_tx_create() for creation of the hashmap.
+ * @param PMEMobjpool: the `pool` where the `hashmap` would be stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @param seed: the seed for initialising hashing varaibles.
+ * @return nothing
+ * 
+ * @note This is an *internal function*. Not exposed to other files.
+ * @see hm_tx_create()
  */
 static void
 create_hashmap(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint32_t seed)
@@ -47,9 +60,17 @@ create_hashmap(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint32_t seed)
 	} TX_END
 }
 
-/*
- * hash -- the simplest hashing function,
- * see https://en.wikipedia.org/wiki/Universal_hashing#Hashing_integers
+/**
+ * The hash function. Its the simplest hashing function.
+ * 
+ * This function is used to get the hash for a `key` in the hashmap.
+ * @param hashmap: the hashmap which is being accessed
+ * @param buckets: the pointer to the buckets in the `hashmap`
+ * @param value: the `value` that needs to be hashed. * 
+ * 
+ * @note This is an *internal function*. Not exposed to other files.
+ * @see <a href="https://en.wikipedia.org/wiki/Universal_hashing#Hashing_integers"> For more info on the hash function</a>
+ * @see hm_tx_insert() hm_tx_remove() hm_tx_get() hm_tx_lookup()
  */
 static uint64_t
 hash(const TOID(struct hashmap_tx) *hashmap,
@@ -63,8 +84,19 @@ hash(const TOID(struct hashmap_tx) *hashmap,
 	return ((a * value + b) % p) % len;
 }
 
-/*
- * hm_tx_rebuild -- rebuilds the hashmap with a new number of buckets
+/**
+ * Rebuilds the hashmap when the *hashmap size threshold* is reached.
+ * 
+ * The `hashmap` is rebuilt, i.e its size is increased/decreased, when its `size`
+ * exceeds the `MAX_HASHSET_THRESHOLD` or when the number of elements in the `hashmap`
+ * are less than the number of `buckets` in the `hashmap`.
+ * @param PMEMobjpool: the `pool` where the `hashmap` is stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @param new_len: the length of the resulting `hashmap` after resizing.
+ * @return nothing
+ * 
+ * @note This is an *internal function*. Not exposed to other files.
+ * @see hm_tx_insert() hm_tx_remove()
  */
 static void
 hm_tx_rebuild(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, size_t new_len)
@@ -115,12 +147,18 @@ hm_tx_rebuild(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, size_t new_len)
 
 }
 
-/*
- * hm_tx_insert -- inserts specified value into the hashmap,
- * returns:
- * - 0 if successful,
- * - 1 if value already existed,
- * - -1 if something bad happened
+/**
+ * Inserts the specified `value` into the `hashmap`.
+ * 
+ * @param PMEMobjpool: the `pool` where the `hashmap` is stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @param key: the `key` for the `value` being inserted. It will be used to calculate the `hash`.
+ * @param value: the `value` that is supposed to be inserted.
+ * @return 0: if successful
+ * @return 1: if `value` already existed
+ * @return -1: if the insertion failed
+ * 
+ * @warning If the `key` already exists in the `hashmap`, then the `value` provided is **not** inserted.
  */
 int
 hm_tx_insert(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap,
@@ -170,11 +208,17 @@ hm_tx_insert(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap,
 	return 0;
 }
 
-/*
- * hm_tx_remove -- removes specified value from the hashmap,
- * returns:
- * - key's value if successful,
- * - MEMOID_NULL if value didn't exist or if something bad happened
+/**
+ * Removes specified `value` from the `hashmap`.
+ * 
+ * @param PMEMobjpool: the `pool` where the `hashmap` is stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @param key: the `key` for the `value` being inserted. It will be used to calculate the `hash`.
+ * @return the `value` associated with the `key` deleted upon success 
+ * @return MEMOID_NULL upon failure or if not such `key` existed
+ * 
+ * @note This function does call hm_tx_rebuild() if the the number of elements in the 
+ * `hashmap` are less that number of `buckets`.
  */
 MEMoid
 hm_tx_remove(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint64_t key)
@@ -223,8 +267,15 @@ hm_tx_remove(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint64_t key)
 	return retoid;
 }
 
-/*
- * hm_tx_foreach -- prints all values from the hashmap
+/**
+ * Calls a given `callback` for every element in the `hashmap`.
+ * 
+ * @param PMEMobjpool: the `pool` where the `hashmap` is stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @param cb: the `calback` function.
+ * @param arg: additional arguments for the `callback` function
+ * @return The return value of the `callback` function.
+ * 
  */
 int
 hm_tx_foreach(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap,
@@ -249,8 +300,15 @@ hm_tx_foreach(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap,
 	return ret;
 }
 
-/*
- * hm_tx_debug -- prints complete hashmap state
+/**
+ * Prints complete hashmap state. This function is used for debugging purposes.
+ * 
+ * @param PMEMobjpool: the `pool` where the `hashmap` would be stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @param out: the `file desciptor` for where the output needs to be recorded.
+ * @return Nothing
+ * 
+ * @note The `out` paramater can be `stdout` and `stderr` too.
  */
 void
 hm_tx_debug(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, FILE *out)
@@ -278,8 +336,14 @@ hm_tx_debug(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, FILE *out)
 	}
 }
 
-/*
- * hm_tx_get -- checks whether specified value is in the hashmap
+/**
+ * Checks whether specified `key` is in the `hashmap` and retries the `value` associated with it.
+ * 
+ * @param PMEMobjpool: the `pool` where the `hashmap` is stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @param key: the `key` for the `value` being inserted. It will be used to calculate the `hash`.
+ * @return the `value` associated with the `key`.
+ * @return MEMOID_NULL upon failure or if not such `key` existed
  */
 MEMoid
 hm_tx_get(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint64_t key)
@@ -298,8 +362,16 @@ hm_tx_get(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint64_t key)
 	return MEMOID_NULL;
 }
 
-/*
- * hm_tx_lookup -- checks whether specified value exists
+/**
+ * Checks whether specified `key` exists in the `hashmap`.
+ * 
+ * @param PMEMobjpool: the `pool` where the `hashmap` is stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @param key: the `key` for the `value` being inserted. It will be used to calculate the `hash`.
+ * @return 1: if the `key` exists
+ * @return 0: otherwise
+ * 
+ * @see hm_tx_get()
  */
 int
 hm_tx_lookup(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint64_t key)
@@ -318,8 +390,12 @@ hm_tx_lookup(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap, uint64_t key)
 	return 0;
 }
 
-/*
- * hm_tx_count -- returns number of elements
+/**
+ * Returns number of elements in the `hashmap`.
+ * 
+ * @param PMEMobjpool: the `pool` where the `hashmap` is stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @return Number of elements in the `hashmap`.
  */
 size_t
 hm_tx_count(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap)
@@ -327,8 +403,13 @@ hm_tx_count(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap)
 	return D_RO(hashmap)->count;
 }
 
-/*
- * hm_tx_init -- recovers hashmap state, called after pmemobj_open
+/**
+ * Recovers `hashmap` state. Called after pmemobj_open().
+ * 
+ * @param PMEMobjpool: the `pool` where the `hashmap` is stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * 
+ * @see init_types_table()
  */
 int
 hm_tx_init(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap)
@@ -337,8 +418,16 @@ hm_tx_init(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap)
 	return 0;
 }
 
-/*
- * hm_tx_create -- allocates new hashmap
+/**
+ * Allocates a new `hashmap`.
+ * 
+ * @param PMEMobjpool: the `pool` where the `hashmap` would be stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @param arg: additional arguments if necessary
+ * @return 0: on successful creation
+ * @return -1: on failure.
+ * 
+ * @see create_hashmap()
  */
 int
 hm_tx_create(PMEMobjpool *pop, TOID(struct hashmap_tx) *map, void *arg)
@@ -361,9 +450,14 @@ hm_tx_create(PMEMobjpool *pop, TOID(struct hashmap_tx) *map, void *arg)
 	return ret;
 }
 
-/*
- * hm_tx_check -- checks if specified persistent object is an
- * instance of hashmap
+/**
+ * Checks if specified `persistent` object is an instance of `hashmap`.
+ * 
+ * @param PMEMobjpool: the `pool` where the `hashmap` is stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @return 0: if it is a `hashmap`
+ * @return 1: otherwise
+ * 
  */
 int
 hm_tx_check(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap)
@@ -371,8 +465,16 @@ hm_tx_check(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap)
 	return TOID_IS_NULL(hashmap) || !TOID_VALID(hashmap);
 }
 
-/*
- * hm_tx_cmd -- execute cmd for hashmap
+/**
+ * Executes a command for `hashmap`.
+ * 
+ * Available commands are: `HASHMAP_CMD_REBUILD` and `HASHMAP_CMD_DEBUG`
+ * @param PMEMobjpool: the `pool` where the `hashmap` is stored.
+ * @param hashmap: the *typed* hashmap which needs to be initialised.
+ * @param cmd: the command to be executed.
+ * @param arg: the arguments for the command.
+ * @return 0: on successful execution
+ * @return -`EINVAL`: otherwise
  */
 int
 hm_tx_cmd(PMEMobjpool *pop, TOID(struct hashmap_tx) hashmap,

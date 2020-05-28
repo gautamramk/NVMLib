@@ -1,6 +1,9 @@
 // C program for implementation of Bubble sort 
 #include <stdio.h> 
 #include <time.h> 
+#include <malloc.h>
+#include <stdlib.h>
+
 void swap(int *xp, int *yp) 
 { 
     int temp = *xp; 
@@ -35,7 +38,7 @@ int main()
     srand(time(NULL));
     clock_t end, start;
     start = clock();
-    int size = 100;
+    int size = 10000;
     int* arr = (int*)malloc(size*sizeof(int));
     for(int i = 0; i < size; i++){
         arr[i] = rand()%100000;

@@ -1,5 +1,6 @@
 #include <libNVMlib.h>
 #include <unistd.h>
+#include <time.h>
 
 LIB_TOID_DECLARE(int);
 
@@ -20,7 +21,7 @@ int main() {
     }
 
     for(int i = 0; i< size; i++) {
-        LIB_D_RW(arr)[i] = rand()%100000;
+        LIB_D_RW(arr)[i] = rand()%(size * 2);
     }
 
     *LIB_D_RW(flag) = 1;
@@ -46,18 +47,18 @@ skip_init:
             *LIB_D_RW(idy) = j;
         }
         *LIB_D_RW(idx) = i;
-        //printf("Array at iteration %d is: ", i);
-        //for (int k = 0; k < size; k++) {
-            // printf("%d, ", LIB_D_RO(arr)[k]);
+        // printf("Array at iteration %d is: ", i);
+        // for (int k = 0; k < size; k++) {
+        //     printf("%d, ", LIB_D_RO(arr)[k]);
         // }
         // printf("\n");
         // sleep(1);
     }
     end = clock();
-    printf("Elapsed time = %f", (double)(end - start)/CLOCKS_PER_SEC);
-    memfree(arr);
-    memfree(flag);
-    memfree(idx);
-    memfree(idy);
-    sleep(5);
+    printf("Elapsed time = %f\n", (double)(end - start)/CLOCKS_PER_SEC);
+    // memfree(arr);
+    // memfree(flag);
+    // memfree(idx);
+    // memfree(idy);
+    // sleep(5);    
 }

@@ -33,6 +33,18 @@ uint64_t free_slot_size(TOID(struct pool_free_slot) slot) {
     return D_RO(slot)->end_b - D_RO(slot)->start_b + 1;
 }
 
+/**
+ * Allocates first free memory chunk of the given `size` in the given `pool`
+ * specified by `pool_id`.
+ * 
+ * @param pool_id: the ID of the `pool` where the allocation needs to be made.
+ * @param size: the `size` of memory that needs to be allocated.
+ * @return The `offset` of the *memory chuck* allocated. This `offset` is from the 
+ * first address of the `pool`.
+ * 
+ * @note This is an *internal function*. It is not exposed to other files.
+ * @see allot_first_free_offset()
+ */
 uint64_t allot_first_free_offset_pool(uint64_t pool_id, size_t size) {
     // LOG shit
     pool_free_slot_val temp;
@@ -78,6 +90,17 @@ uint64_t allot_first_free_offset_pool(uint64_t pool_id, size_t size) {
     return ret;
 }
 
+
+/**
+ * Allocates the first free memory chunk of the given `size`.
+ * 
+ * @param size: the `size` of memory that needs to be allocated.
+ * @return `MEMoid` object.
+ * 
+ * @attention This function is responsible to create a new `pool` iff 
+ * **any of the previous pools** are insufficient for the asked `size`.
+ * @see allot_first_free_offset_pool()
+ */
 MEMoid allot_first_free_offset(size_t size) {
 #ifdef DEBUG
     printf("allot_frst_free_offset num_pools = %d\n", num_pools);
@@ -101,6 +124,17 @@ MEMoid allot_first_free_offset(size_t size) {
     return m;
 }
 
+
+/**
+ * Allocates the memory requested and returns a MEMoid.
+ * 
+ * @param size: the `size` of the object that needs to be allocated.
+ * @param which_ram: the RAM in which the allocation must happen.
+ * @return The `MEMoid` object after allocation is completed.
+ * 
+ * @note This is an *internal function*. It is not exposed to other files.
+ * @see _memalloc() memalloc()
+ */
 MEMoid __memalloc(size_t size, int which_ram) {
     MEMoid new_obj;
 
@@ -150,6 +184,21 @@ uint64_t string_hash(const char *str) {
     return hash;
 }
 
+/**
+ * Allocates the memory requested and returns a MEMoidKey.
+ * 
+ * @param size: the `size` of the object that needs to be allocated.
+ * @param file: the `file` where the *requested* object is defined.
+ * @param func: the `function` where the *requested* object is defined.
+ * @param line: the `line` number where the *requested* object is defined.
+ * @param which_ram (optional): the RAM in which the allocation must happen.
+ * @return The `MEMoidkey` object after allocation is completed.
+ * 
+ * @see __memalloc() memalloc()
+ * @attention This function is responsible for checking if the *requested* object is present in NVRAM
+ * from the previous run (to ensure `crash consistency`).
+ * @attention It has to add the created objects into `object_maintainance table`, `type_table` and `splay_tree`.
+ */
 MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int line, int num_args, ...) {
     // Can be made faster ... but thats an after thought as of now xD
     MEMoidKey key = (((string_hash(file) + string_hash(func)) % __UINT64_MAX__)
@@ -257,6 +306,13 @@ MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int l
 //     return key;
 // }
 
+
+/**
+ * The function to return the actual `memptr` for a given `MEMoid` object.
+ * 
+ * @param oid: the `MEMoid` object.
+ * @return The memory address represented by `oid`.
+ */
 void* get_memobj_direct(MEMoid oid) {
     if (oid.offset == 0 && oid.pool_id == POOL_ID_MALLOC_OBJ){
         return NULL;
@@ -290,6 +346,15 @@ void* get_memobj_direct(MEMoid oid) {
 //     remove_object_from_hashmap(oidkey);
 // }
 
+/**
+ * The fucntion to free the allocated memory location.
+ * 
+ * @param oidkey: the `MEMoidKey` of the object whose memory needs to be freed.
+ * @return Nothing.
+ * 
+ * @note This function doesn't call nvm_free() or `free()` by itself, instead it enques 
+ * the *deletion task* for the `deletion thread` to take care of it.
+ */
 void _memfree(MEMoidKey oidkey) {
     // Just hand over the task to `Deletion thread`
 
@@ -332,6 +397,15 @@ void* _key_get_last(MEMoidKey key) {
     return (void *)MEMOID_FIRST(m) + m.size;
 }
 
+/**
+ * The compare function used by the `splay_tree`.
+ * 
+ * @param key1: the `splay_tree_key` of one of the elements that needs to be compared.
+ * @param key2: the `splay_tree_key` of the other element that needs to be compared.
+ * 
+ * @return 0: if both are equivalent.
+ * @return the direction in which the search should continue, if the two elements are not equivalent.
+ */
 int addr2memoid_cmp(splay_tree_key key1, splay_tree_key key2) {
     if (((addr2memoid_key*)key2)->comp == cmp_node && ((addr2memoid_key*)key1)->comp == cmp_node) {
         //printf("splay tree comp node key1addr = %p key2addr = %p\n", KEY_FIRST(((addr2memoid_key*)key1)->key), KEY_FIRST(((addr2memoid_key*)key2)->key));

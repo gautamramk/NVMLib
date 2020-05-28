@@ -1,3 +1,8 @@
+/**
+ * @file
+ * The header file that the user would include in their project.
+ */
+
 #ifndef __NVM_LIB_MAIN_HEADER__
 #define __NVM_LIB_MAIN_HEADER__
 

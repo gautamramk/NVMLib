@@ -1,16 +1,16 @@
-/**
- * This contains the logging macros
- * 
- * Each of the macros behave like `printf()`
- * Sample usage:
- * 
- * LOG_DEBUG("Maybe i can touch this button...");
- * LOG_INFO("Pressure is dropping...");
- * LOG_ERROR("Houston we have a problem!");
- * int going_down = 1;
- * LOG_IF_ERROR(going_down, "i'm going down... if only i had used macro-logger...");
- * 
-**/
+/// @file
+/// The file contains the logging macros
+/// 
+/// Each of the macros behave like `printf()`
+/// ### Sample usage:
+/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.cpp
+/// LOG_DEBUG("Maybe i can touch this button...");
+/// LOG_INFO("Pressure is dropping...");
+/// LOG_ERROR("Houston we have a problem!");
+/// int going_down = 1;
+/// LOG_IF_ERROR(going_down, "i'm going down... if only i had used macro-logger...");
+/// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 #ifndef __NVM_LOGGER__
 #define __NVM_LOGGER__

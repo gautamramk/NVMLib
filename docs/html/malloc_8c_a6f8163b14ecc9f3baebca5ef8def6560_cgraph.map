@@ -1,0 +1,25 @@
+<map id="_memalloc" name="_memalloc">
+<area shape="rect" id="node1" title="Allocates the memory requested and returns a MEMoidKey." alt="" coords="5,309,91,336"/>
+<area shape="rect" id="node2" href="$malloc_8c.html#a9a5947e8c0ee378ee89bb5c9d7c62396" title="Allocates the memory requested and returns a MEMoid." alt="" coords="192,124,284,151"/>
+<area shape="rect" id="node13" href="$object__maintainance_8c.html#a682d32a48c1f67a56fdf7364bae0cc9e" title=" " alt="" coords="152,411,324,453"/>
+<area shape="rect" id="node14" href="$types_8c.html#acee43f1b9adb6ab63b7b03ec1afcd640" title="The function to obtain the MEMoid object given the MEMoidKey" alt="" coords="191,309,285,336"/>
+<area shape="rect" id="node17" href="$object__maintainance_8c.html#a14ed57b40c1f22c3441d919586df642a" title=" " alt="" coords="139,477,337,504"/>
+<area shape="rect" id="node18" href="$types_8c.html#a7e683744111a1b32aa9f7f4f69a382eb" title=" " alt="" coords="151,184,325,211"/>
+<area shape="rect" id="node21" href="$types_8c.html#a65a9069ae1e63d2d3dd7626ba254c065" title=" " alt="" coords="169,243,307,285"/>
+<area shape="rect" id="node23" href="$malloc_8c.html#a1e6300a8cc1b2d426c2425c01a913269" title=" " alt="" coords="614,411,703,437"/>
+<area shape="rect" id="node3" href="$malloc_8c.html#a0df1ef11e96766e5d164df49c6cff431" title="Allocates the first free memory chunk of the given size." alt="" coords="385,56,525,83"/>
+<area shape="rect" id="node12" href="$algo_8h.html#a3d3e00656552a19373046758bce29cd8" title="Function to decide the initial allocation of object." alt="" coords="394,124,517,151"/>
+<area shape="rect" id="node4" href="$malloc_8c.html#ad489a3f823bbecee05e3bf35e839befc" title="Allocates first free memory chunk of the given size in the given pool specified by pool_id." alt="" coords="573,56,744,83"/>
+<area shape="rect" id="node10" href="$pool_8c.html#a1afe02e751eebfb5e9ae37928883226f" title=" " alt="" coords="599,5,718,32"/>
+<area shape="rect" id="node5" href="$malloc_8c.html#a52b890956bff192cfc604f38ca2f5f9c" title=" " alt="" coords="806,56,909,83"/>
+<area shape="rect" id="node6" href="$types_8c.html#a567e91342f85d285b35f0cf818fa578a" title=" " alt="" coords="832,157,883,184"/>
+<area shape="rect" id="node7" href="$hashmap__tx_8c.html#ae7fd776979cc06f6d38973df15a817d1" title="Allocates a new hashmap." alt="" coords="971,157,1072,184"/>
+<area shape="rect" id="node9" href="$hashmap__tx_8c.html#a44bcf6cfafcc0905f09bfd1c94e15f7b" title="Recovers hashmap state." alt="" coords="980,208,1063,235"/>
+<area shape="rect" id="node8" href="$hashmap__tx_8c.html#ae4394abe7bff15fc82d393fa2d1e990e" title="Hashmap initializer." alt="" coords="1120,132,1239,159"/>
+<area shape="rect" id="node11" href="$metadata_8c.html#ac4f37b5e81d4c9dee8f96e2ebe382c6e" title=" " alt="" coords="792,5,923,32"/>
+<area shape="rect" id="node15" href="$hashmap__tx_8c.html#ac68742bc3ffa00033d5b784f8b684310" title="Checks whether specified key is in the hashmap and retries the value associated with it." alt="" coords="617,309,700,336"/>
+<area shape="rect" id="node16" href="$hashmap__tx_8c.html#a24255ccaa211cacef0e8b7d4dbc7a632" title="The hash function." alt="" coords="832,309,883,336"/>
+<area shape="rect" id="node19" href="$hashmap__tx_8c.html#a0b2a675c7dea77e7b9275607e37df095" title="Inserts the specified value into the hashmap." alt="" coords="407,180,504,207"/>
+<area shape="rect" id="node20" href="$hashmap__tx_8c.html#af344987fbfbf33abb60cf63500191a92" title="Rebuilds the hashmap when the hashmap size threshold is reached." alt="" coords="607,259,710,285"/>
+<area shape="rect" id="node22" href="$hashmap__tx_8c.html#a44ef2737f6037faa4f11d7c9516db798" title="Removes specified value from the hashmap." alt="" coords="402,255,509,281"/>
+</map>
