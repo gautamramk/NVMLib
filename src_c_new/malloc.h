@@ -25,8 +25,7 @@
 splay_tree addr2MemOID_read;
 splay_tree addr2MemOID_write;
 
-// The struct that stores the memptr for the object.
-
+/// The struct that stores the `memptr` for the object.
 typedef struct MEMoid_st {
     uint64_t pool_id;
     uint64_t offset;
@@ -45,10 +44,11 @@ uint64_t allot_first_free_offset_pool(uint64_t pool_id, size_t size);
 
 MEMoid allot_first_free_offset(size_t size);
 
-// The key of the HashTable that contains <MEMoidKey, MEMoid>.
+/// The `key` of the `HashTable` that contains `<MEMoidKey, MEMoid>`.
+/// This is the library level representation of `pointer` to the object.
 typedef uint64_t MEMoidKey;
 
-// Just a dummy obj.
+/// Just a dummy obj.
 static const MEMoid MEMOID_NULL = { 0, 0, 0 };
 
 // The user facing fnction to allocate memory.
@@ -59,6 +59,22 @@ static const MEMoid MEMOID_NULL = { 0, 0, 0 };
 //
 // Note this supports both with and wothout `which_ram`
 MEMoidKey _memalloc(size_t size, const char *file, const char *func, const int line, int num_args, ...);
+
+/**
+ * The user API for requesting allocation of object.
+ * 
+ * ### Example
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.cpp
+ * LIB_TOID(int) array = LIB_TOID(int)memalloc(10 * sizeof(int));  // allocated an integer array of size 10.
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 
+ * @param size: the `size` of memory that needs to be allocated.
+ * @param which_ram (optional): the RAM in which the user wants to place the object
+ * @return `MEMoidKey` that the user needs to `typecast` into `LIB_TOID`.
+ * 
+ * @note The API interface and functionality is almost exactly similar to that of `malloc()`.
+ * @see _memalloc() __memalloc()
+ */
 #define memalloc(size, ...) _memalloc(size, __FILENAME__, __func__, __LINE__, NUMARGS(__VA_ARGS__), ##__VA_ARGS__)
 // User specifies where to put the object
 // #define memmalloc(size, which_ram) _memalloc(size, which_ram, __FILENAME__, __func__, __LINE__)
@@ -75,12 +91,28 @@ void* _key_get_first(MEMoidKey key);
 // #define memfree(o) _memfree((o).oidkey, sizeof(__typeof__(*(o)._type)))
 // #define memfree(o) _memfree((o).oidkey, get_MEMoid(o).size)
 void _memfree(MEMoidKey oidkey);
+
+/**
+ * The user API to `free` the memory space allocated.
+ * 
+ * ### Example
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.cpp
+ * memfree(array);  // freed the array that had bee allocated
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 
+ * @param LIB_TOID object: the object that was return by memalloc() during allocation.
+ * 
+ * @note The API interface and functionality is almost exactly similar to that of `free()`.
+ * @see _memfree() nvm_free()
+ */
 #define memfree(o) _memfree((o).oidkey)
 
 enum splay_comp {
     cmp_node,
     cmp_addr
 };
+
+/// The structure used in `spaly_tree` which used for getting `MEMoid` from the memory address.
 typedef struct addr2memoid_key {
     enum splay_comp comp;
     union {

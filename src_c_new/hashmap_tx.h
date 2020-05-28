@@ -6,9 +6,6 @@
 #include <libpmemobj.h>
 #include "malloc.h"
 
-
-// #include <hashmap.h>
-
 struct hashmap_args {
 	uint32_t seed;
 };

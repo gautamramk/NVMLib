@@ -1,0 +1,4 @@
+<map id="object_maintainance_st" name="object_maintainance_st">
+<area shape="rect" id="node1" title="The structure used by the logistics thread for keeping track of the object state in order to make dif..." alt="" coords="5,95,164,121"/>
+<area shape="rect" id="node2" href="$struct_m_e_moid__st.html" title="The struct that stores the memptr for the object." alt="" coords="41,5,129,32"/>
+</map>

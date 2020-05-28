@@ -7,7 +7,9 @@
 #include <time.h>
 #include <sys/queue.h>
 
+/// The sleep time for `deletion thread`
 #define DELETE_LOOP_SLEEP_TIME 1000    // 5 milli secs
+/// The sleep time for `logistics thread`
 #define MOVE_LOOP_SLEEP_TIME 1000    // 5 milli secs
 
 typedef enum access_type_en {
@@ -32,7 +34,8 @@ typedef enum where_en {
     NO_RAM    // to be deleted
 } where_t;
 
-// The structure used by the logistics threads
+/// The structure used by the `logistics thread` for keeping track of the object state
+/// in order to make different desicions regarding the placement of object in DRAM or NVRAM.
 typedef struct object_maintainance_st {
     MEMoidKey key;
     MEMoid oid;

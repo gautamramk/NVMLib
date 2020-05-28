@@ -15,7 +15,7 @@
     - Use logging when you move stuff.      --- DONE
 
 *  algo.c
-    - Implement the fucntions. Use the `Queue` in `mem_log.c`.
+    - Implement the fucntions. Use the `Queue` in `mem_log.c`.  --- NOT REQUIRED
     - Implement the `decide_allocation` function
 
 * malloc.c and malloc.h (maybe everywhere)
@@ -24,15 +24,15 @@
 * Make sure the MEMoid compares are correct (structs can't be compared directly in C)   --- DONE
 
 * types.c
-    - Make sure `init_types_table` works
+    - Make sure `init_types_table` works --- DONE
 
 * pool.c
     - There seem to be a lot of compiler errors. Correct it.    --- DONE
-    - Complete the functions `get_first_free_offset` and `allot_current_free_offset`
-    - Write the creation of new pools function.
-    - Complete the logic to create new `pool` if the current one is insufficient.
+    - Complete the functions `get_first_free_offset` and `allot_current_free_offset` --- DONE
+    - Write the creation of new pools function.  --- DONE
+    - Complete the logic to create new `pool` if the current one is insufficient.  --- DONE (a basic implementation)
 
-* See if `pmem_persist` needs to be called. 
+* See if `pmem_persist` needs to be called. --- DONE (Not required)
 
 * Make the `initializer.c` to function.     --- SEEMS DONE
 
@@ -40,4 +40,6 @@
 
 * Make sure where ever there is `pointer` or `struct` as return type or argument type, they are passed correctly, i.e check `by-value` and `by-memory`. 
 
-* Make sure to move all the `storage variables` into `.c` files or atleast make sure there are no collisions, i.e same global variable should not be initialised at two `.c` files.
+* Make sure to move all the `storage variables` into `.c` files or atleast make sure there are no collisions, i.e same global variable should not be initialised at two `.c` files.  --- DONE
+
+* Generate documentation using `Doxygen` --- DONE

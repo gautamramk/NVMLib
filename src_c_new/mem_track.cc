@@ -1,3 +1,12 @@
+/**
+ * @file
+ * This is the `gcc` Plugin which the user has to compile his/her code with.
+ * 
+ * The Plugin inserts certain `thread synchronisation` and `memory logging` calls
+ * into the user program.
+ * 
+ * @see mem_log.h object_maintainance.h
+ */
 #include <iostream>
 #include <unordered_set>
 // This is the first gcc header to be included

@@ -9,6 +9,17 @@ void initialize_log_queues() {
     TAILQ_INIT(&read_queue_head);
 }
 
+/**
+ * Function to record the memory addresses written into in a given object.
+ * 
+ * This function is used for entropy calculations. It is inserted into the code are compile time
+ * by the mem_track.cc plugin.
+ * @param addr: the memory address written into
+ * @param size: the `size` of memory access.
+ * @return Nothing.
+ * 
+ * @note This is an *internal function*.
+ */
 void log_write(void* addr, size_t size) {
     address_log* ad_log = (address_log*)malloc(sizeof(address_log));
     ad_log->size = size >> 3;
@@ -27,6 +38,17 @@ void log_write(void* addr, size_t size) {
     TAILQ_INSERT_TAIL(&write_queue_head, ad_log, list);
 }
 
+/**
+ * Function to record the memory addresses read from in a given object.
+ * 
+ * This function is used for entropy calculations. It is inserted into the code are compile time
+ * by the mem_track.cc plugin.
+ * @param addr: the memory address read from.
+ * @param size: the `size` of memory access.
+ * @return Nothing.
+ * 
+ * @note This is an *internal function*.
+ */
 void log_read(void* addr, size_t size) {
     address_log* ad_log = (address_log*)malloc(sizeof(address_log));
     ad_log->size = size >> 3;

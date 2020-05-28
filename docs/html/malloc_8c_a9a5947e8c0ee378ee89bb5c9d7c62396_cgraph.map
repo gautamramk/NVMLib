@@ -1,0 +1,13 @@
+<map id="__memalloc" name="__memalloc">
+<area shape="rect" id="node1" title="Allocates the memory requested and returns a MEMoid." alt="" coords="5,81,97,108"/>
+<area shape="rect" id="node2" href="$malloc_8c.html#a0df1ef11e96766e5d164df49c6cff431" title="Allocates the first free memory chunk of the given size." alt="" coords="145,56,285,83"/>
+<area shape="rect" id="node11" href="$algo_8h.html#a3d3e00656552a19373046758bce29cd8" title="Function to decide the initial allocation of object." alt="" coords="154,107,277,133"/>
+<area shape="rect" id="node3" href="$malloc_8c.html#ad489a3f823bbecee05e3bf35e839befc" title="Allocates first free memory chunk of the given size in the given pool specified by pool_id." alt="" coords="333,31,504,57"/>
+<area shape="rect" id="node9" href="$pool_8c.html#a1afe02e751eebfb5e9ae37928883226f" title=" " alt="" coords="359,81,478,108"/>
+<area shape="rect" id="node4" href="$malloc_8c.html#a52b890956bff192cfc604f38ca2f5f9c" title=" " alt="" coords="566,5,669,32"/>
+<area shape="rect" id="node5" href="$types_8c.html#a567e91342f85d285b35f0cf818fa578a" title=" " alt="" coords="592,56,643,83"/>
+<area shape="rect" id="node6" href="$hashmap__tx_8c.html#ae7fd776979cc06f6d38973df15a817d1" title="Allocates a new hashmap." alt="" coords="731,5,832,32"/>
+<area shape="rect" id="node8" href="$hashmap__tx_8c.html#a44bcf6cfafcc0905f09bfd1c94e15f7b" title="Recovers hashmap state." alt="" coords="740,56,823,83"/>
+<area shape="rect" id="node7" href="$hashmap__tx_8c.html#ae4394abe7bff15fc82d393fa2d1e990e" title="Hashmap initializer." alt="" coords="880,56,999,83"/>
+<area shape="rect" id="node10" href="$metadata_8c.html#ac4f37b5e81d4c9dee8f96e2ebe382c6e" title=" " alt="" coords="552,107,683,133"/>
+</map>

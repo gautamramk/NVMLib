@@ -1,14 +1,17 @@
 #ifndef __NVM_HASHMAP__
 #define __NVM_HASHMAP__
 
-/**
-* This file provides a generic hashmap stored in DRAM.
-*
-* This hashmap will be a chaining hashmap, with
-* load factor = 0.8
-* no. of buckets = power of 2
-* hash function for distribution = fibonacci hashing
-* hash function for hashing the object = User provided
+/** 
+ * @file 
+ * This file provides a generic `hashmap` stored in DRAM.
+ * 
+ * This hashmap will be a chaining hashmap, with 
+ * load factor = 0.8 
+ * no. of buckets = power of 2 
+ * hash function for distribution = fibonacci hashing 
+ * hash function for hashing the object = User provided
+ * 
+ * @see object_maintainance.c pool.c
 */
 
 
@@ -59,8 +62,10 @@ static inline size_t next_power_of_two(size_t i /*map->power_of_two + 1*/) {
     return i;
 }
 
-// Fibonacci hashing
-// 11400714819323198485ull = 2^64 / golden_ratio
+/**
+ *  Fibonacci hashing
+ * 11400714819323198485ull = 2^64 / golden_ratio
+ */
 static inline size_t index_for_hash(size_t hash, size_t shift, size_t pow_of_two) {
     return ((11400714819323198485ul * hash) >> shift ) % pow_of_two;
 }

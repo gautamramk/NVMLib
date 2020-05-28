@@ -1,0 +1,20 @@
+<map id="move_to_nvram" name="move_to_nvram">
+<area shape="rect" id="node1" title="The function to move an object from DRAM to NVRAM." alt="" coords="5,216,116,243"/>
+<area shape="rect" id="node2" href="$malloc_8c.html#a0df1ef11e96766e5d164df49c6cff431" title="Allocates the first free memory chunk of the given size." alt="" coords="411,56,551,83"/>
+<area shape="rect" id="node11" href="$pool_8c.html#accda9093eb20c792100720649819fea5" title=" " alt="" coords="191,267,335,293"/>
+<area shape="rect" id="node12" href="$object__maintainance_8c.html#a14ed57b40c1f22c3441d919586df642a" title=" " alt="" coords="164,317,363,344"/>
+<area shape="rect" id="node13" href="$types_8c.html#a7e683744111a1b32aa9f7f4f69a382eb" title=" " alt="" coords="176,216,351,243"/>
+<area shape="rect" id="node17" href="$types_8c.html#a65a9069ae1e63d2d3dd7626ba254c065" title=" " alt="" coords="195,150,332,191"/>
+<area shape="rect" id="node3" href="$malloc_8c.html#ad489a3f823bbecee05e3bf35e839befc" title="Allocates first free memory chunk of the given size in the given pool specified by pool_id." alt="" coords="599,56,769,83"/>
+<area shape="rect" id="node9" href="$pool_8c.html#a1afe02e751eebfb5e9ae37928883226f" title=" " alt="" coords="625,5,743,32"/>
+<area shape="rect" id="node4" href="$malloc_8c.html#a52b890956bff192cfc604f38ca2f5f9c" title=" " alt="" coords="831,56,934,83"/>
+<area shape="rect" id="node5" href="$types_8c.html#a567e91342f85d285b35f0cf818fa578a" title=" " alt="" coords="857,107,908,133"/>
+<area shape="rect" id="node6" href="$hashmap__tx_8c.html#ae7fd776979cc06f6d38973df15a817d1" title="Allocates a new hashmap." alt="" coords="996,107,1097,133"/>
+<area shape="rect" id="node8" href="$hashmap__tx_8c.html#a44bcf6cfafcc0905f09bfd1c94e15f7b" title="Recovers hashmap state." alt="" coords="1005,157,1088,184"/>
+<area shape="rect" id="node7" href="$hashmap__tx_8c.html#ae4394abe7bff15fc82d393fa2d1e990e" title="Hashmap initializer." alt="" coords="1145,81,1264,108"/>
+<area shape="rect" id="node10" href="$metadata_8c.html#ac4f37b5e81d4c9dee8f96e2ebe382c6e" title=" " alt="" coords="817,5,948,32"/>
+<area shape="rect" id="node14" href="$hashmap__tx_8c.html#a0b2a675c7dea77e7b9275607e37df095" title="Inserts the specified value into the hashmap." alt="" coords="432,237,529,264"/>
+<area shape="rect" id="node15" href="$hashmap__tx_8c.html#a24255ccaa211cacef0e8b7d4dbc7a632" title="The hash function." alt="" coords="857,259,908,285"/>
+<area shape="rect" id="node16" href="$hashmap__tx_8c.html#af344987fbfbf33abb60cf63500191a92" title="Rebuilds the hashmap when the hashmap size threshold is reached." alt="" coords="633,259,735,285"/>
+<area shape="rect" id="node18" href="$hashmap__tx_8c.html#a44ef2737f6037faa4f11d7c9516db798" title="Removes specified value from the hashmap." alt="" coords="427,157,534,184"/>
+</map>
