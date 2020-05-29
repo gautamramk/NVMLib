@@ -1,5 +1,7 @@
 var NAVTREEINDEX2 =
 {
+"structpool__free__slot__val__st.html#afb3b99084838a3689544c36dc65a6a16":[2,0,14,1],
+"structpool__free__slot__val__st.html#affa024731f928bc57a6ddcf0975b0f38":[2,0,14,2],
 "structpool__free__slots__root.html":[2,0,15],
 "structpool__free__slots__root.html#a6016ae30f713e0d81e89787780d763c4":[2,0,15,0],
 "structpool__kv__st.html":[2,0,16],
