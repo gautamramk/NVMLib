@@ -1,0 +1,13 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "@mainpage\r # NVMLib",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "gh-pages -d html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://hlpr98.github.io/NVMLib"
+}
