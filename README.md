@@ -103,7 +103,7 @@ After `make` the shared library file (`libNVMlib.so`) and the gcc-plugin (`libme
 
 ## Documentation
 
-The documentation for the source code has been generated using `Doxygen`. Open [`NVMLib/docs/html/index.html`](docs/html/index.html) in a web browser to take a look at the documentation.
+The documentation for the source code has been generated using `Doxygen`. The documentation can be found at [NVMLib Documentation](https://hlpr98.github.io/NVMLib/).
 
 ## Dependecy graph
 

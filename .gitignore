@@ -1,3 +1,4 @@
 # All the build files are left out
 build/
 graphs/
+docs/node_modules
