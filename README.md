@@ -39,10 +39,11 @@ the programmer regard the decision of where a perticular object needs to be plac
     memfree(array);   // freed the allocated space
     ```
     Here note that the `memalloc` has been given only the size argument, thus the library allocates the memory for the object in the RAM that it deems most suitable (it considers the `size` for making the decision). The `LIB_D_RO` and `LIB_D_RW` are the interfaces to read and write the object. These MACROS ensure that the data is always written and always the correct data is read. The reason why need these MACROs for access is because *the object* is moved from one RAM to another **at runtime** if the library thinks its good for the performance. 
+    
     For instance, in the above example, assume that `array` was initially in `DRAM`. When the `array` is being initialised, it is doing a *streaming write*. Assume the library then decides that this variable is better if present in `NVRAM` and thus moves it (by `freeing` the `DRAM` location and allocating a new one in `NVRAM`). Now at `printf` the accessed location is no longer the `DRAM` one but it is the `NVRAM` one. This is the purpose that `LIB_D_RO` and `LIB_D_RW` serve.
 
    
-### How we achieve pointer validity and data integrity
+### How we achieve **pointer validity** and **data integrity**
 
 Internally all the allocations are represented as a `<MEMoidKey, MEMoid>` pair. The `MEMoidKEey` is returned to the user program, which is used for access and the `MEMoid` contains the information about the memory location and the access pointer to the location can be extracted from it. `<MEMoidKey, MEMoid>` is maintained in a `persistent hashtable` and this is how we are able to provide *crash consistency*. 
 
