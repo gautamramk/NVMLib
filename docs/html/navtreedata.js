@@ -26,10 +26,13 @@ var NAVTREE =
 [
   [ "NVMLib", "index.html", [
     [ "NVMLib", "index.html#autotoc_md9", [
-      [ "What the library is trying to achieve", "index.html#autotoc_md10", null ],
-      [ "Unique things in the library", "index.html#autotoc_md11", null ],
-      [ "Compiling", "index.html#autotoc_md12", null ],
-      [ "Dependecy graph", "index.html#autotoc_md13", null ]
+      [ "What the library is trying to achieve", "index.html#autotoc_md10", [
+        [ "How we achieve <strong>pointer validity</strong> and <strong>data integrity</strong>", "index.html#autotoc_md11", null ]
+      ] ],
+      [ "Unique things in the library", "index.html#autotoc_md12", null ],
+      [ "Compiling", "index.html#autotoc_md13", null ],
+      [ "Documentation", "index.html#autotoc_md14", null ],
+      [ "Dependecy graph", "index.html#autotoc_md15", null ]
     ] ],
     [ "Libraries used", "md__c_1__users_hlpr9__desktop__n_v_m_lib_src_c_new__r_e_a_d_m_e.html", [
       [ "Things to be completed", "md__c_1__users_hlpr9__desktop__n_v_m_lib_src_c_new__r_e_a_d_m_e.html#autotoc_md4", null ]
@@ -61,8 +64,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "algo_8h.html",
-"malloc_8c.html#abcb012afec77198ae2902c78db18dfa6",
-"structpool__free__slots__root.html"
+"malloc_8c.html#a988ea48df7c04c3d2c5afbdd376832f4",
+"structpool__free__slot__val__st.html#afb3b99084838a3689544c36dc65a6a16"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -94,10 +94,29 @@ NVMLib</h1>
 <h2><a class="anchor" id="autotoc_md10"></a>
 What the library is trying to achieve</h2>
 <ol type="1">
-<li><b>Crash consistency</b>: Basic crash consistency is implemented. Context-awareness is the next thing to be added</li>
-<li><b>Movement of objects from DRAM to NVRAM and vice versa</b> inorder to improve the performance and/or the energy consumption: The ability to move has been completed. The algorithm to decide movement is yet to be figured out.</li>
+<li><p class="startli"><b>Crash consistency</b>:</p>
+<p class="startli">We define a system <em>crash consistent</em> if all the objects in <em>NVRAM</em> which have not been <code>freed</code> have their state (i.e the value) persistent across runs. For instance:</p>
+<div class="fragment"><div class="line"><a href="types_8h.html#a1d1a58fba5fc841f14a7ce28c957a170" class="code">LIB_TOID</a>(<span class="keywordtype">int</span>) array = <a href="types_8h.html#a1d1a58fba5fc841f14a7ce28c957a170" class="code">LIB_TOID</a>(<span class="keywordtype">int</span>)<a href="malloc_8h.html#ae7b78cfc16e3088f7e9f7629d4cb9930" class="code">memalloc</a>(10 * <span class="keyword">sizeof</span>(<span class="keywordtype">int</span>), <a href="globals_8h.html#a91df7bfdbc6316c1e3ed204532dc9d61" class="code">NVRAM_HEAP</a>); <span class="comment">// allocated an array of size 10.</span></div> <div class="line"><span class="comment">// do something ....</span></div> <div class="line"><a href="malloc_8h.html#a89002adbcc9381ffe6ae9bce92d69a81" class="code">memfree</a>(array); <span class="comment">// freed the allocated space</span></div></div><p class="startli">if the program crashes before <code>memfree</code> is called, then the values in <code>array</code> have to be in the same state as <em>the run which crashed</em> even in the next run. But once <code>memfree</code> is called, the next run starts with the initial state (in this case with all values being <code>0</code>).</p>
+<p class="startli">Note that in the above example <code>memalloc</code> is given the <em>optional</em> argument of <code>NVRAM_HEAP</code> which tells the library to place the object in <em>NVRAM</em>. The current implementation of crash consistency is basic, it is capable of:</p><ul>
+<li>Recognising variables uniquely.</li>
+<li>Provide <em>persistence</em> to objects in <code>NVRAM</code> across runs.</li>
+<li>Requires user to define what varible needs to go into <code>NVRAM</code> for their program to be crash consistent.</li>
+</ul>
+<p class="startli">As the next step in providing <em>crash consistency</em>, we will be implementing <b>context aware movement of objects</b> from <code>DRAM</code> to <code>NVRAM</code>, i.e the library will move any object that it deems necessary for crash consistency into <code>NVRAM</code> if it were in <code>DRAM</code>.</p>
+</li>
+<li><p class="startli"><b>Movement of objects from DRAM to NVRAM and vice versa</b>:</p>
+<p class="startli">The library is capable of moving objects from <code>NVRAM</code> to <code>DRAM</code> an vice-versa, inorder to improve the performance and/or the energy consumption. At present the library is capable of moving objects but the algorithm to move the objects taking performance into account is not yet implemented. What we mean by <em>movement of objects</em> is: Consider the following example:</p>
+<div class="fragment"><div class="line"><a href="types_8h.html#a1d1a58fba5fc841f14a7ce28c957a170" class="code">LIB_TOID</a>(<span class="keywordtype">int</span>) array = <a href="types_8h.html#a1d1a58fba5fc841f14a7ce28c957a170" class="code">LIB_TOID</a>(<span class="keywordtype">int</span>)<a href="malloc_8h.html#ae7b78cfc16e3088f7e9f7629d4cb9930" class="code">memalloc</a>(10 * <span class="keyword">sizeof</span>(<span class="keywordtype">int</span>)); <span class="comment">// allocated an array of size 10.</span></div> <div class="line"> </div> <div class="line"><span class="comment">// initialisation</span></div> <div class="line"><span class="keywordflow">for</span>(<span class="keywordtype">int</span> i = 0; i &lt; 10; i++) {</div> <div class="line"> <a href="types_8h.html#a5902568f32acea9635ed743bdaddad7a" class="code">LIB_D_RW</a>(array)[i] = rand() % 100;</div> <div class="line">}</div> <div class="line"> </div> <div class="line">printf(<span class="stringliteral">&quot;The value at idx 4 = d<br  />
+&quot;</span>, <a href="types_8h.html#adf00033089594c531c3238689b3b0f7e" class="code">LIB_D_RO</a>(array)[3]);</div> <div class="line"> </div> <div class="line"><span class="comment">// do something ....</span></div> <div class="line"><a href="malloc_8h.html#a89002adbcc9381ffe6ae9bce92d69a81" class="code">memfree</a>(array); <span class="comment">// freed the allocated space</span></div></div><p class="startli">Here note that the <code>memalloc</code> has been given only the size argument, thus the library allocates the memory for the object in the RAM that it deems most suitable (it considers the <code>size</code> for making the decision). The <code>LIB_D_RO</code> and <code>LIB_D_RW</code> are the interfaces to read and write the object. These MACROS ensure that the data is always written and always the correct data is read. The reason why need these MACROs for access is because <em>the object</em> is moved from one RAM to another <b>at runtime</b> if the library thinks its good for the performance.</p>
+<p class="startli">For instance, in the above example, assume that <code>array</code> was initially in <code>DRAM</code>. When the <code>array</code> is being initialised, it is doing a <em>streaming write</em>. Assume the library then decides that this variable is better if present in <code>NVRAM</code> and thus moves it (by <code>freeing</code> the <code>DRAM</code> location and allocating a new one in <code>NVRAM</code>). Now at <code>printf</code> the accessed location is no longer the <code>DRAM</code> one but it is the <code>NVRAM</code> one. This is the purpose that <code>LIB_D_RO</code> and <code>LIB_D_RW</code> serve.</p>
+</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md11"></a>
+<h3><a class="anchor" id="autotoc_md11"></a>
+How we achieve &lt;strong&gt;pointer validity&lt;/strong&gt; and &lt;strong&gt;data integrity&lt;/strong&gt;</h3>
+<p>Internally all the allocations are represented as a <code>&lt;MEMoidKey, MEMoid&gt;</code> pair. The <code>MEMoidKEey</code> is returned to the user program, which is used for access and the <code>MEMoid</code> contains the information about the memory location and the access pointer to the location can be extracted from it. <code>&lt;MEMoidKey, MEMoid&gt;</code> is maintained in a <code>persistent hashtable</code> and this is how we are able to provide <em>crash consistency</em>.</p>
+<p><code>MEMoidKey</code> is in essense a <code>pointer</code> at the library level. This <code>key</code> is unique to every single variable in the user code and that is how we can ensure an <code>un-freed</code> variable is not reallocated in the <em>next run</em>.</p>
+<p>Everytime <code>LIB_D_RO</code> or <code>LIB_D_RW</code> (these take the <code>LIB_TOID</code> object as argument. <code>LIB_TOID</code> object contains the <code>MEMoidKey</code>) is used, they internal call an internal function which takes the <code>MEMoidKey</code>, obtains the <code>MEMoid</code> object from the <code>hashtable</code> and returns the translated memory access pointer. Since the accesses have to happen this way and since we ensure that the movement of objects are reflected in the <code>&lt;MEMoidKey, MEMoid&gt; hashtable</code>, we ensure the <em>validity of access pointer</em> (note that the pointers are generated <code>just-in-time</code> for the access). We also add certain <code>thread synchronisation</code> during accesses, using our <code>gcc compiler Plugin</code> (<a href="src_c_new/mem_track.cc">mem_track.cc</a>) which solidifies <em>validity of access pointer</em>.</p>
+<h2><a class="anchor" id="autotoc_md12"></a>
 Unique things in the library</h2>
 <ol type="1">
 <li>Crash consistency out of the box</li>
@@ -110,7 +129,7 @@ Unique things in the library</h2>
 <li>We use hashtables (with Fibonacci and cuckoo hashing) and splay trees as internal data-structures to make the queries<code>O(1)</code></li>
 <li>We offload all the object maintenance tasks like moving objects, deletion, other maintenance-related calculations onto either the <code>logistics</code> thread or the <code>deletion</code> thread and hence do not add latency to the user program (running on the main thread). At the same time we ensure data integrity and also the returned "access-pointer's" validity.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md12"></a>
+<h2><a class="anchor" id="autotoc_md13"></a>
 Compiling</h2>
 <ul>
 <li>Clone the repo <div class="fragment"><div class="line">$ git clone https://github.com/gautamramk/NVMLib</div>
@@ -130,8 +149,11 @@ Compiling</h2>
 <ul>
 <li>For verbose build use <code>make VERBOSE=1</code></li>
 </ul>
-<p>After <code>make</code> the static library file (<code>libNVMlib.a</code>) and the gcc-plugin (<code>libmem_track_plugin.so</code>) will be in <code>build/</code> and the intermediate files (<code>.i</code>) will be in <code>build/intermediate/</code>.</p>
-<h2><a class="anchor" id="autotoc_md13"></a>
+<p>After <code>make</code> the shared library file (<code>libNVMlib.so</code>) and the gcc-plugin (<code>libmem_track_plugin.so</code>) will be in <code>build/</code> and the intermediate files (<code>.i</code>) will be in <code>build/intermediate/</code>.</p>
+<h2><a class="anchor" id="autotoc_md14"></a>
+Documentation</h2>
+<p>The documentation for the source code has been generated using <code>Doxygen</code>. Open <a href="docs/html/index.html"><code>NVMLib/docs/html/index.html</code></a> in a web browser to take a look at the documentation.</p>
+<h2><a class="anchor" id="autotoc_md15"></a>
 Dependecy graph</h2>
 <p><img src="depen.png" alt="" class="inline" title="alt text"/>    </p>
 </div></div><!-- PageDoc -->
