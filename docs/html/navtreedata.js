@@ -27,7 +27,7 @@ var NAVTREE =
   [ "NVMLib", "index.html", [
     [ "NVMLib", "index.html#autotoc_md9", [
       [ "What the library is trying to achieve", "index.html#autotoc_md10", [
-        [ "How we achieve <strong>pointer validity</strong> and <strong>data integrity</strong>", "index.html#autotoc_md11", null ]
+        [ "How we achieve pointer validity and data integrity", "index.html#autotoc_md11", null ]
       ] ],
       [ "Unique things in the library", "index.html#autotoc_md12", null ],
       [ "Compiling", "index.html#autotoc_md13", null ],
